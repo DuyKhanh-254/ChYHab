@@ -1,0 +1,2738 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ChYHab – Học ngoại ngữ thông minh cùng AI</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/screens.css" />
+  <link rel="stylesheet" href="css/extra.css?v=33" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Device Simulator Controls (cho xem web trên PC) -->
+  <aside class="device-bar" id="device-bar">
+    <div class="device-info">
+      <span class="device-dot"></span>
+      <strong class="device-title">ChYHab Mobile Preview</strong>
+      <span class="device-subtitle">App học ngoại ngữ AI sinh viên</span>
+    </div>
+    <div class="device-actions">
+      <button class="device-btn btn-home-jump" onclick="showScreen('screen-home')" style="background:#F97316;color:white;font-weight:800;border:none;box-shadow:0 2px 8px rgba(249,115,22,0.4);" title="Về Trang chủ">🏠 Trang chủ</button>
+      <button class="device-btn" onclick="showScreen('screen-study')" title="Về Học tập">📖 Học tập</button>
+      <button class="device-btn active" onclick="setDeviceView('iphone')" title="iPhone Frame">📱 iPhone</button>
+      <button class="device-btn" onclick="setDeviceView('android')" title="Android Frame">🤖 Android</button>
+      <button class="device-btn" onclick="setDeviceView('responsive')" title="Toàn màn hình">🖥️ Responsive</button>
+      <button class="device-btn btn-ai-quick" onclick="openModal('modal-syllabus')" title="AI Đề Cương">⚡ Tải Đề Cương AI</button>
+      <button class="device-btn btn-ai-quick" onclick="openModal('modal-mistakes')" title="AI Sửa Lỗi">🔍 Phân Tích Lỗi</button>
+    </div>
+  </aside>
+
+  <!-- App Outer Frame -->
+  <main id="app-container" class="view-iphone">
+    <div id="phone-frame">
+      <!-- Phone Speaker / Dynamic Island -->
+      <header class="phone-notch">
+        <div class="notch-island">
+          <div class="notch-cam"></div>
+          <div class="notch-indicator"></div>
+        </div>
+      </header>
+
+      <!-- App Screen System -->
+      <section id="screens">
+
+        <!-- ==========================================
+             01. SPLASH SCREEN
+             ========================================== -->
+        <article class="screen" id="screen-splash" onclick="showScreen('screen-home')" style="cursor: pointer;" title="Bấm vào màn hình để vào Trang chủ">
+          <div class="splash-bg">
+            <div class="splash-clouds"></div>
+            <div class="splash-content">
+              <div class="splash-logo">
+                <img src="assets/logo.svg" alt="ChYHab Logo" class="brand-logo-svg" />
+              </div>
+              <p class="splash-tagline">Học ngoại ngữ thông minh cùng AI 🌱</p>
+
+              <!-- Main Mascot ChY 3D -->
+              <div class="splash-mascot-wrap">
+                <img src="assets/mascots/chy_waving.png" alt="ChY Linh vật chính" class="mascot-hero-img" />
+              </div>
+
+              <!-- Companions: Pear Friend & Orange Friend -->
+              <div class="splash-friends-row">
+                <div class="friend-bubble">
+                  <img src="assets/mascots/pear_friend.png" alt="Pear friend" />
+                  <span>Pear</span>
+                </div>
+                <div class="friend-bubble">
+                  <img src="assets/mascots/orange_friend.png" alt="Orange friend" />
+                  <span>Orange</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="splash-actions">
+              <button class="btn-primary btn-lg pulse-glow" onclick="showScreen('screen-onboard-1')">Bắt đầu ngay 🚀</button>
+              <button class="btn-ghost" onclick="showScreen('screen-login')">Đã có tài khoản</button>
+              <button class="btn-quick-enter" onclick="showScreen('screen-home')">Xem nhanh Trang chủ & Học tập →</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             02. ONBOARDING 1 – MỤC TIÊU HỌC TẬP
+             ========================================== -->
+        <article class="screen" id="screen-onboard-1">
+          <div class="onboard-wrap">
+            <div class="onboard-header-bar">
+              <button class="btn-back" onclick="showScreen('screen-splash')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <span class="onboard-step-text">Bước 1 / 3</span>
+            </div>
+            <div class="onboard-mascot">
+              <img src="assets/mascots/chy_waving.png" alt="ChY" />
+            </div>
+            <h2 class="onboard-title">Bạn học để làm gì?</h2>
+            <p class="onboard-sub">AI sẽ thiết kế lộ trình học bám sát mục tiêu của bạn ✨</p>
+            <div class="goal-grid">
+              <div class="goal-card selected" onclick="selectGoal(this, 'giao-tiep')">
+                <span class="goal-icon">💬</span>
+                <strong>Giao tiếp hằng ngày</strong>
+                <small>Đi làm, trò chuyện tự tin</small>
+              </div>
+              <div class="goal-card" onclick="selectGoal(this, 'hoc-tap')">
+                <span class="goal-icon">📚</span>
+                <strong>Học tập & Đề cương</strong>
+                <small>Bám sát môn học tại trường</small>
+              </div>
+              <div class="goal-card" onclick="selectGoal(this, 'cong-viec')">
+                <span class="goal-icon">💼</span>
+                <strong>Công việc & Nghề nghiệp</strong>
+                <small>Email, thuyết trình, phỏng vấn</small>
+              </div>
+              <div class="goal-card" onclick="selectGoal(this, 'du-lich')">
+                <span class="goal-icon">✈️</span>
+                <strong>Du lịch & Văn hóa</strong>
+                <small>Khám phá thế giới</small>
+              </div>
+              <div class="goal-card" onclick="selectGoal(this, 'thi-cu')">
+                <span class="goal-icon">🎯</span>
+                <strong>Luyện thi chứng chỉ</strong>
+                <small>IELTS, TOEIC, Vstep</small>
+              </div>
+              <div class="goal-card" onclick="selectGoal(this, 'khac')">
+                <span class="goal-icon">⭐</span>
+                <strong>Mục tiêu cá nhân khác</strong>
+                <small>Rèn luyện thói quen</small>
+              </div>
+            </div>
+            <div class="onboard-nav">
+              <div class="onboard-dots">
+                <span class="dot active"></span><span class="dot"></span><span class="dot"></span>
+              </div>
+              <button class="btn-primary" onclick="showScreen('screen-onboard-2')">Tiếp theo →</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             03. ONBOARDING 2 – TRÌNH ĐỘ CEFR
+             ========================================== -->
+        <article class="screen" id="screen-onboard-2">
+          <div class="onboard-wrap">
+            <div class="onboard-header-bar">
+              <button class="btn-back" onclick="showScreen('screen-onboard-1')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <span class="onboard-step-text">Bước 2 / 3</span>
+            </div>
+            <div class="onboard-mascot">
+              <img src="assets/mascots/chy_reading.png" alt="ChY" />
+            </div>
+            <h2 class="onboard-title">Trình độ tiếng Anh của bạn?</h2>
+            <p class="onboard-sub">Chuẩn khung CEFR Châu Âu từ A1 đến C2</p>
+            <div class="level-list">
+              <div class="level-item" onclick="selectLevel(this, 'A1')">
+                <img src="assets/icons/cefr_a1.png" alt="A1" />
+                <div class="level-info">
+                  <strong>A1 – Mới bắt đầu</strong>
+                  <span>Chưa biết gì hoặc biết từ vựng rất cơ bản</span>
+                </div>
+              </div>
+              <div class="level-item" onclick="selectLevel(this, 'A2')">
+                <img src="assets/icons/cefr_a2.png" alt="A2" />
+                <div class="level-info">
+                  <strong>A2 – Sơ cấp</strong>
+                  <span>Giao tiếp câu đơn giản, chủ đề quen thuộc</span>
+                </div>
+              </div>
+              <div class="level-item selected" onclick="selectLevel(this, 'B1')">
+                <img src="assets/icons/cefr_b1.png" alt="B1" />
+                <div class="level-info">
+                  <strong>B1 – Trung cấp (Khuyên dùng)</strong>
+                  <span>Hiểu ý chính, tự tin giao tiếp đời sống</span>
+                </div>
+              </div>
+              <div class="level-item" onclick="selectLevel(this, 'B2')">
+                <img src="assets/icons/cefr_b2.png" alt="B2" />
+                <div class="level-info">
+                  <strong>B2 – Trung cao cấp</strong>
+                  <span>Diễn đạt trôi chảy, đọc hiểu chuyên ngành</span>
+                </div>
+              </div>
+              <div class="level-item" onclick="selectLevel(this, 'C1')">
+                <img src="assets/icons/cefr_c1.png" alt="C1" />
+                <div class="level-info">
+                  <strong>C1 / C2 – Nâng cao & Thành thạo</strong>
+                  <span>Sử dụng tiếng Anh linh hoạt, tự nhiên</span>
+                </div>
+              </div>
+            </div>
+            <div class="onboard-nav">
+              <div class="onboard-dots">
+                <span class="dot"></span><span class="dot active"></span><span class="dot"></span>
+              </div>
+              <button class="btn-primary" onclick="showScreen('screen-onboard-3')">Tiếp theo →</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             04. ONBOARDING 3 – THỜI GIAN MỖI NGÀY
+             ========================================== -->
+        <article class="screen" id="screen-onboard-3">
+          <div class="onboard-wrap">
+            <div class="onboard-header-bar">
+              <button class="btn-back" onclick="showScreen('screen-onboard-2')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <span class="onboard-step-text">Bước 3 / 3</span>
+            </div>
+            <div class="onboard-mascot">
+              <img src="assets/mascots/chy_winner.png" alt="ChY" />
+            </div>
+            <h2 class="onboard-title">Học bao lâu mỗi ngày?</h2>
+            <p class="onboard-sub">Dù chỉ 5-10 phút mỗi ngày cũng tạo nên sự khác biệt lớn! ⏱️</p>
+            <div class="time-options">
+              <div class="time-card" onclick="selectTime(this, 5)">
+                <span class="time-num">5</span>
+                <span class="time-unit">phút/ngày</span>
+                <span class="time-label">Thư giãn</span>
+              </div>
+              <div class="time-card selected" onclick="selectTime(this, 10)">
+                <span class="time-num">10</span>
+                <span class="time-unit">phút/ngày</span>
+                <span class="time-label">Tiêu chuẩn</span>
+              </div>
+              <div class="time-card" onclick="selectTime(this, 15)">
+                <span class="time-num">15</span>
+                <span class="time-unit">phút/ngày</span>
+                <span class="time-label">Tích cực</span>
+              </div>
+              <div class="time-card" onclick="selectTime(this, 20)">
+                <span class="time-num">20</span>
+                <span class="time-unit">phút/ngày</span>
+                <span class="time-label">Chăm chỉ</span>
+              </div>
+            </div>
+
+            <!-- Micro-task Mode highlight -->
+            <div class="microtask-banner">
+              <div class="mt-badge">Mới · AI Micro-task</div>
+              <p>Chia nội dung thành nhiệm vụ ngắn 30s - 2 phút, tận dụng mọi khoảng thời gian trống!</p>
+            </div>
+
+            <div class="onboard-nav">
+              <div class="onboard-dots">
+                <span class="dot"></span><span class="dot"></span><span class="dot active"></span>
+              </div>
+              <button class="btn-primary pulse-glow" onclick="finishOnboarding()">Bắt đầu học ngay! 🚀</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             05. LOGIN SCREEN
+             ========================================== -->
+        <article class="screen" id="screen-login">
+          <div class="login-wrap">
+            <button class="btn-back" onclick="showScreen('screen-splash')">
+              <img src="assets/icons/action_back.png" alt="back" />
+            </button>
+            <div class="login-logo">
+              <img src="assets/logo.svg" alt="ChYHab" style="height: 44px;" />
+            </div>
+            <div class="login-mascot">
+              <img src="assets/mascots/chy_waving.png" alt="ChY" />
+            </div>
+            <h2>Chào mừng bạn trở lại!</h2>
+            <div class="form-group">
+              <input type="text" placeholder="Email hoặc tên đăng nhập" class="inp" value="huonggiang@student.edu.vn" />
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Mật khẩu" class="inp" value="••••••••" />
+            </div>
+            <button class="btn-primary btn-block" onclick="showScreen('screen-home')">Đăng nhập</button>
+            <div class="login-divider"><span>hoặc tiếp tục với</span></div>
+            <button class="btn-social" onclick="showScreen('screen-home')"><span>🌐</span> Tài khoản Google Sinh viên</button>
+            <button class="btn-social" onclick="showScreen('screen-home')"><span>🎓</span> Cổng thông tin trường Đại học</button>
+            <p class="login-footer">Chưa có tài khoản? <a href="#" onclick="showScreen('screen-onboard-1')">Đăng ký miễn phí</a></p>
+          </div>
+        </article>
+
+                <!-- ==========================================
+             06. TRANG CHỦ (EXACT MOCKUP FROM USER IMAGE)
+             ========================================== -->
+        <article class="screen active" id="screen-home">
+          <div class="app-layout home-layout-clean">
+            
+            <!-- Scrollable Content -->
+            <div class="screen-scroll home-scroll-padding-fix">
+              
+              <!-- TOP BANNER WITH NATURE LANDSCAPE -->
+              <section class="home-hero-landscape">
+                <!-- Topbar inside landscape -->
+                <div class="landscape-topbar">
+                  <div class="landscape-logo">
+                    <img src="assets/logo.svg" alt="ChYHab Logo" class="brand-logo-svg-small" />
+                  </div>
+                  <button class="landscape-bell-btn" onclick="showScreen('screen-notifications')" title="Thông báo">
+                    <img src="assets/3d_icons/bell_3d.png?v=10" alt="Bell" />
+                    <span class="bell-alert-dot"></span>
+                  </button>
+                </div>
+
+                <!-- Greeting texts -->
+                <div class="landscape-greeting-group">
+                  <h1 class="greeting-heading">Chào Giang!</h1>
+                  <p class="greeting-subtext">Cùng giữ nhịp học mỗi ngày nhé!</p>
+                </div>
+
+                <!-- Landscape Stage: Mascot on left-center, Streak & Hearts on right slope (đúng như ảnh báo cáo) -->
+                <div class="landscape-center-stage">
+                  <div class="landscape-mascot-wrap">
+                    <img src="assets/mascots/sprout_bear_clean.png" alt="ChY Mascot" class="mascot-standing-img" />
+                  </div>
+
+                  <div class="landscape-stats-right">
+                    <div class="streak-badge-large">
+                      <img src="assets/3d_icons/flame_3d.png?v=10" alt="Streak" class="flame-ico-img" />
+                      <span class="streak-num-big">7</span>
+                    </div>
+                    <img src="assets/3d_icons/three_hearts_3d.png?v=10" alt="Lives" class="three-hearts-img" />
+                  </div>
+                </div>
+              </section>
+
+              <!-- MAIN CARDS AREA -->
+              <div class="home-cards-container">
+                
+                <!-- CARD 1: BXH THÁNG (EXACT MOCKUP) -->
+                <section class="card-mockup bxh-card-mockup">
+                  <!-- Header -->
+                  <div class="card-mockup-header">
+                    <div class="cm-title-left">
+                      <img src="assets/3d_icons/trophy_3d.png?v=10" alt="Trophy" class="cm-icon-img" />
+                      <h3>BXH tháng</h3>
+                    </div>
+                    <div class="cm-dropdown-pill">
+                      <span>Tháng 11/2026 ▾</span>
+                    </div>
+                  </div>
+
+                  <!-- 4 Rows -->
+                  <div class="bxh-rows-list">
+                    <!-- Rank 1: Minh Anh 1.250 XP -->
+                    <div class="bxh-user-row">
+                      <img src="assets/3d_icons/medal_gold_3d.png?v=10" alt="Rank 1" class="bxh-medal-img" />
+                      <div class="bxh-avatar-circle">
+                        <img src="assets/3d_icons/avatar_chy_3d.png?v=10" alt="Minh Anh" />
+                      </div>
+                      <span class="bxh-username">Minh Anh</span>
+                      <span class="bxh-score">1.250 XP</span>
+                    </div>
+
+                    <!-- Rank 2: Thu Hà 1.180 XP -->
+                    <div class="bxh-user-row">
+                      <img src="assets/3d_icons/medal_silver_3d.png?v=10" alt="Rank 2" class="bxh-medal-img" />
+                      <div class="bxh-avatar-circle">
+                        <img src="assets/3d_icons/avatar_cat_3d.png?v=10" alt="Thu Hà" />
+                      </div>
+                      <span class="bxh-username">Thu Hà</span>
+                      <span class="bxh-score">1.180 XP</span>
+                    </div>
+
+                    <!-- Rank 3: Quang Huy 1.050 XP -->
+                    <div class="bxh-user-row">
+                      <img src="assets/3d_icons/medal_bronze_3d.png?v=10" alt="Rank 3" class="bxh-medal-img" />
+                      <div class="bxh-avatar-circle">
+                        <img src="assets/3d_icons/avatar_bird_3d.png?v=10" alt="Quang Huy" />
+                      </div>
+                      <span class="bxh-username">Quang Huy</span>
+                      <span class="bxh-score">1.050 XP</span>
+                    </div>
+
+                    <!-- Rank 12: Bạn · Hương Giang 720 XP (Highlighted) -->
+                    <div class="bxh-user-row user-highlight-row" onclick="showScreen('screen-profile')">
+                      <div class="bxh-user-rank-box">12</div>
+                      <div class="bxh-avatar-circle">
+                        <img src="assets/3d_icons/avatar_chy_3d.png?v=10" alt="Hương Giang" />
+                      </div>
+                      <span class="bxh-username"><strong>Bạn · Hương Giang</strong></span>
+                      <span class="bxh-score">720 XP</span>
+                    </div>
+                  </div>
+
+                  <!-- Card Footer: Xem tất cả -->
+                  <div class="card-mockup-footer">
+                    <a href="#" class="btn-see-all-bxh" onclick="showScreen('screen-leaderboard')">Xem tất cả</a>
+                  </div>
+                </section>
+
+                <!-- CARD 2: THỜI GIAN HỌC (EXACT MOCKUP) -->
+                <section class="card-mockup study-time-card-mockup" onclick="showScreen('screen-stats')">
+                  <!-- Header -->
+                  <div class="card-mockup-header">
+                    <div class="cm-title-left">
+                      <img src="assets/3d_icons/chart_3d.png?v=10" alt="Chart" class="cm-icon-img" />
+                      <h3>Thời gian học</h3>
+                    </div>
+                  </div>
+
+                  <!-- Subheader: 02-08/11/2026 & 105 phút tuần này -->
+                  <div class="chart-info-subbar">
+                    <div class="calendar-date-text">
+                      <img src="assets/3d_icons/calendar_3d.png?v=10" alt="Calendar" class="cal-icon-img" />
+                      <span>02–08/11/2026</span>
+                    </div>
+                    <div class="total-week-pill">
+                      <span>105 phút tuần này</span>
+                    </div>
+                  </div>
+
+                  <!-- Bar Chart with Gridlines (60, 40, 20, 0) -->
+                  <div class="mockup-chart-container">
+                    <!-- Y-Axis labels and dashed lines -->
+                    <div class="chart-gridlines">
+                      <div class="gridline-row">
+                        <span class="y-label">60</span>
+                        <div class="dash-line"></div>
+                      </div>
+                      <div class="gridline-row">
+                        <span class="y-label">40</span>
+                        <div class="dash-line"></div>
+                      </div>
+                      <div class="gridline-row">
+                        <span class="y-label">20</span>
+                        <div class="dash-line"></div>
+                      </div>
+                      <div class="gridline-row">
+                        <span class="y-label">0</span>
+                        <div class="dash-line line-solid"></div>
+                      </div>
+                    </div>
+
+                    <!-- Columns: T2, T3, T4, T5, T6, T7, CN -->
+                    <div class="chart-bars-row">
+                      <!-- T2: 5 phút -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val">5</span>
+                        <div class="bar-stick" style="height: 10px;"></div>
+                        <span class="bar-day-name">T2</span>
+                        <span class="bar-bottom-min">5 phút</span>
+                      </div>
+
+                      <!-- T3: 15 phút -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val">15</span>
+                        <div class="bar-stick" style="height: 25px;"></div>
+                        <span class="bar-day-name">T3</span>
+                        <span class="bar-bottom-min">15 phút</span>
+                      </div>
+
+                      <!-- T4: 25 phút -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val">25</span>
+                        <div class="bar-stick" style="height: 42px;"></div>
+                        <span class="bar-day-name">T4</span>
+                        <span class="bar-bottom-min">25 phút</span>
+                      </div>
+
+                      <!-- T5: 60 phút (Highlighted with orange underline) -->
+                      <div class="chart-day-col day-t5-highlight">
+                        <span class="bar-top-val val-active">60</span>
+                        <div class="bar-stick stick-active" style="height: 100px;"></div>
+                        <span class="bar-day-name name-active">T5</span>
+                        <div class="t5-underline"></div>
+                        <span class="bar-bottom-min">60 phút</span>
+                      </div>
+
+                      <!-- T6: - -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val val-dash">–</span>
+                        <div class="bar-stick stick-empty"></div>
+                        <span class="bar-day-name">T6</span>
+                        <span class="bar-bottom-min">-</span>
+                      </div>
+
+                      <!-- T7: - -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val val-dash">–</span>
+                        <div class="bar-stick stick-empty"></div>
+                        <span class="bar-day-name">T7</span>
+                        <span class="bar-bottom-min">-</span>
+                      </div>
+
+                      <!-- CN: - -->
+                      <div class="chart-day-col">
+                        <span class="bar-top-val val-dash">–</span>
+                        <div class="bar-stick stick-empty"></div>
+                        <span class="bar-day-name">CN</span>
+                        <span class="bar-bottom-min">-</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- CARD 3: CHI TIẾT TỪNG NGÀY (EXACT MOCKUP FROM USER IMAGE) -->
+                <section class="card-mockup daily-breakdown-mockup">
+                  <div class="breakdown-header-title">
+                    <img src="assets/3d_icons/checklist_3d.png?v=10" alt="Chi tiết" class="cm-icon-img" />
+                    <h3>Chi tiết từng ngày</h3>
+                  </div>
+
+                  <!-- Thứ 2 · 02/11: 5 phút -->
+                  <div class="day-breakdown-block">
+                    <div class="day-title-row">
+                      <strong>Thứ 2 · 02/11</strong>
+                      <span class="day-total-badge">5 phút</span>
+                    </div>
+                    <div class="skills-two-columns">
+                      <div class="col-skill-left">
+                        <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">5 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val">0 phút</span></div>
+                      </div>
+                      <div class="col-skill-right">
+                        <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val">0 phút</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Thứ 3 · 03/11: 15 phút -->
+                  <div class="day-breakdown-block">
+                    <div class="day-title-row">
+                      <strong>Thứ 3 · 03/11</strong>
+                      <span class="day-total-badge">15 phút</span>
+                    </div>
+                    <div class="skills-two-columns">
+                      <div class="col-skill-left">
+                        <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">10 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val">0 phút</span></div>
+                      </div>
+                      <div class="col-skill-right">
+                        <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val active-val">5 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val">0 phút</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Thứ 4 · 04/11: 25 phút -->
+                  <div class="day-breakdown-block">
+                    <div class="day-title-row">
+                      <strong>Thứ 4 · 04/11</strong>
+                      <span class="day-total-badge">25 phút</span>
+                    </div>
+                    <div class="skills-two-columns">
+                      <div class="col-skill-left">
+                        <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">5 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val active-val">5 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val active-val">5 phút</span></div>
+                      </div>
+                      <div class="col-skill-right">
+                        <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val">0 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val active-val">5 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val active-val">5 phút</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Thứ 5 · 05/11: 60 phút -->
+                  <div class="day-breakdown-block">
+                    <div class="day-title-row">
+                      <strong>Thứ 5 · 05/11</strong>
+                      <span class="day-total-badge">60 phút</span>
+                    </div>
+                    <div class="skills-two-columns">
+                      <div class="col-skill-left">
+                        <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">10 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val active-val">10 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val active-val">10 phút</span></div>
+                      </div>
+                      <div class="col-skill-right">
+                        <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val active-val">10 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val active-val">10 phút</span></div>
+                        <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val active-val">10 phút</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+              </div> <!-- /.home-cards-container -->
+
+              <div style="height: 80px;"></div>
+            </div>
+
+            <!-- Bottom Navigation Bar (5 tabs - Đúng PDF Trang 2) -->
+            <nav class="bottom-nav">
+              <button class="nav-btn active" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+                <!-- ==========================================
+             07. CHI TIẾT THỜI GIAN HỌC (PAGE 2 PDF RIGHT PANEL)
+             ========================================== -->
+        <article class="screen" id="screen-stats">
+          <div class="app-layout">
+            <!-- Header matching Right Panel -->
+            <header class="stats-screen-topbar">
+              <div class="stats-topbar-left">
+                <img src="assets/logo.svg" alt="ChYHab" class="brand-logo-svg-small" />
+              </div>
+              <button class="landscape-bell-btn" onclick="showScreen('screen-notifications')">
+                <img src="assets/3d_icons/bell_3d.png?v=10" alt="Bell" />
+                <span class="bell-alert-dot"></span>
+              </button>
+            </header>
+
+            <div class="screen-scroll">
+              <!-- Section 1: Thời gian học (Chart repeated) -->
+              <section class="card-mockup study-time-detail-card">
+                <div class="card-mockup-header">
+                  <div class="cm-title-left">
+                    <img src="assets/3d_icons/chart_3d.png?v=10" alt="Chart" class="cm-icon-img" />
+                    <h3>Thời gian học</h3>
+                  </div>
+                </div>
+
+                <!-- Calendar navigation row: < 02–08/11/2026 > | 105 phút tuần này -->
+                <div class="chart-info-subbar">
+                  <div class="calendar-nav-wrap">
+                    <button class="cal-arrow-btn">‹</button>
+                    <img src="assets/3d_icons/calendar_3d.png?v=10" alt="Calendar" class="cal-icon-img" />
+                    <span class="cal-date-label">02–08/11/2026</span>
+                    <button class="cal-arrow-btn">›</button>
+                  </div>
+                  <div class="total-week-pill">
+                    <span>105 phút tuần này</span>
+                  </div>
+                </div>
+
+                <!-- Chart with 60 (phút) on Y axis -->
+                <div class="mockup-chart-container">
+                  <div class="chart-gridlines">
+                    <div class="gridline-row">
+                      <span class="y-label">60 <small>(phút)</small></span>
+                      <div class="dash-line"></div>
+                    </div>
+                    <div class="gridline-row">
+                      <span class="y-label">40</span>
+                      <div class="dash-line"></div>
+                    </div>
+                    <div class="gridline-row">
+                      <span class="y-label">20</span>
+                      <div class="dash-line"></div>
+                    </div>
+                    <div class="gridline-row">
+                      <span class="y-label">0</span>
+                      <div class="dash-line line-solid"></div>
+                    </div>
+                  </div>
+
+                  <div class="chart-bars-row">
+                    <div class="chart-day-col">
+                      <span class="bar-top-val">5</span>
+                      <div class="bar-stick" style="height: 10px;"></div>
+                      <span class="bar-day-name">T2</span>
+                    </div>
+                    <div class="chart-day-col">
+                      <span class="bar-top-val">15</span>
+                      <div class="bar-stick" style="height: 25px;"></div>
+                      <span class="bar-day-name">T3</span>
+                    </div>
+                    <div class="chart-day-col">
+                      <span class="bar-top-val">25</span>
+                      <div class="bar-stick" style="height: 42px;"></div>
+                      <span class="bar-day-name">T4</span>
+                    </div>
+                    <div class="chart-day-col day-t5-highlight">
+                      <span class="bar-top-val val-active">60</span>
+                      <div class="bar-stick stick-active" style="height: 100px;"></div>
+                      <span class="bar-day-name name-active">T5</span>
+                      <div class="t5-underline"></div>
+                    </div>
+                    <div class="chart-day-col">
+                      <span class="bar-top-val val-dash">–</span>
+                      <div class="bar-stick stick-empty"></div>
+                      <span class="bar-day-name">T6</span>
+                    </div>
+                    <div class="chart-day-col">
+                      <span class="bar-top-val val-dash">–</span>
+                      <div class="bar-stick stick-empty"></div>
+                      <span class="bar-day-name">T7</span>
+                    </div>
+                    <div class="chart-day-col">
+                      <span class="bar-top-val val-dash">–</span>
+                      <div class="bar-stick stick-empty"></div>
+                      <span class="bar-day-name">CN</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Section 2: Chi tiết từng ngày (Exact Right Panel from Image) -->
+              <section class="card-mockup daily-breakdown-mockup">
+                <div class="breakdown-header-title">
+                  <span class="breakdown-icon">📑</span>
+                  <h3>Chi tiết từng ngày</h3>
+                </div>
+
+                <!-- Thứ 2 · 02/11: 5 phút -->
+                <div class="day-breakdown-block">
+                  <div class="day-title-row">
+                    <strong>Thứ 2 · 02/11</strong>
+                    <span class="day-total-badge">5 phút</span>
+                  </div>
+                  <div class="skills-two-columns">
+                    <div class="col-skill-left">
+                      <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">5 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val">0 phút</span></div>
+                    </div>
+                    <div class="col-skill-right">
+                      <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val">0 phút</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Thứ 3 · 03/11: 15 phút -->
+                <div class="day-breakdown-block">
+                  <div class="day-title-row">
+                    <strong>Thứ 3 · 03/11</strong>
+                    <span class="day-total-badge">15 phút</span>
+                  </div>
+                  <div class="skills-two-columns">
+                    <div class="col-skill-left">
+                      <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">10 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val">0 phút</span></div>
+                    </div>
+                    <div class="col-skill-right">
+                      <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val active-val">5 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val">0 phút</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Thứ 4 · 04/11: 25 phút -->
+                <div class="day-breakdown-block">
+                  <div class="day-title-row">
+                    <strong>Thứ 4 · 04/11</strong>
+                    <span class="day-total-badge">25 phút</span>
+                  </div>
+                  <div class="skills-two-columns">
+                    <div class="col-skill-left">
+                      <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">5 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val active-val">5 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val active-val">5 phút</span></div>
+                    </div>
+                    <div class="col-skill-right">
+                      <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val">0 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val active-val">5 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val active-val">5 phút</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Thứ 5 · 05/11: 60 phút -->
+                <div class="day-breakdown-block">
+                  <div class="day-title-row">
+                    <strong>Thứ 5 · 05/11</strong>
+                    <span class="day-total-badge">60 phút</span>
+                  </div>
+                  <div class="skills-two-columns">
+                    <div class="col-skill-left">
+                      <div class="skill-line"><span class="sk-name">Từ vựng:</span> <span class="sk-val active-val">10 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nghe:</span> <span class="sk-val active-val">10 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Đọc:</span> <span class="sk-val active-val">10 phút</span></div>
+                    </div>
+                    <div class="col-skill-right">
+                      <div class="skill-line"><span class="sk-name">Ngữ pháp:</span> <span class="sk-val active-val">10 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Nói:</span> <span class="sk-val active-val">10 phút</span></div>
+                      <div class="skill-line"><span class="sk-name">Viết:</span> <span class="sk-val active-val">10 phút</span></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div style="height: 80px;"></div>
+            </div>
+
+            <!-- Bottom Navigation Bar -->
+            <nav class="bottom-nav">
+              <button class="nav-btn active" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             08. MÀN HÌNH HỌC TẬP (PAGE 3 PDF LEFT)
+             ========================================== -->
+        <article class="screen" id="screen-study">
+          <div class="app-layout">
+            <header class="study-topbar">
+              <div class="topbar-logo">
+                <img src="assets/logo.svg" alt="ChYHab" class="topbar-logo-img" />
+              </div>
+              <div class="lang-selector-chip">
+                <span>Tiếng Anh ▾</span>
+              </div>
+            </header>
+
+            <div class="screen-scroll">
+              
+              <!-- Banner Mascot Học tập (PDF Trang 3) -->
+              <section class="study-banner-landscape">
+                <div class="study-banner-text">
+                  <h2>Học tập</h2>
+                  <p>Chọn kỹ năng để bắt đầu buổi học hiệu quả hôm nay</p>
+                </div>
+                <div class="study-banner-mascot">
+                  <img src="assets/mascots/chy_reading.png" alt="ChY Học tập" />
+                </div>
+              </section>
+
+              <!-- Tiếp tục học strip (PDF Trang 3) -->
+              <section class="continue-strip" onclick="showScreen('screen-vocabulary')">
+                <div class="continue-strip-icon">
+                  <img src="assets/icons/study_vocabulary.png" alt="Vocab" />
+                </div>
+                <div class="continue-strip-info">
+                  <span class="continue-tag">Tiếp tục học</span>
+                  <strong>Daily routines · Từ vựng</strong>
+                  <div class="mini-progress-wrap">
+                    <div class="mini-progress-bar"><div class="mini-progress-fill" style="width: 60%;"></div></div>
+                    <span class="mini-progress-text">6/10</span>
+                  </div>
+                </div>
+                <button class="btn-play-orange">Học tiếp ▶</button>
+              </section>
+
+              <!-- "Bạn muốn học gì hôm nay?" (6 ô kỹ năng 2x3 - Đúng 100% PDF Trang 3) -->
+              <section class="home-block">
+                <div class="block-header">
+                  <h3>Bạn muốn học gì hôm nay?</h3>
+                </div>
+                <div class="skills-2x3-grid">
+                  <!-- 1. Từ vựng (Bấm vào dẫn tới Trang 3 Từ vựng) -->
+                  <div class="skill-tile tile-vocab" onclick="showScreen('screen-vocabulary')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_vocabulary.png" alt="Từ vựng" />
+                    </div>
+                    <strong>Từ vựng</strong>
+                    <span>1,240 từ đã học</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+
+                  <!-- 2. Ngữ pháp -->
+                  <div class="skill-tile tile-grammar" onclick="openModal('modal-mistakes')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_grammar_books.png" alt="Ngữ pháp" />
+                    </div>
+                    <strong>Ngữ pháp</strong>
+                    <span>18 bài · AI Sửa lỗi</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+
+                  <!-- 3. Nghe -->
+                  <div class="skill-tile tile-listen" onclick="showScreen('screen-practice-listen-write')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_listen.png" alt="Nghe" />
+                    </div>
+                    <strong>Nghe</strong>
+                    <span>Hội thoại sinh viên</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+
+                  <!-- 4. Nói -->
+                  <div class="skill-tile tile-speak" onclick="showScreen('screen-practice-pronunciation')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_speak.png" alt="Nói" />
+                    </div>
+                    <strong>Nói</strong>
+                    <span>Luyện phát âm AI</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+
+                  <!-- 5. Đọc -->
+                  <div class="skill-tile tile-read" onclick="openModal('modal-syllabus')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_read.png" alt="Đọc" />
+                    </div>
+                    <strong>Đọc</strong>
+                    <span>Giáo trình & Đề cương</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+
+                  <!-- 6. Viết -->
+                  <div class="skill-tile tile-write" onclick="showScreen('screen-practice-sentence')">
+                    <div class="tile-icon-wrap">
+                      <img src="assets/icons/study_write.png" alt="Viết" />
+                    </div>
+                    <strong>Viết</strong>
+                    <span>Đặt câu chấm AI A1-C2</span>
+                    <div class="tile-arrow">›</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Lộ trình học AI bám sát môn học (PDF Trang 1) -->
+              <section class="ai-roadmap-card">
+                <div class="ai-rm-header">
+                  <img src="assets/icons/ai_learning_path.png" alt="AI Path" />
+                  <div>
+                    <strong>Lộ trình AI cá nhân hoá của bạn</strong>
+                    <span class="ai-rm-sub">Mục tiêu: Đạt chuẩn B2 trước kỳ thi tháng 12</span>
+                  </div>
+                </div>
+                <p>AI đã phân tích và tự động đồng bộ đề cương học phần tiếng Anh của bạn với 45 bài tập bám sát.</p>
+                <div class="ai-rm-actions">
+                  <button class="btn-sm-orange" onclick="openModal('modal-syllabus')">Tải đề cương mới</button>
+                  <button class="btn-sm-outline" onclick="showScreen('screen-vocab-library')">Xem danh sách giáo trình</button>
+                </div>
+              </section>
+
+              <div style="height: 90px;"></div>
+            </div>
+
+            <!-- Bottom Nav -->
+            <nav class="bottom-nav">
+              <button class="nav-btn" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn active" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             09. TỪ VỰNG LANDING (PAGE 3 PDF MIDDLE)
+             ========================================== -->
+        <article class="screen" id="screen-vocabulary">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-study')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Từ vựng</h2>
+              <div class="lang-selector-chip">
+                <span>Tiếng Anh ▾</span>
+              </div>
+            </header>
+
+            <div class="screen-scroll">
+              <p class="vocab-landing-hint">Chọn lối học từ vựng bạn muốn hôm nay:</p>
+
+              <!-- 2 Tùy chọn lớn (Đúng 100% PDF Trang 3 Middle) -->
+              <div class="vocab-two-options">
+                <!-- 1. Bộ từ vựng -> Mở Thư viện bộ từ vựng -->
+                <div class="option-big-card orange-glow" onclick="showScreen('screen-vocab-library')">
+                  <div class="opt-card-left">
+                    <div class="opt-icon-circle opt-icon-plain">
+                      <img src="assets/icons/vocab_set_books.png" alt="Bộ từ vựng" />
+                    </div>
+                    <div class="opt-card-text">
+                      <h3>Bộ từ vựng</h3>
+                    </div>
+                  </div>
+                  <div class="opt-arrow-btn">›</div>
+                </div>
+
+                <!-- 2. Học từ vựng -> Mở 8 Chế độ học tập -->
+                <div class="option-big-card blue-glow" onclick="showScreen('screen-vocab-modes')">
+                  <div class="opt-card-left">
+                    <div class="opt-icon-circle opt-icon-plain">
+                      <img src="assets/icons/vocab_learn_open_book.png" alt="Học từ vựng" />
+                    </div>
+                    <div class="opt-card-text">
+                      <h3>Học từ vựng</h3>
+                    </div>
+                  </div>
+                  <div class="opt-arrow-btn">›</div>
+                </div>
+              </div>
+
+              <!-- Gợi ý nhanh: Bộ từ đang học (Giao tiếp hằng ngày · 3/20 từ) -->
+              <section class="home-block">
+                <div class="block-header">
+                  <h3>Đang học dở</h3>
+                </div>
+                <div class="active-set-card" onclick="showScreen('screen-vocab-modes')">
+                  <div class="active-set-top">
+                    <span class="active-set-tag">B1 · Giao tiếp</span>
+                    <span class="active-set-count">3/20 từ</span>
+                  </div>
+                  <h4>Giao tiếp hằng ngày (Daily Communication)</h4>
+                  <p>Từ hiện tại: <strong>book</strong> (/bʊk/ - quyển sách)</p>
+                  <div class="active-progress-row">
+                    <div class="active-bar"><div class="active-bar-fill" style="width: 15%;"></div></div>
+                    <span class="active-pct">15%</span>
+                  </div>
+                  <button class="btn-primary btn-block" style="margin-top: 12px;">Tiếp tục luyện tập ngay 🚀</button>
+                </div>
+              </section>
+
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             10. THƯ VIỆN BỘ TỪ VỰNG (PAGE 3 PDF RIGHT PANELS)
+             ========================================== -->
+        <article class="screen" id="screen-vocab-library">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-vocabulary')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Bộ từ vựng</h2>
+              <button class="icon-btn" onclick="openModal('modal-syllabus')">
+                <img src="assets/icons/nav_add.png" alt="Thêm" />
+              </button>
+            </header>
+
+            <div class="screen-scroll">
+              <!-- Search bar (PDF Trang 3) -->
+              <div class="library-search-box">
+                <img src="assets/icons/nav_search.png" alt="search" class="search-ico" />
+                <input type="text" placeholder="Tìm bộ từ vựng, giáo trình..." class="search-field" id="vocab-search-inp" oninput="filterVocabBooks(this.value)" />
+                <button class="filter-ico-btn" onclick="openModal('modal-syllabus')">
+                  <img src="assets/icons/nav_filter.png" alt="Filter" />
+                </button>
+              </div>
+
+              <!-- Bộ từ vựng của tôi (8 bộ >) -->
+              <div class="my-sets-banner" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/vocab_my_sets.png" alt="Bộ từ vựng của tôi" class="my-sets-icon" />
+                <div class="my-sets-info">
+                  <strong>Bộ từ vựng của tôi</strong>
+                  <span>8 bộ đang lưu · 3 bộ đang học</span>
+                </div>
+                <div class="my-sets-badge">8 bộ ›</div>
+              </div>
+
+              <!-- Action buttons: Tải từ vựng lên | Tạo bộ mới -->
+              <div class="action-buttons-row">
+                <button class="btn-action-lib" onclick="openModal('modal-syllabus')">
+                  <img src="assets/icons/action_upload.png" alt="Upload" />
+                  <span>⬆ Tải từ vựng lên</span>
+                </button>
+                <button class="btn-action-lib" onclick="openModal('modal-ocr')">
+                  <img src="assets/icons/study_read.png" alt="Camera" />
+                  <span>📷 Nhận diện ảnh AI</span>
+                </button>
+                <button class="btn-action-lib" onclick="alert('Đã sẵn sàng tạo bộ từ vựng cá nhân mới!')">
+                  <img src="assets/icons/nav_add.png" alt="Create" />
+                  <span>✏ Tạo bộ mới</span>
+                </button>
+              </div>
+
+              <!-- Gợi ý cho bạn (AI Personalized - PDF Trang 3) -->
+              <section class="home-block">
+                <div class="block-header">
+                  <h3>Gợi ý cho bạn</h3>
+                  <a href="#" class="block-link">Điều chỉnh ›</a>
+                </div>
+                <div class="suggested-list">
+                  <!-- Giao tiếp hằng ngày (B1 · 60 từ · Theo mục tiêu của bạn) -->
+                  <div class="suggested-row" onclick="showScreen('screen-vocab-modes')">
+                    <img src="assets/icons/suggest_communication.png" alt="Giao tiếp" class="suggested-row-icon" />
+                    <div class="suggested-row-text">
+                      <strong>Giao tiếp hằng ngày</strong>
+                      <span>B1 · 60 từ · Theo mục tiêu của bạn</span>
+                    </div>
+                    <span class="suggested-row-bookmark">🔖</span>
+                  </div>
+
+                  <!-- Du lịch & trải nghiệm (B1 · 40 từ · Theo sở thích) -->
+                  <div class="suggested-row" onclick="showScreen('screen-vocab-modes')">
+                    <img src="assets/icons/suggest_travel.png" alt="Du lịch" class="suggested-row-icon" />
+                    <div class="suggested-row-text">
+                      <strong>Du lịch & Trải nghiệm</strong>
+                      <span>B1 · 40 từ · Theo sở thích của bạn</span>
+                    </div>
+                    <span class="suggested-row-bookmark">🔖</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Thư viện giáo trình (PDF Trang 3: Destination B1, B2, English Vocabulary in Use) -->
+              <section class="home-block">
+                <div class="block-header">
+                  <h3>Thư viện giáo trình</h3>
+                  <a href="#" class="block-link">Xem tất cả ›</a>
+                </div>
+
+                <!-- Tabs: Tất cả | A1-A2 | B1-B2 | C1-C2 -->
+                <div class="filter-tabs">
+                  <button class="filter-tab active" onclick="filterTextbookTab(this, 'all')">Tất cả</button>
+                  <button class="filter-tab" onclick="filterTextbookTab(this, 'a1-a2')">A1 - A2</button>
+                  <button class="filter-tab" onclick="filterTextbookTab(this, 'b1-b2')">B1 - B2</button>
+                  <button class="filter-tab" onclick="filterTextbookTab(this, 'c1-c2')">C1 - C2</button>
+                </div>
+
+                <!-- Danh mục sách -->
+                <div class="textbook-grid" id="textbook-grid">
+                  <!-- Destination B1 -->
+                  <div class="book-card" data-level="b1-b2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <img src="assets/icons/book_destination_b1.png" alt="Destination B1" />
+                    </div>
+                    <div class="book-details">
+                      <strong>Destination B1</strong>
+                      <span>B1 · Theo từng Unit 🔖</span>
+                    </div>
+                  </div>
+
+                  <!-- Destination B2 -->
+                  <div class="book-card" data-level="b1-b2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <img src="assets/icons/book_destination_b2.png" alt="Destination B2" />
+                    </div>
+                    <div class="book-details">
+                      <strong>Destination B2</strong>
+                      <span>B2 · Theo từng Unit 🔖</span>
+                    </div>
+                  </div>
+
+                  <!-- English Vocabulary in Use - Elementary -->
+                  <div class="book-card" data-level="a1-a2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <span class="book-badge">A2</span>
+                      <img src="assets/icons/book_evinu_elementary.png" alt="EVinU Elementary" />
+                    </div>
+                    <div class="book-details">
+                      <strong>EV in Use Elementary</strong>
+                      <span>A1-A2 · 60 bài học 🔖</span>
+                    </div>
+                  </div>
+
+                  <!-- English Vocabulary in Use - Pre-Intermediate & Intermediate -->
+                  <div class="book-card" data-level="b1-b2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <span class="book-badge">B1</span>
+                      <img src="assets/icons/book_evinu_intermediate.png" alt="EVinU Intermediate" />
+                    </div>
+                    <div class="book-details">
+                      <strong>EV in Use Pre-Int & Int</strong>
+                      <span>B1 · 100 bài học 🔖</span>
+                    </div>
+                  </div>
+
+                  <!-- English Vocabulary in Use - Upper-Intermediate -->
+                  <div class="book-card" data-level="b1-b2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <span class="book-badge">B2</span>
+                      <img src="assets/icons/book_evinu_upper.png" alt="EVinU Upper-Int" />
+                    </div>
+                    <div class="book-details">
+                      <strong>EV in Use Upper-Int</strong>
+                      <span>B2 · 100 bài học 🔖</span>
+                    </div>
+                  </div>
+
+                  <!-- English Vocabulary in Use - Advanced -->
+                  <div class="book-card" data-level="c1-c2" onclick="showScreen('screen-vocab-modes')">
+                    <div class="book-cover">
+                      <span class="book-badge">C1</span>
+                      <img src="assets/icons/book_evinu_advanced.png" alt="EVinU Advanced" />
+                    </div>
+                    <div class="book-details">
+                      <strong>EV in Use Advanced</strong>
+                      <span>C1-C2 · Nâng cao 🔖</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             11. DANH SÁCH 8 CHẾ ĐỘ HỌC TỪ VỰNG (PAGE 4 PDF LEFT PANEL)
+             ========================================== -->
+        <article class="screen" id="screen-vocab-modes">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-vocabulary')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Học từ vựng</h2>
+              <div class="lang-selector-chip">
+                <span>3/20 từ</span>
+              </div>
+            </header>
+
+            <div class="screen-scroll">
+              <!-- Chọn bộ từ vựng -->
+              <div class="choose-set-row" onclick="showScreen('screen-vocab-library')">
+                <img src="assets/icons/mode_choose_set.png" alt="Chọn bộ từ vựng" class="choose-set-ico" />
+                <strong>Chọn bộ từ vựng</strong>
+                <span class="choose-set-arrow">›</span>
+              </div>
+
+              <div class="vocab-current-info-card">
+                <div class="vocab-set-badge-row">
+                  <span class="set-name-tag">Bộ: Giao tiếp hằng ngày</span>
+                  <span class="cefr-tag b1">Level B1</span>
+                </div>
+                <h3>Từ cần học: <span class="highlight-orange">book</span> /bʊk/</h3>
+                <p>Nghĩa: Cuốn sách · Chọn 1 trong 8 chế độ học bên dưới:</p>
+              </div>
+
+              <!-- Danh sách 8 Chế độ học tập (Đúng 100% PDF Trang 4) -->
+              <div class="modes-numbered-list">
+                <!-- 1. Flashcard -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-flashcard')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">1</span>
+                    <img src="assets/icons/practice_flashcard.png" alt="Flashcard" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Flashcard</strong>
+                      <span>Lật thẻ 2 mặt tiếng Anh & Tiếng Việt kèm ví dụ</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 2. Phát âm -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-pronunciation')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">2</span>
+                    <img src="assets/icons/practice_pronunciation.png" alt="Phát âm" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Phát âm</strong>
+                      <span>Luyện đọc với mic & Chấm điểm % AI chuẩn xác</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 3. Chọn nghĩa & Chọn từ -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-choose')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">3</span>
+                    <img src="assets/icons/practice_choose_meaning.png" alt="Chọn nghĩa" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Chọn nghĩa & Chọn từ</strong>
+                      <span>Trắc nghiệm 4 đáp án A, B, C, D hai chiều EN-VI</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 4. Gõ từ -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-typing')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">4</span>
+                    <img src="assets/icons/practice_typing.png" alt="Gõ từ" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Gõ từ</strong>
+                      <span>Nhìn nghĩa tiếng Việt, gõ từ tiếng Anh có bàn phím</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 5. Nghe viết -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-listen-write')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">5</span>
+                    <img src="assets/icons/practice_listen_write.png" alt="Nghe viết" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Nghe viết</strong>
+                      <span>Nghe phát âm loa to, chọn tốc độ & chép chính tả</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 6. Chọn từ hoàn thành câu -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-complete')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">6</span>
+                    <img src="assets/icons/practice_complete_sentence.png" alt="Hoàn thành câu" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Chọn từ hoàn thành câu</strong>
+                      <span>Điền từ vào ngữ cảnh câu ví dụ thực tế có hình ảnh</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 7. Điền từ vào đoạn văn -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-fill')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">7</span>
+                    <img src="assets/icons/practice_fill_paragraph.png" alt="Điền đoạn văn" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Điền từ vào đoạn văn</strong>
+                      <span>Ngân hàng từ: book, school, teacher vào bài văn</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+
+                <!-- 8. Đặt câu -->
+                <div class="mode-list-item" onclick="showScreen('screen-practice-sentence')">
+                  <div class="mode-item-left">
+                    <span class="mode-number">8</span>
+                    <img src="assets/icons/practice_write_sentence.png" alt="Đặt câu" class="mode-ico" />
+                    <div class="mode-item-info">
+                      <strong>Đặt câu (AI Chấm A1 - C2)</strong>
+                      <span>Tự viết câu với từ "experience", AI nhận xét & sửa lỗi</span>
+                    </div>
+                  </div>
+                  <span class="mode-arrow">→</span>
+                </div>
+              </div>
+
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             12. CHẾ ĐỘ 1: FLASHCARD (PAGE 4 PDF RIGHT)
+             ========================================== -->
+        <article class="screen" id="screen-practice-flashcard">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title">Flashcard</h2>
+              <button class="icon-btn" onclick="event.stopPropagation()">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <span>Giao tiếp hằng ngày · <strong>3/20</strong></span>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 15%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="practice-body">
+              <!-- Thẻ Flashcard có thể lật (Front: book, Back: quyển sách) -->
+              <div class="flashcard-container" id="fc-card" onclick="flipFlashcard()">
+                <div class="flashcard">
+                  <!-- Front: Tiếng Anh -->
+                  <div class="flashcard-front">
+                    <div class="fc-lang-label">
+                      <span>Tiếng Anh</span>
+                      <button class="fc-bookmark-btn" onclick="event.stopPropagation(); toggleBookmark(this)">
+                        <img src="assets/icons/action_bookmark.png" alt="Lưu vào ghi chú" />
+                      </button>
+                    </div>
+                    <h2 class="card-word">book</h2>
+                    <div class="card-word-type">noun · danh từ</div>
+                    <div class="card-phonetic">/bʊk/</div>
+                    <button class="card-audio-btn fc-audio-circle" onclick="event.stopPropagation(); speakWord('book')">
+                      <img src="assets/icons/audio_play_btn.png" alt="Nghe phát âm" />
+                    </button>
+                    <span class="fc-audio-caption">Nghe phát âm</span>
+                  </div>
+
+                  <!-- Back: Tiếng Việt -->
+                  <div class="flashcard-back">
+                    <div class="fc-lang-label">
+                      <span>Tiếng Việt</span>
+                      <button class="fc-bookmark-btn" onclick="event.stopPropagation(); toggleBookmark(this)">
+                        <img src="assets/icons/action_bookmark.png" alt="Lưu vào ghi chú" />
+                      </button>
+                    </div>
+                    <h2 class="card-word-vi">quyển sách</h2>
+                    <div class="card-word-type">danh từ</div>
+                    <div class="card-example">
+                      <p class="ex-en">"I want to buy a <strong>book</strong> to read tonight."</p>
+                      <p class="ex-vi">"Tôi muốn mua một cuốn sách để đọc tối nay."</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flashcard-instruction fc-flip-below">
+                <img src="assets/icons/action_flip.png" alt="" />
+                <span>Chạm vào thẻ để lật</span>
+              </div>
+
+              <!-- Điều hướng < 3/20 > -->
+              <div class="fc-nav-row">
+                <button class="fc-nav-arrow fc-nav-arrow-img" onclick="prevFlashcard()">
+                  <img src="assets/icons/arrow_prev_btn.png" alt="Trước" />
+                </button>
+                <span class="fc-nav-counter">3 / 20</span>
+                <button class="fc-nav-arrow fc-nav-arrow-img" onclick="nextCard('skip')">
+                  <img src="assets/icons/arrow_next_btn.png" alt="Tiếp" />
+                </button>
+              </div>
+
+              <!-- 2 Nút hành động: [Cần ôn lại] | [Đã nhớ] (Đúng 100% PDF Trang 4) -->
+              <div class="flashcard-actions-2btn">
+                <button class="btn-review-again" onclick="nextCard('wrong')">Cần ôn lại</button>
+                <button class="btn-remembered" onclick="nextCard('correct')">Đã nhớ ✓</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             13. CHẾ ĐỘ 2: PHÁT ÂM (PAGE 5 PDF)
+             ========================================== -->
+        <article class="screen" id="screen-practice-pronunciation">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title pron-screen-title">Phát âm</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <div class="pron-title-row">
+                  <span>Giao tiếp hằng ngày</span>
+                  <strong>3/20</strong>
+                </div>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 15%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+
+                <!-- Từ cần luyện (PDF Trang 5) -->
+                <div class="pron-card-wrap">
+                  <div class="pron-target-card">
+                    <div class="pron-card-top">
+                      <span class="pron-sublabel">Từ cần luyện</span>
+                      <button class="fc-bookmark-btn" onclick="toggleBookmark(this)">
+                        <img src="assets/icons/pron_bookmark.png" alt="Lưu vào ghi chú" />
+                      </button>
+                    </div>
+                    <h2 class="pron-word">book</h2>
+                    <span class="pron-type">noun</span>
+                    <div class="pron-ipa">/bʊk/</div>
+                    <!-- Nút nghe mẫu + speed selector -->
+                    <div class="pron-audio-controls">
+                      <button class="btn-listen-sample" onclick="speakWord('book', 1.0)">
+                        <img src="assets/icons/pron_listen_circle.png" alt="listen" />
+                        <span>Nghe mẫu</span>
+                      </button>
+                      <select class="speed-select" id="pron-speed" onchange="changeSpeechSpeed(this.value)">
+                        <option value="1.0">1x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="0.5">0.5x</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Lượt bạn (Your turn) -->
+                <div class="pron-record-section">
+                  <span class="pron-yourturn-label">Đến lượt bạn</span>
+                  <p class="pron-instruction">Nghe mẫu rồi nhấn mic để đọc từ.</p>
+
+                  <!-- Nút Micro lớn màu cam + sóng âm -->
+                  <div class="mic-button-wrapper">
+                    <button class="big-mic-btn" id="pron-mic-btn" onclick="startPronunciationCheck()">
+                      <img src="assets/icons/pron_mic_circle.png" alt="Mic" />
+                    </button>
+                    <!-- Waveform animation -->
+                    <div class="waveform-anim" id="pron-waveform">
+                      <span class="wb"></span><span class="wb"></span><span class="wb"></span>
+                      <span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span>
+                    </div>
+                  </div>
+                  <span class="mic-status-text" id="mic-status-text">Nhấn để thu âm</span>
+                </div>
+
+                <!-- Nút chuyển demo nhanh 4 trạng thái kết quả (Để user test đủ 4 trạng thái như PDF Trang 5) -->
+                <div class="pron-demo-switcher">
+                  <small>Thử nhanh các mức điểm AI theo PDF:</small>
+                  <div class="demo-buttons">
+                    <button class="btn-demo" onclick="setPronResult(92)">92% (Xuất sắc)</button>
+                    <button class="btn-demo" onclick="setPronResult(86)">86% (Tốt)</button>
+                    <button class="btn-demo" onclick="setPronResult(75)">75% (Cần sửa)</button>
+                    <button class="btn-demo" onclick="setPronResult(68)">68% (Chưa đạt)</button>
+                  </div>
+                </div>
+
+                <!-- Kết quả chấm điểm AI (4 trạng thái: Xuất sắc / Tốt / Cần cải thiện / Chưa đạt) -->
+                <div class="pron-result-box hidden" id="pron-result-box">
+                  <span class="pron-result-label">Kết quả luyện âm</span>
+                  <div class="pron-result-top">
+                    <div class="pron-score-ring" id="pron-score-ring">
+                      <span class="pron-score-pct" id="pron-score-pct">92%</span>
+                    </div>
+                    <div class="pron-score-info">
+                      <span class="pron-grade-pill" id="pron-grade-pill">
+                        <span class="pron-grade-dot" id="pron-grade-dot">✓</span>
+                        <span id="pron-grade-text">Xuất sắc</span>
+                      </span>
+                      <span class="pron-result-ipa">/bʊk/</span>
+                    </div>
+                  </div>
+
+                  <!-- Các nút sau khi ghi âm -->
+                  <div class="result-actions-row">
+                    <button class="btn-secondary btn-sm btn-icon-sm" onclick="speakWord('book')">
+                      <img src="assets/icons/pron_listen_circle.png" alt="" /> Nghe lại
+                    </button>
+                    <button class="btn-secondary btn-sm btn-icon-sm" onclick="startPronunciationCheck()">
+                      <img src="assets/icons/pron_mic_circle.png" alt="" /> Thu lại
+                    </button>
+                  </div>
+
+                  <div class="next-word-action-wrap">
+                    <button class="btn-primary btn-block" id="btn-next-pron" onclick="showScreen('screen-practice-choose')">
+                      Từ tiếp theo ›
+                    </button>
+                    <p class="lock-notice hidden" id="pron-lock-notice">ℹ️ Đạt từ 80% trở lên để tiếp tục</p>
+                  </div>
+                </div>
+
+                <!-- Điều hướng < 3/20 > -->
+                <div class="fc-nav-row" style="margin-top: 20px;">
+                  <button class="fc-nav-arrow" onclick="showScreen('screen-practice-flashcard')">‹</button>
+                  <span class="fc-nav-counter">3 / 20</span>
+                  <button class="fc-nav-arrow" onclick="showScreen('screen-practice-choose')">›</button>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             14. CHẾ ĐỘ 3: CHỌN NGHĨA & CHỌN TỪ (PAGE 6 PDF)
+             ========================================== -->
+        <article class="screen" id="screen-practice-choose">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title pron-screen-title" id="choose-screen-title">Chọn nghĩa</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <div class="pron-title-row">
+                  <span>Giao tiếp hằng ngày</span>
+                  <strong>3/20</strong>
+                </div>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 20%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+
+                <!-- View 1: Chọn nghĩa của từ: book (PDF Trang 6) -->
+                <div class="choose-view" id="view-choose-meaning">
+                  <div class="cq-word-card">
+                    <div class="cq-card-top">
+                      <span class="cq-sublabel">Chọn nghĩa của từ</span>
+                      <button class="fc-bookmark-btn" onclick="toggleBookmark(this)">
+                        <img src="assets/icons/pron_bookmark.png" alt="Lưu vào ghi chú" />
+                      </button>
+                    </div>
+                    <div class="cq-word-flex">
+                      <h2>book</h2>
+                      <button class="cq-audio-btn" onclick="speakWord('book')">
+                        <img src="assets/icons/pron_listen_circle.png" alt="Nghe" />
+                      </button>
+                    </div>
+                    <span class="cq-ipa">/bʊk/</span>
+                    <span class="cq-type-pill">noun</span>
+                  </div>
+
+                  <!-- 4 Lựa chọn A, B, C, D (PDF Trang 6: A. Cuốn sách, B. Cái bàn, C. Cây bút, D. Cái ghế) -->
+                  <div class="options-abcd-list" id="meaning-options">
+                    <button class="opt-btn" onclick="selectChoiceOption(this, true, 'meaning')">
+                      <span class="opt-letter">A</span>
+                      <span class="opt-text">Cuốn sách</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'meaning')">
+                      <span class="opt-letter">B</span>
+                      <span class="opt-text">Cái bàn</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'meaning')">
+                      <span class="opt-letter">C</span>
+                      <span class="opt-text">Cây bút</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'meaning')">
+                      <span class="opt-letter">D</span>
+                      <span class="opt-text">Cái ghế</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- View 2: Chọn từ: Cuốn sách -> book (PDF Trang 6) -->
+                <div class="choose-view hidden" id="view-choose-word">
+                  <div class="cq-word-peach-card">
+                    <h2>Cuốn sách</h2>
+                  </div>
+
+                  <!-- 4 Lựa chọn A, B, C, D: A. book, B. table, C. pen, D. chair -->
+                  <div class="options-abcd-list" id="word-options">
+                    <button class="opt-btn" onclick="selectChoiceOption(this, true, 'word')">
+                      <span class="opt-letter">A</span>
+                      <span class="opt-text">book</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'word')">
+                      <span class="opt-letter">B</span>
+                      <span class="opt-text">table</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'word')">
+                      <span class="opt-letter">C</span>
+                      <span class="opt-text">pen</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                    <button class="opt-btn" onclick="selectChoiceOption(this, false, 'word')">
+                      <span class="opt-letter">D</span>
+                      <span class="opt-text">chair</span>
+                      <span class="opt-feedback-ico"></span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Banner kết quả (inline, theo tài liệu) -->
+                <div class="cq-result-banner hidden" id="choose-result-banner">
+                  <div class="cq-banner-line1">
+                    <span class="cq-banner-icon" id="banner-icon">✓</span>
+                    <strong id="banner-title">Chính xác!</strong>
+                  </div>
+                  <p id="banner-desc" class="hidden"></p>
+                </div>
+
+                <!-- Nút hành động: Thử lại / Tiếp tục (xuất hiện sau khi chọn đáp án) -->
+                <div class="quiz-bottom-action hidden" id="choose-action-wrap">
+                  <button class="btn-check-main" id="btn-check-choose" onclick="choiceActionNext()">Thử lại</button>
+                </div>
+
+              </div>
+              <div style="height: 60px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             15. CHẾ ĐỘ 4: GÕ TỪ (PAGE 6 PDF BOTTOM)
+             ========================================== -->
+        <article class="screen" id="screen-practice-typing">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title pron-screen-title">Gõ từ</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <div class="pron-title-row">
+                  <span>Giao tiếp hằng ngày</span>
+                  <strong>3/20</strong>
+                </div>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 25%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+
+                <!-- Biểu tượng sách + Cuốn sách (PDF Trang 6) -->
+                <div class="typing-target-card">
+                  <span class="cq-sublabel">Gõ từ tiếng Anh phù hợp với nghĩa sau</span>
+                  <img class="typing-illustration-img" src="assets/icons/book_illustration.png" alt="Cuốn sách" />
+                  <h2 class="typing-meaning">Cuốn sách</h2>
+                </div>
+
+                <!-- Input area: bấm vào sẽ hiện bàn phím thật của điện thoại -->
+                <div class="typing-input-box">
+                  <input type="text" id="typing-word-input" class="typing-text-field" placeholder="Nhập từ tiếng Anh..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onTypingInputChange()" />
+                </div>
+
+                <!-- Feedback khi sai / đúng -->
+                <div class="cq-result-banner hidden" id="typing-result-banner">
+                  <div class="cq-banner-line1">
+                    <span class="cq-banner-icon" id="typing-mark">✓</span>
+                    <strong id="typing-feedback-heading">Chính xác!</strong>
+                  </div>
+                  <p id="typing-feedback-sub" class="hidden">Hãy thử lại nhé! (Gợi ý: b-o-o-k)</p>
+                </div>
+
+                <!-- Nút kiểm tra -->
+                <div class="quiz-bottom-action">
+                  <button class="btn-check-main disabled" id="btn-typing-check" onclick="checkTypingWord()">Kiểm tra</button>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             16. CHẾ ĐỘ 5: NGHE VIẾT (PAGE 7 PDF TOP)
+             ========================================== -->
+        <article class="screen" id="screen-practice-listen-write">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title pron-screen-title">Nghe viết</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <div class="pron-title-row">
+                  <span>Giao tiếp hằng ngày</span>
+                  <strong>3/20</strong>
+                </div>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 30%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+
+                <!-- Loa cam to có animation sóng âm (PDF Trang 7) -->
+                <div class="dictation-speaker-card">
+                  <div class="speaker-animation-row">
+                    <div class="sound-wave-left">
+                      <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <button class="big-speaker-btn" onclick="speakWord('book', currentDictationSpeed)">
+                      <img src="assets/icons/pron_listen_circle.png" alt="Speaker" />
+                    </button>
+                    <div class="sound-wave-right">
+                      <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Input field -->
+                <div class="typing-input-box dictation-input-box" id="dictation-input-box" style="margin-top: 20px;">
+                  <input type="text" id="dictation-input" class="typing-text-field" placeholder="Nhập từ bạn nghe được..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onDictationInputChange()" />
+                  <span class="opt-feedback-ico hidden" id="dictation-input-ico"></span>
+                </div>
+
+                <!-- Feedback khi sai / đúng -->
+                <div class="cq-result-banner hidden" id="dictation-feedback">
+                  <div class="cq-banner-line1">
+                    <span class="cq-banner-icon" id="dictation-icon">✓</span>
+                    <strong id="dictation-title">Chính xác!</strong>
+                  </div>
+                  <p id="dictation-desc" class="hidden">Hãy thử lại nhé!</p>
+                </div>
+
+                <!-- Nút kiểm tra -->
+                <div class="quiz-bottom-action">
+                  <button class="btn-check-main disabled" id="dictation-action-btn" onclick="checkDictationAnswer()">Kiểm tra</button>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             17. CHẾ ĐỘ 6: CHỌN TỪ HOÀN THÀNH CÂU (PAGE 7 PDF BOTTOM)
+             ========================================== -->
+        <article class="screen" id="screen-practice-complete">
+          <div class="app-layout practice-layout">
+            <div class="fc-brand-row">
+              <img src="assets/logo.svg" alt="ChYHab" />
+            </div>
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 class="fc-screen-title pron-screen-title">Chọn từ</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')">
+                <img src="assets/icons/action_settings.png" alt="Cài đặt" />
+              </button>
+            </header>
+
+            <div class="fc-progress-strip">
+              <img src="assets/icons/flashcard_set_tag.png" alt="" class="fc-set-icon" />
+              <div class="fc-title-stack">
+                <div class="pron-title-row">
+                  <span>Giao tiếp hằng ngày</span>
+                  <strong>3/20</strong>
+                </div>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 35%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+                <span class="cq-sublabel cs-prompt">Chọn từ thích hợp để hoàn thành câu</span>
+
+                <!-- Câu và hình minh họa BOOKSTORE (PDF Trang 7) -->
+                <h3 class="context-sentence">
+                  "I want to buy a <span class="blank-word-slot">_______</span> to read tonight."
+                </h3>
+                <img class="bookstore-img" src="assets/icons/bookstore_illustration.png" alt="Bookstore" />
+
+                <!-- 4 Lựa chọn dạng lưới 2 cột: A. book, B. chair, C. bottle, D. umbrella (PDF Trang 7) -->
+                <div class="options-grid-2col" id="complete-sentence-options">
+                  <button class="opt-btn" onclick="selectCompleteSentence(this, true, 'book')">
+                    <span class="opt-letter">A</span>
+                    <span class="opt-text">book</span>
+                    <span class="opt-feedback-ico"></span>
+                  </button>
+                  <button class="opt-btn" onclick="selectCompleteSentence(this, false, 'chair')">
+                    <span class="opt-letter">B</span>
+                    <span class="opt-text">chair</span>
+                    <span class="opt-feedback-ico"></span>
+                  </button>
+                  <button class="opt-btn" onclick="selectCompleteSentence(this, false, 'bottle')">
+                    <span class="opt-letter">C</span>
+                    <span class="opt-text">bottle</span>
+                    <span class="opt-feedback-ico"></span>
+                  </button>
+                  <button class="opt-btn" onclick="selectCompleteSentence(this, false, 'umbrella')">
+                    <span class="opt-letter">D</span>
+                    <span class="opt-text">umbrella</span>
+                    <span class="opt-feedback-ico"></span>
+                  </button>
+                </div>
+
+                <!-- Banner kết quả (inline, theo tài liệu) -->
+                <div class="cq-result-banner hidden" id="complete-result-banner">
+                  <div class="cq-banner-line1">
+                    <span class="cq-banner-icon" id="complete-icon">✓</span>
+                    <strong id="complete-title">Chính xác!</strong>
+                  </div>
+                  <p id="complete-desc" class="hidden">Hãy thử lại nhé!</p>
+                </div>
+
+                <!-- Nút kiểm tra -->
+                <div class="quiz-bottom-action">
+                  <button class="btn-check-main disabled" id="btn-check-complete" onclick="verifyCompleteSentence()">Kiểm tra</button>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             18. CHẾ ĐỘ 7: ĐIỀN TỪ VÀO ĐOẠN VĂN (PAGE 8 PDF)
+             ========================================== -->
+        <article class="screen" id="screen-practice-fill">
+          <div class="app-layout practice-layout">
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <div class="practice-title-center">
+                <span>Giao tiếp hằng ngày · <strong>3/20</strong></span>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 40%;"></div>
+                </div>
+              </div>
+              <button class="icon-btn" onclick="resetParagraphFill()">
+                <img src="assets/icons/action_retry.png" alt="Reset" />
+              </button>
+            </header>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+                <p class="quiz-question-prompt">Chọn từ thích hợp để điền vào chỗ trống:</p>
+
+                <!-- Ngân hàng từ: book | school | teacher (PDF Trang 8) -->
+                <div class="word-bank-container">
+                  <span class="bank-title">Ngân hàng từ vựng:</span>
+                  <div class="bank-chips-row" id="paragraph-word-bank">
+                    <button class="chip-word" id="chip-school" onclick="placeWordIntoBlank('school')">school</button>
+                    <button class="chip-word" id="chip-teacher" onclick="placeWordIntoBlank('teacher')">teacher</button>
+                    <button class="chip-word" id="chip-book" onclick="placeWordIntoBlank('book')">book</button>
+                  </div>
+                </div>
+
+                <!-- Đoạn văn có 3 chỗ trống (PDF Trang 8) -->
+                <div class="paragraph-card">
+                  <p class="story-passage">
+                    "This is my <span class="para-slot" id="para-slot-1" onclick="removeWordFromBlank(1)">[ chỗ trống 1 ]</span>. I go there every day. My <span class="para-slot" id="para-slot-2" onclick="removeWordFromBlank(2)">[ chỗ trống 2 ]</span> is very kind. I like reading <span class="para-slot" id="para-slot-3" onclick="removeWordFromBlank(3)">[ chỗ trống 3 ]</span> in the library."
+                  </p>
+                  <small class="para-instruction">💡 Mẹo: Bấm vào từ để tự động điền vào chỗ trống, hoặc bấm vào chỗ trống để bỏ từ ra.</small>
+                </div>
+
+                <!-- Nút kiểm tra -->
+                <button class="btn-primary btn-block" onclick="checkParagraphFill()">Kiểm tra kết quả ✓</button>
+
+                <!-- Feedback Drawer -->
+                <div class="feedback-drawer hidden" id="para-feedback-drawer">
+                  <div class="drawer-content">
+                    <div class="drawer-header-msg">
+                      <span class="drawer-icon" id="para-icon">✓</span>
+                      <div>
+                        <strong id="para-title">Chính xác xuất sắc!</strong>
+                        <p id="para-desc">school → teacher → book</p>
+                      </div>
+                    </div>
+                    <button class="btn-drawer-action" onclick="showScreen('screen-practice-sentence')">Tiếp theo (Đặt câu) ›</button>
+                  </div>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             19. CHẾ ĐỘ 8: ĐẶT CÂU AI CHẤM (PAGE 9 PDF)
+             ========================================== -->
+        <article class="screen" id="screen-practice-sentence">
+          <div class="app-layout practice-layout">
+            <header class="practice-header">
+              <button class="btn-back" onclick="showScreen('screen-vocab-modes')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <div class="practice-title-center">
+                <span>Tiến độ đặt câu: <strong>3/10</strong></span>
+                <div class="practice-progress-bar">
+                  <div class="practice-fill" style="width: 30%;"></div>
+                </div>
+              </div>
+              <div class="mode-tag-small">AI Chấm điểm</div>
+            </header>
+
+            <div class="screen-scroll">
+              <div class="practice-body">
+
+                <!-- Level Toggle: A2 vs C2 (PDF Trang 9 có cả 2 ví dụ Level A2 và Level C2) -->
+                <div class="sentence-level-toggle">
+                  <button class="level-tab-btn active" id="btn-level-a2" onclick="switchSentenceLevel('A2')">Level A2 (Cơ bản)</button>
+                  <button class="level-tab-btn" id="btn-level-c2" onclick="switchSentenceLevel('C2')">Level C2 (Nâng cao)</button>
+                </div>
+
+                <!-- Thẻ từ: experience / noun / /ɪkˈspɪərɪəns/ / trải nghiệm (PDF Trang 9) -->
+                <div class="sentence-word-card">
+                  <div class="sw-top">
+                    <span class="badge-cefr" id="sentence-cefr-badge">Level A2</span>
+                    <button class="btn-audio-mini" onclick="speakWord('experience')">🔊</button>
+                  </div>
+                  <h2 class="sw-word">experience</h2>
+                  <div class="sw-ipa">/ɪkˈspɪərɪəns/ · noun</div>
+                  <div class="sw-meaning">trải nghiệm, kinh nghiệm</div>
+                </div>
+
+                <!-- Yêu cầu đặt câu (Đúng 100% PDF Trang 9) -->
+                <div class="sentence-requirement-box">
+                  <span class="req-label">📌 Yêu cầu:</span>
+                  <p class="req-text" id="sentence-req-text">
+                    "Viết một câu kể về một trải nghiệm trong quá khứ; sử dụng thì quá khứ đơn."
+                  </p>
+                </div>
+
+                <!-- Ô viết câu -->
+                <div class="sentence-input-wrap">
+                  <span class="input-label">Câu của bạn:</span>
+                  <textarea id="user-sentence-input" class="sentence-textarea" placeholder="Nhập câu tiếng Anh của bạn tại đây..."></textarea>
+                </div>
+
+                <!-- Nút điền câu mẫu demo (để user test ngay câu đúng như trong tài liệu) -->
+                <div class="sample-sentence-helper">
+                  <small>Điền câu mẫu theo tài liệu:</small>
+                  <button class="btn-sample-fill" id="btn-fill-sample" onclick="fillSampleSentence()">
+                    📋 Điền câu mẫu Level A2
+                  </button>
+                </div>
+
+                <!-- Nút Kiểm tra với AI (PDF Trang 9) -->
+                <button class="btn-primary btn-block btn-ai-check" id="btn-ai-evaluate" onclick="evaluateSentenceWithAI()">
+                  🤖 Kiểm tra với AI
+                </button>
+
+                <!-- Hộp phản hồi & chấm điểm AI (AI sẽ chấm và hướng dẫn điều chỉnh câu theo CEFR) -->
+                <div class="ai-eval-result-card hidden" id="ai-eval-result">
+                  <div class="ai-eval-header">
+                    <div class="ai-eval-title">
+                      <img src="assets/icons/ai_assistant.png" alt="AI Guru" />
+                      <div>
+                        <strong>Guru AI đánh giá & sửa câu</strong>
+                        <span class="ai-level-match" id="ai-level-match">Chuẩn CEFR: Đạt yêu cầu 🌟</span>
+                      </div>
+                    </div>
+                    <div class="ai-eval-score-badge" id="ai-eval-score">95/100</div>
+                  </div>
+
+                  <div class="ai-eval-body">
+                    <div class="eval-row">
+                      <span class="eval-criteria">Ngữ pháp:</span>
+                      <span class="eval-stat text-green" id="grammar-eval-stat">Chính xác 100% (Thì quá khứ đơn chuẩn)</span>
+                    </div>
+                    <div class="eval-row">
+                      <span class="eval-criteria">Dùng từ:</span>
+                      <span class="eval-stat text-green">Sử dụng đúng từ "experience" trong ngữ cảnh</span>
+                    </div>
+                    <div class="eval-comment-box" id="ai-comment-box">
+                      <strong>Nhận xét của AI:</strong>
+                      <p id="ai-comment-text">Câu văn rất mạch lạc, đúng cấu trúc ngữ pháp và diễn đạt tự nhiên.</p>
+                    </div>
+                    <div class="ai-upgrade-suggestion" id="ai-upgrade-box">
+                      <strong>💡 Gợi ý nâng cấp từ AI:</strong>
+                      <p id="ai-suggestion-text">"I had an unforgettable experience when I explored the historic streets of Hanoi last summer."</p>
+                    </div>
+                  </div>
+
+                  <button class="btn-primary btn-block" style="margin-top: 14px;" onclick="showScreen('screen-practice-complete-all')">
+                    Hoàn thành bài tập! 🎉
+                  </button>
+                </div>
+
+                <!-- Ghi chú luật của PDF Trang 9 -->
+                <div class="pdf-rules-note">
+                  <p>› Độ khó dễ của yêu cầu sẽ phụ thuộc vào level của user</p>
+                  <p>› AI sẽ chấm và hướng dẫn điều chỉnh câu</p>
+                  <p>› Đủ level theo CEFR: A1 - C2</p>
+                </div>
+
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             20. MÀN HÌNH HOÀN THÀNH TẤT CẢ (CELEBRATION)
+             ========================================== -->
+        <article class="screen" id="screen-practice-complete-all">
+          <div class="complete-screen">
+            <div class="complete-mascot">
+              <img src="assets/mascots/chy_winner.png" alt="ChY Chiến Thắng" />
+            </div>
+            <h2 class="complete-title">Xuất sắc, Giang ơi! 🎉</h2>
+            <p class="complete-sub">Bạn đã hoàn thành trọn vẹn buổi học hôm nay!</p>
+            
+            <div class="complete-stats">
+              <div class="complete-stat">
+                <span class="cs-num">10/10</span>
+                <span class="cs-label">Nhiệm vụ xong</span>
+              </div>
+              <div class="complete-stat">
+                <span class="cs-num">+150</span>
+                <span class="cs-label">XP nhận được</span>
+              </div>
+              <div class="complete-stat">
+                <span class="cs-num">95%</span>
+                <span class="cs-label">Độ chuẩn xác</span>
+              </div>
+            </div>
+
+            <!-- Streak tăng lên 8 ngày! -->
+            <div class="streak-levelup-card">
+              <span class="streak-flame">🔥</span>
+              <div>
+                <strong>Chuỗi học tập đã tăng lên 8 ngày!</strong>
+                <p>Tiếp tục duy trì vào ngày mai để nhận huy hiệu tuần nhé!</p>
+              </div>
+            </div>
+
+            <div class="complete-actions">
+              <button class="btn-secondary" onclick="showScreen('screen-vocab-modes')">Luyện lại</button>
+              <button class="btn-primary" onclick="showScreen('screen-home')">Về Trang chủ 🏠</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             21. KHU VƯỜN / TRÒ CHƠI (GAMES)
+             ========================================== -->
+        <article class="screen" id="screen-games">
+          <div class="app-layout">
+            <header class="screen-header">
+              <h2>🎮 Khu vườn & Trò chơi</h2>
+              <div class="shop-coins"><span>🪙 2,400</span></div>
+            </header>
+            <div class="screen-scroll">
+              <p class="study-subtitle">Ôn tập từ vựng qua trò chơi giúp việc học vui và không nhàm chán (PDF Trang 1)</p>
+              <div class="games-grid">
+                <div class="game-card" onclick="alert('Đang mở mini-game Lật thẻ trí nhớ!')">
+                  <div class="game-img">🃏</div>
+                  <strong>Lật thẻ từ vựng</strong>
+                  <span>+20 XP · Trí nhớ</span>
+                </div>
+                <div class="game-card" onclick="alert('Đang mở mini-game Ghép đôi từ & nghĩa!')">
+                  <div class="game-img">🧩</div>
+                  <strong>Ghép đôi từ vựng</strong>
+                  <span>+30 XP · Phản xạ</span>
+                </div>
+                <div class="game-card" onclick="alert('Đang mở trò chơi Chạy đua từ!')">
+                  <div class="game-img">🏃</div>
+                  <strong>Chạy đua từ</strong>
+                  <span>+40 XP · Tốc độ</span>
+                </div>
+                <div class="game-card" onclick="alert('Đang mở trò Bắn từ vựng!')">
+                  <div class="game-img">🎯</div>
+                  <strong>Bắn từ vựng</strong>
+                  <span>+50 XP · Thử thách</span>
+                </div>
+                <div class="game-card" onclick="alert('Đang mở Đố vui tiếng Anh!')">
+                  <div class="game-img">🧠</div>
+                  <strong>Đố vui AI</strong>
+                  <span>+60 XP · Kiến thức</span>
+                </div>
+                <div class="game-card" onclick="alert('Đang kết nối bạn cùng trường để thách đấu!')">
+                  <div class="game-img">⚔️</div>
+                  <strong>Thách đấu Sinh viên</strong>
+                  <span>PvP Đấu 1v1</span>
+                </div>
+              </div>
+              <div style="height: 90px;"></div>
+            </div>
+            <nav class="bottom-nav">
+              <button class="nav-btn" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn active" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             22. CỬA HÀNG (SHOP)
+             ========================================== -->
+        <article class="screen" id="screen-shop">
+          <div class="app-layout">
+            <header class="screen-header">
+              <h2>🛍️ Cửa hàng</h2>
+              <div class="shop-coins"><span>🪙 2,400 xu</span></div>
+            </header>
+            <div class="screen-scroll">
+              <div class="shop-tabs">
+                <button class="shop-tab active">Linh vật</button>
+                <button class="shop-tab">Trang phục</button>
+                <button class="shop-tab">Bảo vệ Streak</button>
+                <button class="shop-tab">Vật phẩm</button>
+              </div>
+              <div class="shop-grid">
+                <div class="shop-item">
+                  <img src="assets/mascots/pear_friend.png" alt="Pear Friend" />
+                  <strong>Bạn Lê (Pear Friend)</strong>
+                  <span>Đồng hành học tập</span>
+                  <button class="btn-buy" onclick="alert('Đã mua bạn Lê đồng hành thành công!')">🪙 500 xu</button>
+                </div>
+                <div class="shop-item">
+                  <img src="assets/mascots/orange_friend.png" alt="Orange Friend" />
+                  <strong>Bạn Cam (Orange Friend)</strong>
+                  <span>Cổ vũ luyện viết</span>
+                  <button class="btn-buy" onclick="alert('Đã mua bạn Cam đồng hành thành công!')">🪙 500 xu</button>
+                </div>
+                <div class="shop-item">
+                  <div class="shop-placeholder">🛡️</div>
+                  <strong>Khiên bảo vệ Chuỗi</strong>
+                  <span>Không mất chuỗi khi quên học</span>
+                  <button class="btn-buy" onclick="alert('Đã trang bị Khiên bảo vệ chuỗi!')">🪙 300 xu</button>
+                </div>
+                <div class="shop-item">
+                  <div class="shop-placeholder">❤️</div>
+                  <strong>Hồi đầy 3 Tim</strong>
+                  <span>Tiếp tục làm bài tập</span>
+                  <button class="btn-buy" onclick="alert('Đã nạp đầy 3 tim!')">🪙 150 xu</button>
+                </div>
+              </div>
+              <div style="height: 90px;"></div>
+            </div>
+            <nav class="bottom-nav">
+              <button class="nav-btn" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn active" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             23. HỒ SƠ CÁ NHÂN (PROFILE)
+             ========================================== -->
+        <article class="screen" id="screen-profile">
+          <div class="app-layout">
+            <div class="profile-header-bg">
+              <div class="profile-top-row">
+                <h2>Hồ sơ</h2>
+                <button class="icon-btn white" onclick="showScreen('screen-settings')">
+                  <img src="assets/icons/action_settings.png" alt="settings" />
+                </button>
+              </div>
+              <div class="profile-avatar-wrap">
+                <div class="profile-avatar">HG</div>
+                <div class="profile-level-badge">
+                  <img src="assets/icons/cefr_b1.png" alt="B1" />
+                </div>
+              </div>
+              <div class="profile-name">Hương Giang</div>
+              <div class="profile-username">@huonggiang · Sinh viên năm 2</div>
+            </div>
+
+            <div class="screen-scroll">
+              <div class="profile-stats-row">
+                <div class="p-stat">
+                  <span class="p-stat-num orange-text">7</span>
+                  <span class="p-stat-label">🔥 Ngày streak</span>
+                </div>
+                <div class="p-stat">
+                  <span class="p-stat-num blue-text">720</span>
+                  <span class="p-stat-label">⚡ XP tháng 11</span>
+                </div>
+                <div class="p-stat">
+                  <span class="p-stat-num green-text">1,240</span>
+                  <span class="p-stat-label">📖 Từ đã học</span>
+                </div>
+                <div class="p-stat">
+                  <span class="p-stat-num purple-text">48</span>
+                  <span class="p-stat-label">✅ Bài tập xong</span>
+                </div>
+              </div>
+
+              <!-- Lộ trình CEFR A1-C2 -->
+              <section class="home-block">
+                <div class="block-header"><h3>Khung năng lực CEFR</h3></div>
+                <div class="cefr-track">
+                  <div class="cefr-step done"><img src="assets/icons/cefr_a1.png" alt="A1"/><span>A1</span></div>
+                  <div class="cefr-line done"></div>
+                  <div class="cefr-step done"><img src="assets/icons/cefr_a2.png" alt="A2"/><span>A2</span></div>
+                  <div class="cefr-line done"></div>
+                  <div class="cefr-step current"><img src="assets/icons/cefr_b1.png" alt="B1"/><span>B1 Đang học</span></div>
+                  <div class="cefr-line"></div>
+                  <div class="cefr-step"><img src="assets/icons/cefr_b2.png" alt="B2"/><span>B2 Mục tiêu</span></div>
+                  <div class="cefr-line"></div>
+                  <div class="cefr-step"><img src="assets/icons/cefr_c1.png" alt="C1"/><span>C1</span></div>
+                  <div class="cefr-line"></div>
+                  <div class="cefr-step"><img src="assets/icons/cefr_c2.png" alt="C2"/><span>C2</span></div>
+                </div>
+              </section>
+
+              <!-- Huy hiệu -->
+              <section class="home-block">
+                <div class="block-header"><h3>🏅 Bộ sưu tập huy hiệu</h3></div>
+                <div class="medals-row">
+                  <div class="medal earned"><img src="assets/icons/reward_streak.png" alt="7 ngày"/><span>Chuỗi 7 ngày</span></div>
+                  <div class="medal earned"><img src="assets/icons/reward_medal.png" alt="1000 từ"/><span>1,000 Từ vựng</span></div>
+                  <div class="medal earned"><img src="assets/icons/reward_trophy.png" alt="Top 15"/><span>Top 15 Tuần</span></div>
+                  <div class="medal"><img src="assets/icons/reward_ranking.png" alt="Top 3"/><span>Chinh phục B2</span></div>
+                </div>
+              </section>
+
+              <div style="height: 90px;"></div>
+            </div>
+
+            <nav class="bottom-nav">
+              <button class="nav-btn" onclick="showScreen('screen-home')">
+                <img src="assets/3d_icons/nav_home_3d.png?v=10" alt="Home" />
+                <span>Trang chủ</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-study')">
+                <img src="assets/3d_icons/nav_study_3d.png?v=10" alt="Study" />
+                <span>Học tập</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-games')">
+                <img src="assets/3d_icons/nav_games_3d.png?v=10" alt="Games" />
+                <span>Khu vườn</span>
+              </button>
+              <button class="nav-btn" onclick="showScreen('screen-shop')">
+                <img src="assets/3d_icons/nav_shop_3d.png?v=10" alt="Shop" />
+                <span>Cửa hàng</span>
+              </button>
+              <button class="nav-btn active" onclick="showScreen('screen-profile')">
+                <img src="assets/3d_icons/nav_profile_3d.png?v=10" alt="Profile" />
+                <span>Hồ sơ</span>
+              </button>
+            </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             24. BẢNG XẾP HẠNG CHI TIẾT (LEADERBOARD)
+             ========================================== -->
+        <article class="screen" id="screen-leaderboard">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-home')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Bảng xếp hạng Tháng 11/2026</h2>
+            </header>
+            <div class="screen-scroll">
+              <div class="lb-top3-podium">
+                <div class="podium-item pod-2">
+                  <div class="pod-crown">🥈</div>
+                  <div class="pod-avatar">TH</div>
+                  <strong>Thu Hà</strong>
+                  <span>1,180 XP</span>
+                </div>
+                <div class="podium-item pod-1">
+                  <div class="pod-crown">👑</div>
+                  <div class="pod-avatar gold">MA</div>
+                  <strong>Minh Anh</strong>
+                  <span>1,250 XP</span>
+                </div>
+                <div class="podium-item pod-3">
+                  <div class="pod-crown">🥉</div>
+                  <div class="pod-avatar">QH</div>
+                  <strong>Quang Huy</strong>
+                  <span>1,050 XP</span>
+                </div>
+              </div>
+
+              <div class="lb-full-list">
+                <div class="lb-full-item">
+                  <span class="lbf-rank">4</span>
+                  <div class="lbf-av">TL</div>
+                  <span class="lbf-name">Thành Long</span>
+                  <span class="lbf-xp">980 XP</span>
+                </div>
+                <div class="lb-full-item">
+                  <span class="lbf-rank">5</span>
+                  <div class="lbf-av">BN</div>
+                  <span class="lbf-name">Bảo Ngọc</span>
+                  <span class="lbf-xp">910 XP</span>
+                </div>
+                <div class="lb-full-item my-rank-row">
+                  <span class="lbf-rank current-user-badge">12</span>
+                  <div class="lbf-av av-user">HG</div>
+                  <span class="lbf-name"><strong>Bạn · Hương Giang</strong></span>
+                  <span class="lbf-xp orange-text">720 XP</span>
+                </div>
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             25. THÔNG BÁO (NOTIFICATIONS)
+             ========================================== -->
+        <article class="screen" id="screen-notifications">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-home')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Thông báo</h2>
+            </header>
+            <div class="screen-scroll">
+              <div class="notif-list">
+                <div class="notif-item unread" onclick="showScreen('screen-practice-flashcard')">
+                  <img src="assets/icons/reward_streak.png" alt="Streak" class="notif-icon" />
+                  <div class="notif-content">
+                    <strong>Giữ vững chuỗi 7 ngày! 🔥</strong>
+                    <p>Chỉ còn 4 phút học để hoàn thành mục tiêu hôm nay.</p>
+                    <span class="notif-time">10 phút trước</span>
+                  </div>
+                </div>
+                <div class="notif-item unread" onclick="openModal('modal-mistakes')">
+                  <img src="assets/icons/ai_mistake_analysis.png" alt="AI" class="notif-icon" />
+                  <div class="notif-content">
+                    <strong>AI Phân tích lỗi sai mới</strong>
+                    <p>Bạn hay nhầm lẫn giữa HTĐ và HTTD. Đã bổ sung 5 câu luyện tập!</p>
+                    <span class="notif-time">2 giờ trước</span>
+                  </div>
+                </div>
+                <div class="notif-item" onclick="openModal('modal-microtask')">
+                  <img src="assets/icons/reward_xp.png" alt="Microtask" class="notif-icon" />
+                  <div class="notif-content">
+                    <strong>Micro-task giờ nghỉ trưa</strong>
+                    <p>Nhiệm vụ 60 giây ôn 5 từ vựng đang chờ bạn.</p>
+                    <span class="notif-time">Hôm qua</span>
+                  </div>
+                </div>
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             26. CÀI ĐẶT (SETTINGS)
+             ========================================== -->
+        <article class="screen" id="screen-settings">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-profile')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Cài đặt ứng dụng</h2>
+            </header>
+            <div class="screen-scroll">
+              <div class="settings-list">
+                <div class="settings-group">
+                  <span class="settings-label">HỌC TẬP & AI</span>
+                  <div class="settings-item" onclick="showScreen('screen-onboard-3')">
+                    <span>Mục tiêu học mỗi ngày</span>
+                    <span class="settings-value">10 phút ›</span>
+                  </div>
+                  <div class="settings-item" onclick="showScreen('screen-onboard-2')">
+                    <span>Trình độ mục tiêu</span>
+                    <span class="settings-value">B1 → B2 ›</span>
+                  </div>
+                  <div class="settings-item">
+                    <span>Phát âm AI tự động</span>
+                    <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+
+                <div class="settings-group">
+                  <span class="settings-label">MICRO-TASK & THÔNG BÁO</span>
+                  <div class="settings-item">
+                    <span>Nhắc nhở Micro-task thông minh</span>
+                    <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="settings-item">
+                    <span>Âm thanh chúc mừng SFX</span>
+                    <label class="toggle"><input type="checkbox" checked id="toggle-sfx" /><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+
+                <div class="settings-group">
+                  <div class="settings-item danger" onclick="showScreen('screen-splash')">
+                    <span>Đăng xuất tài khoản</span>
+                  </div>
+                </div>
+              </div>
+              <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+      </section> <!-- /#screens -->
+
+      <!-- ==========================================
+           MODALS TÍNH NĂNG ĐẶC BIỆT CỦA PDF (TRANG 1)
+           ========================================== -->
+
+      <!-- Modal 1: Tải đề cương & Tài liệu học phần (AI Syllabus Upload) -->
+      <div class="modal-backdrop hidden" id="modal-syllabus">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>📑 Tải Đề Cương / Danh Sách Từ Vựng</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-syllabus')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              Sinh viên có thể tải đề cương chi tiết học phần môn Đọc-Viết ở trường để AI thiết kế lộ trình bám sát môn học (PDF Trang 1).
+            </p>
+            <div class="upload-dropzone" onclick="document.getElementById('file-upload-input').click()">
+              <div class="drop-icon">📤</div>
+              <strong>Kéo thả đề cương PDF/Word hoặc bấm chọn tệp</strong>
+              <small>Hỗ trợ: PDF, DOCX, TXT, Excel (Tối đa 25MB)</small>
+              <input type="file" id="file-upload-input" style="display:none;" onchange="handleFileUpload(this)" />
+            </div>
+
+            <div class="syllabus-samples-box">
+              <span class="sample-label">Hoặc chọn đề cương mẫu có sẵn:</span>
+              <button class="btn-sample-syllabus" onclick="selectSampleSyllabus('Đọc-Viết Học Phần 2 · ĐHQG')">
+                📖 Đề cương môn Đọc-Viết 2 (ĐH Quốc Gia)
+              </button>
+              <button class="btn-sample-syllabus" onclick="selectSampleSyllabus('Tiếng Anh Thương Mại B2')">
+                💼 Đề cương Tiếng Anh Thương Mại B2
+              </button>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn-primary btn-block" onclick="startAiSyllabusAnalysis()">
+                🤖 AI Phân Tích & Tạo Lộ Trình Môn Học
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 2: Nhận diện từ vựng qua ảnh chụp (AI OCR Camera) -->
+      <div class="modal-backdrop hidden" id="modal-ocr">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>📷 Nhận Diện Từ Vựng Từ Ảnh (AI OCR)</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-ocr')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              Chụp ảnh trang sách, giáo trình hoặc bảng từ vựng để AI quét và tự động lọc danh sách từ mới cho bạn học (PDF Trang 1).
+            </p>
+            <div class="camera-simulator-box" id="camera-box">
+              <div class="cam-viewfinder">
+                <div class="cam-corner tl"></div><div class="cam-corner tr"></div>
+                <div class="cam-corner bl"></div><div class="cam-corner br"></div>
+                <div class="cam-preview-content">
+                  <span class="cam-icon">📸</span>
+                  <span>Chụp trang sách giáo trình tiếng Anh</span>
+                </div>
+              </div>
+              <div class="cam-actions-row">
+                <button class="btn-cam-capture" onclick="simulateCameraCapture()">
+                  <span class="cam-circle-inner"></span>
+                </button>
+              </div>
+            </div>
+
+            <div class="ocr-result-detected hidden" id="ocr-result-detected">
+              <strong>✅ AI đã nhận diện 5 từ vựng mới:</strong>
+              <div class="detected-chips">
+                <span class="d-chip">book (cuốn sách)</span>
+                <span class="d-chip">experience (trải nghiệm)</span>
+                <span class="d-chip">curriculum (giáo trình)</span>
+                <span class="d-chip">vocabulary (từ vựng)</span>
+                <span class="d-chip">syllabus (đề cương)</span>
+              </div>
+              <button class="btn-primary btn-block" style="margin-top: 12px;" onclick="addOcrWordsToStudy()">
+                Thêm vào Bộ Từ Vựng Của Tôi 🚀
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 3: Phân tích lỗi sai & Luyện tập thích ứng (Adaptive AI Practice) -->
+      <div class="modal-backdrop hidden" id="modal-mistakes">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>🔍 AI Phân Tích Lỗi Sai & Luyện Thích Ứng</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-mistakes')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="ai-case-card">
+              <div class="case-badge">Trường hợp thực tế (PDF Trang 1)</div>
+              <h4>Lỗi sai phát hiện: Hiện tại đơn (HTĐ) vs Hiện tại tiếp diễn (HTTD)</h4>
+              <p>Hệ thống AI ghi nhận bạn trả lời sai <strong>4 lần</strong> ở cấu trúc câu Hiện tại đơn (quên chia động từ -s/-es khi chủ ngữ ngôi thứ 3 số ít).</p>
+              
+              <div class="mistake-comparison">
+                <div class="m-wrong">❌ "He often read book." (Sai ngữ pháp)</div>
+                <div class="m-right">✅ "He often <strong>reads</strong> a book." (Đúng HTĐ)</div>
+              </div>
+            </div>
+
+            <div class="adaptive-plan-box">
+              <strong>Lộ trình khắc phục do AI tạo:</strong>
+              <ul>
+                <li>Bài luyện bổ sung 1: Nhận diện dấu hiệu thì HTĐ (always, usually, often...)</li>
+                <li>Bài luyện bổ sung 2: Quy tắc thêm -s / -es với động từ</li>
+                <li>Đánh giá lại tự động cho đến khi thành thạo 100%</li>
+              </ul>
+            </div>
+
+            <button class="btn-primary btn-block" onclick="startAdaptiveRemedy()">
+              Luyện bài tập thích ứng ngay (5 câu) ⚡
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 4: Micro-task 60s (PDF Trang 1) -->
+      <div class="modal-backdrop hidden" id="modal-microtask">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>⚡ Micro-task 60 Giây</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-microtask')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              Tận dụng 60 giây chờ xe buýt hoặc giải lao để củng cố 3 từ vựng nhanh (PDF Trang 1).
+            </p>
+            <div class="micro-quiz-box">
+              <div class="mq-timer">⏱️ Còn lại: <strong id="mq-timer-val">58s</strong></div>
+              <h4 id="mq-question">"book" nghĩa là gì?</h4>
+              <div class="mq-options">
+                <button class="mq-btn" onclick="answerMicroTask(true, this)">Cuốn sách</button>
+                <button class="mq-btn" onclick="answerMicroTask(false, this)">Bàn học</button>
+                <button class="mq-btn" onclick="answerMicroTask(false, this)">Bút mực</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- /#phone-frame -->
+  </main> <!-- /#app-container -->
+
+  <script src="js/app.js"></script>
+</body>
+</html>

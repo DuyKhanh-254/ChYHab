@@ -1,0 +1,64 @@
+/* 3D Icons Specific Styling */
+.cm-icon-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.cal-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.bxh-medal-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.flame-ico-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(249,115,22,0.4));
+}
+
+.three-hearts-img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(239,68,68,0.35));
+}
+
+/* Bottom Nav with New 3D Icons */
+.bottom-nav .nav-btn img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: none !important;
+  opacity: 0.65;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav .nav-btn.active img {
+  opacity: 1 !important;
+  transform: scale(1.15) translateY(-2px);
+  filter: drop-shadow(0 4px 8px rgba(249,115,22,0.35)) !important;
+}
+
+.bottom-nav .nav-btn span {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.bottom-nav .nav-btn.active span {
+  color: #F97316;
+  font-weight: 800;
+}
