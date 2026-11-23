@@ -43,16 +43,44 @@ function getDefaultState() {
 
 let appState = loadState();
 
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function loadState() {
+  const def = getDefaultState();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return getDefaultState();
+    if (!raw) return def;
     const parsed = JSON.parse(raw);
-    return Object.assign(getDefaultState(), parsed, {
-      settings: Object.assign(getDefaultState().settings, parsed.settings || {})
+    if (!parsed || typeof parsed !== 'object') return def;
+    const merged = Object.assign({}, def, parsed, {
+      settings: Object.assign({}, def.settings, (parsed.settings && typeof parsed.settings === 'object') ? parsed.settings : {})
     });
+    // Defensive validation against corrupted storage
+    merged.xp = Math.max(0, Number(merged.xp) || 0);
+    merged.coins = Math.max(0, Number(merged.coins) || 0);
+    merged.streak = Math.max(0, Number(merged.streak) || 0);
+    merged.dailyMinutes = Math.max(0, Number(merged.dailyMinutes) || 0);
+    merged.dailyGoal = Math.max(5, Number(merged.dailyGoal) || def.dailyGoal);
+    merged.vocabLearned = Math.max(0, Number(merged.vocabLearned) || 0);
+    merged.exercisesDone = Math.max(0, Number(merged.exercisesDone) || 0);
+    merged.currentVocabIdx = Number.isFinite(Number(merged.currentVocabIdx)) ? Math.trunc(Number(merged.currentVocabIdx)) : 0;
+    merged.gardenLevel = Math.min(5, Math.max(1, Math.trunc(Number(merged.gardenLevel) || 1)));
+    merged.gardenGrowth = Math.min(100, Math.max(0, Number(merged.gardenGrowth) || 0));
+    merged.gardenWater = Math.max(0, Number(merged.gardenWater) || 0);
+    merged.bookmarks = Array.isArray(merged.bookmarks) ? merged.bookmarks : def.bookmarks;
+    merged.srsDue = Array.isArray(merged.srsDue) ? merged.srsDue : def.srsDue;
+    merged.completedGrammar = Array.isArray(merged.completedGrammar) ? merged.completedGrammar : def.completedGrammar;
+    merged.ownedShopItems = Array.isArray(merged.ownedShopItems) ? merged.ownedShopItems : def.ownedShopItems;
+    return merged;
   } catch (e) {
-    return getDefaultState();
+    return def;
   }
 }
 
@@ -655,6 +683,9 @@ function syncVocabScreens() {
       </button>
     `).join('');
   }
+
+  // Ensure stale feedback states never stick when switching words
+  resetChoiceSelection();
 }
 
 function flipFlashcard() {
@@ -1248,6 +1279,9 @@ function verifyCompleteSentence() {
 const filledSlots = { 1: null, 2: null, 3: null };
 
 function placeWordIntoBlank(word) {
+  // Prevent placing the same word into multiple blanks
+  if (Object.values(filledSlots).includes(word)) return;
+
   let targetSlot = null;
   if (!filledSlots[1]) targetSlot = 1;
   else if (!filledSlots[2]) targetSlot = 2;
@@ -1509,7 +1543,7 @@ function renderGrammarRoadmap() {
   });
 
   if (!html) {
-    html = `<div class="gl-card" style="text-align:center;"><p>Không tìm thấy Unit nào khớp với "${query}".</p></div>`;
+    html = `<div class="gl-card" style="text-align:center;"><p>Không tìm thấy Unit nào khớp với "${escapeHtml(query)}".</p></div>`;
   }
   container.innerHTML = html;
 }
@@ -1863,6 +1897,11 @@ function renderGarden() {
 }
 
 function waterGardenPlant() {
+  if (appState.gardenLevel >= GARDEN_STAGES.length && appState.gardenGrowth >= 100) {
+    showXpToast('🌸 Khu vườn đã đạt cấp tối đa (Cấp 5)!');
+    playSound('correct');
+    return;
+  }
   if (appState.gardenWater <= 0) {
     openInAppDialog('💧', 'Hết bình nước rồi!', 'Bạn có thể mua thêm Bình nước (120 xu) trong Cửa hàng hoặc hoàn thành bài học để nhận thêm xu nhé!');
     return;
@@ -1870,11 +1909,18 @@ function waterGardenPlant() {
   appState.gardenWater -= 1;
   appState.gardenGrowth += 25;
   if (appState.gardenGrowth >= 100) {
-    appState.gardenGrowth = 0;
-    appState.gardenLevel = Math.min(GARDEN_STAGES.length, appState.gardenLevel + 1);
-    playSound('correct');
-    addReward(30, 20, 0);
-    showXpToast(`🌸 Cây lên Cấp ${appState.gardenLevel}! +30 XP`);
+    if (appState.gardenLevel < GARDEN_STAGES.length) {
+      appState.gardenGrowth = 0;
+      appState.gardenLevel += 1;
+      playSound('correct');
+      addReward(30, 20, 0);
+      showXpToast(`🌸 Cây lên Cấp ${appState.gardenLevel}! +30 XP`);
+    } else {
+      appState.gardenGrowth = 100;
+      playSound('correct');
+      addReward(50, 30, 0);
+      showXpToast('🌸 Khu vườn đạt Cấp tối đa! +50 XP');
+    }
   } else {
     playSound('pop');
     showXpToast('💧 Cây đã lớn thêm +25%!');
