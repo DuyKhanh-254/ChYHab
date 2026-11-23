@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/screens.css" />
   <link rel="stylesheet" href="css/extra.css?v=33" />
-  <link rel="stylesheet" href="css/upgrade.css?v=2" />
+  <link rel="stylesheet" href="css/upgrade.css?v=3" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -36,6 +36,7 @@
       <button class="device-btn" onclick="setDeviceView('responsive')" title="Toàn màn hình">🖥️ Responsive</button>
       <button class="device-btn btn-ai-quick" onclick="openModal('modal-syllabus')" title="AI Đề Cương">⚡ Tải Đề Cương AI</button>
       <button class="device-btn btn-ai-quick" onclick="openModal('modal-mistakes')" title="AI Sửa Lỗi">🔍 Phân Tích Lỗi</button>
+      <button class="device-btn" id="btn-device-dark" onclick="toggleDarkMode()" title="Bật/Tắt Chế độ Ban đêm">🌙 Dark</button>
     </div>
   </aside>
 
@@ -992,13 +993,13 @@
                     <div class="tile-arrow">›</div>
                   </div>
 
-                  <!-- 5. Đọc -->
-                  <div class="skill-tile tile-read" onclick="openModal('modal-syllabus')">
+                  <!-- 5. Đọc (Mở màn hình Đọc hiểu & Chạm dịch từ kiểu LingQ/Kindle) -->
+                  <div class="skill-tile tile-read" onclick="showScreen('screen-reading')">
                     <div class="tile-icon-wrap">
                       <img src="assets/icons/study_read.png" alt="Đọc" />
                     </div>
                     <strong>Đọc</strong>
-                    <span>Giáo trình & Đề cương</span>
+                    <span>Đọc hiểu · Chạm tra từ</span>
                     <div class="tile-arrow">›</div>
                   </div>
 
@@ -1212,6 +1213,57 @@
               </div>
 
               <div style="height: 30px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             08E. ĐỌC HIỂU HỌC THUẬT & NGHE HỘI THOẠI (TAP-TO-LOOKUP)
+             ========================================== -->
+        <article class="screen" id="screen-reading">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-study')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 style="font-size:16px;">📖 Đọc &amp; Nghe Hiểu</h2>
+              <button class="btn-audio-mini" onclick="speakReadingPassage()" title="Nghe toàn bài">🔊 Đọc bài</button>
+            </header>
+
+            <div class="screen-scroll">
+              <div class="gl-tabs">
+                <button class="gl-tab-btn active" id="rd-tab-academic" onclick="switchReadingTopic('academic')">📖 Bài đọc Học thuật</button>
+                <button class="gl-tab-btn" id="rd-tab-dialogue" onclick="switchReadingTopic('dialogue')">🎧 Hội thoại Sinh viên</button>
+              </div>
+
+              <p style="font-size:11.5px;color:#EA580C;font-weight:800;margin-bottom:8px;">
+                💡 Chạm vào các từ được tô cam trong bài để tra nhanh IPA, nghĩa, nghe phát âm và lưu vào SRS!
+              </p>
+
+              <!-- Floating Tap-to-Lookup Dictionary Card -->
+              <div class="tap-lookup-popup hidden" id="tap-lookup-popup">
+                <div class="tap-lookup-info">
+                  <strong id="tap-lookup-word">syllabus /ˈsɪl.ə.bəs/</strong>
+                  <span id="tap-lookup-meaning">danh từ · Đề cương môn học</span>
+                </div>
+                <div class="tap-lookup-actions">
+                  <button class="btn-audio-mini" id="tap-lookup-audio" onclick="speakWord('syllabus')">🔊</button>
+                  <button class="btn-sm-orange" id="tap-lookup-save" onclick="saveTappedWordToSrs()">+ Lưu SRS</button>
+                </div>
+              </div>
+
+              <!-- Reading Passage with interactive tap-words -->
+              <div class="reading-passage-card" id="reading-passage-body"></div>
+
+              <!-- Reading Comprehension Quiz -->
+              <div class="gl-card">
+                <h3 style="margin-bottom:8px;font-size:14px;">📝 Câu hỏi Đọc / Nghe hiểu (+35 XP)</h3>
+                <div class="gl-quiz-q" id="rd-quiz-q" style="font-size:13.5px;"></div>
+                <div class="gl-quiz-opts" id="rd-quiz-opts"></div>
+                <div class="gl-explain-box hidden" id="rd-quiz-explain"></div>
+              </div>
+
+              <div style="height: 36px;"></div>
             </div>
           </div>
         </article>
@@ -2467,10 +2519,10 @@
                   <strong>Đố vui Ngữ pháp</strong>
                   <span>60 Units · A1–C2</span>
                 </div>
-                <div class="game-card" onclick="openInAppDialog('⚔️', 'Thách đấu Sinh viên 1v1', 'Chế độ đấu trí trực tiếp cùng bạn cùng lớp ENG204 sẽ mở khi kết nối máy chủ thời gian thực. Hiện tại bạn có thể luyện tốc độ với Đua 60 giây hoặc Ghép đôi từ vựng!')">
+                <div class="game-card" onclick="openPvpArenaModal()">
                   <div class="game-img">⚔️</div>
                   <strong>Thách đấu Sinh viên</strong>
-                  <span>PvP Đấu 1v1</span>
+                  <span>PvP 1v1 · +50 XP</span>
                 </div>
               </div>
               <div style="height: 90px;"></div>
@@ -2601,6 +2653,26 @@
                   <div class="cefr-step"><img src="assets/icons/cefr_c1.png" alt="C1"/><span>C1</span></div>
                   <div class="cefr-line"></div>
                   <div class="cefr-step"><img src="assets/icons/cefr_c2.png" alt="C2"/><span>C2</span></div>
+                </div>
+              </section>
+
+              <!-- Biểu đồ Năng lực 6 Kỹ năng & Báo cáo học tập -->
+              <section class="home-block">
+                <div class="block-header">
+                  <h3>📊 Biểu đồ Năng lực 6 Kỹ năng</h3>
+                </div>
+                <div class="gl-card" style="margin-bottom:10px;">
+                  <div class="skill-bars-list" id="profile-skill-bars">
+                    <div class="skill-bar-row"><span class="skill-bar-label">Từ vựng</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:82%;background:#F97316;"></div></div><span class="skill-bar-pct">82%</span></div>
+                    <div class="skill-bar-row"><span class="skill-bar-label">Ngữ pháp</span><div class="skill-bar-track"><div class="skill-bar-fill" id="skill-bar-grammar" style="width:68%;background:#3B82F6;"></div></div><span class="skill-bar-pct" id="skill-pct-grammar">68%</span></div>
+                    <div class="skill-bar-row"><span class="skill-bar-label">Nghe hiểu</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:74%;background:#14B8A6;"></div></div><span class="skill-bar-pct">74%</span></div>
+                    <div class="skill-bar-row"><span class="skill-bar-label">Nói (AI)</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:79%;background:#EC4899;"></div></div><span class="skill-bar-pct">79%</span></div>
+                    <div class="skill-bar-row"><span class="skill-bar-label">Đọc hiểu</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:85%;background:#8B5CF6;"></div></div><span class="skill-bar-pct">85%</span></div>
+                    <div class="skill-bar-row"><span class="skill-bar-label">Viết (CEFR)</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:76%;background:#22C55E;"></div></div><span class="skill-bar-pct">76%</span></div>
+                  </div>
+                  <button class="btn-primary btn-block" style="margin-top:14px;padding:11px;font-size:13px;" onclick="openStudentReportModal()">
+                    📄 Xuất Báo Cáo Tiến Độ Học Tập (Nộp GV)
+                  </button>
                 </div>
               </section>
 
@@ -2782,6 +2854,10 @@
                   <div class="settings-item">
                     <span>Âm thanh chúc mừng SFX</span>
                     <label class="toggle"><input type="checkbox" checked id="toggle-sfx" onchange="saveSettingsFromUI()" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="settings-item">
+                    <span>🌙 Giao diện Ban đêm (Dark Mode)</span>
+                    <label class="toggle"><input type="checkbox" id="toggle-darkmode" onchange="toggleDarkMode(this.checked)" /><span class="toggle-slider"></span></label>
                   </div>
                 </div>
 
@@ -2994,6 +3070,49 @@
         </div>
       </div>
 
+      <!-- Modal 7: Đấu Trường Sinh Viên 1v1 (Playable Speed PvP) -->
+      <div class="modal-backdrop hidden" id="modal-pvp">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>⚔️ Đấu Trường Tốc Độ 1v1 (Lớp ENG204)</h3>
+            <button class="modal-close-btn" onclick="closePvpArenaModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="pvp-scoreboard">
+              <div class="pvp-fighter">
+                <strong>Bạn (Hương Giang)</strong>
+                <span class="pvp-score-num" id="pvp-my-score">0</span>
+              </div>
+              <span class="pvp-vs-badge" id="pvp-round-label">Câu 1/5</span>
+              <div class="pvp-fighter opponent">
+                <strong id="pvp-opp-name">Minh Anh (Top 1)</strong>
+                <span class="pvp-score-num" id="pvp-opp-score">0</span>
+              </div>
+            </div>
+            <div id="pvp-arena-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal 8: Báo Cáo Tiến Độ Học Tập Sinh Viên (Printable Certificate) -->
+      <div class="modal-backdrop hidden" id="modal-report">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>📄 Báo Cáo Tiến Độ Học Tập Sinh Viên</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-report')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="report-cert-card" id="student-report-card"></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-secondary" style="flex:1;padding:11px;" onclick="closeModal('modal-report')">Đóng</button>
+              <button class="btn-primary" style="flex:1;padding:11px;" onclick="window.print()">🖨️ In / Lưu PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Custom In-App Dialog (Thay thế toàn bộ alert() trình duyệt) -->
       <div class="chyhab-dialog-backdrop hidden" id="chyhab-dialog" onclick="closeInAppDialog()">
         <div class="chyhab-dialog-card" onclick="event.stopPropagation()">
@@ -3008,6 +3127,6 @@
   </main> <!-- /#app-container -->
 
   <script src="js/data.js?v=1"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

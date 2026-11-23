@@ -143,6 +143,7 @@ function showScreen(targetId) {
   if (targetId === 'screen-shop') renderShopItems(currentShopCategory);
   if (targetId === 'screen-games') renderGarden();
   if (targetId === 'screen-ai-roleplay') initRoleplayScreen();
+  if (targetId === 'screen-reading') renderReadingScreen();
   if (targetId === 'screen-practice-flashcard' ||
       targetId === 'screen-practice-pronunciation' ||
       targetId === 'screen-practice-choose' ||
@@ -180,6 +181,7 @@ function syncBottomNav(screenId) {
     'screen-grammar': 1,
     'screen-grammar-lesson': 1,
     'screen-ai-roleplay': 1,
+    'screen-reading': 1,
     'screen-vocabulary': 1,
     'screen-vocab-library': 1,
     'screen-vocab-modes': 1,
@@ -2495,7 +2497,287 @@ function startRoleplayVoiceInput() {
 }
 
 // =============================================
-// 16. INITIALIZATION
+// 15D. INTERACTIVE READING & TAP-TO-LOOKUP DICTIONARY
+// =============================================
+const READING_PASSAGES = {
+  academic: {
+    rawSpeech: 'Modern universities are updating their English curriculum to prepare students for international careers. Instead of memorizing isolated word lists, students now use an adaptive syllabus that combines spaced repetition with real academic research. When learners collaborate on a group presentation and receive immediate feedback, they achieve stronger B2 proficiency before the final exam deadline.',
+    html: `Modern universities are updating their English <span class="tap-word" onclick="lookupTappedWord('curriculum')">curriculum</span> to prepare students for international careers. Instead of memorizing isolated word lists, students now use an adaptive <span class="tap-word" onclick="lookupTappedWord('syllabus')">syllabus</span> that combines spaced repetition with real academic <span class="tap-word" onclick="lookupTappedWord('research')">research</span>.<br><br>When learners <span class="tap-word" onclick="lookupTappedWord('collaborate')">collaborate</span> on a group <span class="tap-word" onclick="lookupTappedWord('presentation')">presentation</span> and receive immediate <span class="tap-word" onclick="lookupTappedWord('feedback')">feedback</span>, they reach a proud <span class="tap-word" onclick="lookupTappedWord('achievement')">achievement</span> before the final exam <span class="tap-word" onclick="lookupTappedWord('deadline')">deadline</span>.`,
+    question: 'According to the passage, how do students reach stronger B2 proficiency?',
+    options: [
+      'By memorizing isolated word lists overnight.',
+      'By collaborating on presentations and receiving immediate feedback.',
+      'By skipping the final exam deadline.',
+      'By avoiding academic research.'
+    ],
+    correct: 1,
+    explain: 'Đoạn 2 nêu rõ: Khi sinh viên hợp tác thuyết trình nhóm (collaborate on a group presentation) và nhận phản hồi tức thì (immediate feedback), họ đạt năng lực B2 vững vàng hơn.'
+  },
+  dialogue: {
+    rawSpeech: 'Minh: Hey Giang, have you checked the new course syllabus for our business English assignment? Giang: Yes! We need to conduct thorough research and prepare a ten-minute presentation before Friday’s deadline. Minh: Great, let’s collaborate in the library tonight so we can apply for the university scholarship!',
+    html: `<strong>Minh:</strong> Hey Giang, have you checked the new course <span class="tap-word" onclick="lookupTappedWord('syllabus')">syllabus</span> for our business English <span class="tap-word" onclick="lookupTappedWord('assignment')">assignment</span>?<br><br><strong>Giang:</strong> Yes! We need to conduct thorough <span class="tap-word" onclick="lookupTappedWord('research')">research</span> and prepare a 10-minute <span class="tap-word" onclick="lookupTappedWord('presentation')">presentation</span> before Friday’s <span class="tap-word" onclick="lookupTappedWord('deadline')">deadline</span>.<br><br><strong>Minh:</strong> Great, let’s <span class="tap-word" onclick="lookupTappedWord('collaborate')">collaborate</span> in the library tonight so we can gain valuable <span class="tap-word" onclick="lookupTappedWord('experience')">experience</span> and apply for the <span class="tap-word" onclick="lookupTappedWord('scholarship')">scholarship</span>!`,
+    question: 'What do Minh and Giang need to finish before Friday’s deadline?',
+    options: [
+      'A 10-minute presentation based on thorough research.',
+      'A trip to Hanoi for summer vacation.',
+      'Buying a new table for the dormitory.',
+      'Canceling their library membership.'
+    ],
+    correct: 0,
+    explain: 'Giang nói rõ: "We need to conduct thorough research and prepare a 10-minute presentation before Friday’s deadline."'
+  }
+};
+
+let currentReadingTopic = 'academic';
+let currentTappedWordId = 'syllabus';
+let readingQuizAnswered = false;
+
+function switchReadingTopic(topic) {
+  currentReadingTopic = topic;
+  document.getElementById('rd-tab-academic')?.classList.toggle('active', topic === 'academic');
+  document.getElementById('rd-tab-dialogue')?.classList.toggle('active', topic === 'dialogue');
+  renderReadingScreen();
+  playSound('pop');
+}
+
+function renderReadingScreen() {
+  const data = READING_PASSAGES[currentReadingTopic];
+  if (!data) return;
+  readingQuizAnswered = false;
+
+  const bodyEl = document.getElementById('reading-passage-body');
+  const qEl = document.getElementById('rd-quiz-q');
+  const optsEl = document.getElementById('rd-quiz-opts');
+  const expEl = document.getElementById('rd-quiz-explain');
+
+  if (bodyEl) bodyEl.innerHTML = data.html;
+  if (qEl) qEl.textContent = data.question;
+  if (expEl) expEl.classList.add('hidden');
+
+  const letters = ['A', 'B', 'C', 'D'];
+  if (optsEl) {
+    optsEl.innerHTML = data.options.map((opt, idx) => `
+      <button class="gl-opt-btn" onclick="answerReadingQuiz(${idx}, this)">
+        <span class="opt-letter">${letters[idx]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+  }
+}
+
+function lookupTappedWord(wordId) {
+  const bank = window.CHYHAB_VOCAB || [];
+  const found = bank.find(w => w.id === wordId) || ACADEMIC_GLOSSARY[wordId];
+  if (!found) return;
+
+  currentTappedWordId = wordId;
+  const popup = document.getElementById('tap-lookup-popup');
+  const wordEl = document.getElementById('tap-lookup-word');
+  const meanEl = document.getElementById('tap-lookup-meaning');
+  const audioBtn = document.getElementById('tap-lookup-audio');
+  const saveBtn = document.getElementById('tap-lookup-save');
+
+  const wText = found.word || wordId;
+  if (wordEl) wordEl.textContent = `${wText} ${found.ipa || ''}`;
+  if (meanEl) meanEl.textContent = `${found.typeVi || 'từ vựng'} · ${found.meaning}`;
+  if (audioBtn) audioBtn.setAttribute('onclick', `speakWord('${wText}')`);
+  if (saveBtn) {
+    const inSrs = appState.srsDue.includes(wordId);
+    saveBtn.textContent = inSrs ? '✓ Đã trong SRS' : '+ Lưu SRS';
+  }
+  if (popup) popup.classList.remove('hidden');
+  speakWord(wText);
+}
+
+function saveTappedWordToSrs() {
+  if (!currentTappedWordId) return;
+  if (!appState.srsDue.includes(currentTappedWordId)) {
+    appState.srsDue.push(currentTappedWordId);
+    saveState();
+  }
+  const saveBtn = document.getElementById('tap-lookup-save');
+  if (saveBtn) saveBtn.textContent = '✓ Đã trong SRS';
+  playSound('correct');
+  showXpToast(`Đã lưu "${currentTappedWordId}" vào lịch ôn SRS!`);
+}
+
+function speakReadingPassage() {
+  const data = READING_PASSAGES[currentReadingTopic];
+  if (data) speakWord(data.rawSpeech, 1.0);
+}
+
+function answerReadingQuiz(idx, btn) {
+  if (readingQuizAnswered) return;
+  readingQuizAnswered = true;
+  const data = READING_PASSAGES[currentReadingTopic];
+  const allBtns = document.querySelectorAll('#rd-quiz-opts .gl-opt-btn');
+  const expEl = document.getElementById('rd-quiz-explain');
+
+  if (idx === data.correct) {
+    btn.classList.add('correct');
+    expEl.classList.remove('is-wrong');
+    expEl.innerHTML = `<strong>✓ Chính xác!</strong> ${data.explain}`;
+    playSound('correct');
+    appState.exercisesDone += 1;
+    addReward(35, 20, 2);
+    showXpToast('+35 XP · Hoàn thành bài Đọc/Nghe hiểu!');
+  } else {
+    btn.classList.add('wrong');
+    if (allBtns[data.correct]) allBtns[data.correct].classList.add('correct');
+    expEl.classList.add('is-wrong');
+    expEl.innerHTML = `<strong>✕ Chưa chính xác.</strong> ${data.explain}`;
+    playSound('wrong');
+  }
+  expEl.classList.remove('hidden');
+}
+
+// =============================================
+// 15E. PLAYABLE 1V1 STUDENT SPEED PVP ARENA
+// =============================================
+const PVP_QUESTIONS = [
+  { q: 'Từ "syllabus" nghĩa là gì?', opts: ['Đề cương môn học', 'Học bổng', 'Ký túc xá', 'Bài thuyết trình'], correct: 0 },
+  { q: 'He often ___ a book in the library after class.', opts: ['read', 'reads', 'reading', 'is read'], correct: 1 },
+  { q: 'Từ nào mang nghĩa "Hạn chót nộp bài"?', opts: ['schedule', 'deadline', 'feedback', 'curriculum'], correct: 1 },
+  { q: 'If you review every day, you ___ pass the B2 exam.', opts: ['would', 'will', 'did', 'were'], correct: 1 },
+  { q: 'Not only ___ the presentation, but she also won a scholarship.', opts: ['she delivered', 'did she deliver', 'delivered she', 'she did deliver'], correct: 1 }
+];
+
+let pvpRound = 0;
+let pvpMyScore = 0;
+let pvpOppScore = 0;
+let pvpOpponentTimer = null;
+
+function openPvpArenaModal() {
+  pvpRound = 0;
+  pvpMyScore = 0;
+  pvpOppScore = 0;
+  document.getElementById('pvp-my-score').textContent = '0';
+  document.getElementById('pvp-opp-score').textContent = '0';
+  openModal('modal-pvp');
+  renderPvpRound();
+}
+
+function closePvpArenaModal() {
+  if (pvpOpponentTimer) {
+    clearTimeout(pvpOpponentTimer);
+    pvpOpponentTimer = null;
+  }
+  closeModal('modal-pvp');
+}
+
+function renderPvpRound() {
+  const body = document.getElementById('pvp-arena-body');
+  const roundLbl = document.getElementById('pvp-round-label');
+  if (!body) return;
+
+  if (pvpRound >= PVP_QUESTIONS.length) {
+    const won = pvpMyScore >= pvpOppScore;
+    if (roundLbl) roundLbl.textContent = 'Kết thúc';
+    body.innerHTML = `
+      <div style="text-align:center;padding:12px 6px;">
+        <div style="font-size:44px;margin-bottom:6px;">${won ? '🏆' : '⚔️'}</div>
+        <h4 style="font-size:16px;margin-bottom:6px;">${won ? 'Chiến thắng thuyết phục!' : 'Trận đấu ngang tài ngang sức!'}</h4>
+        <p style="font-size:13px;color:#4B5563;margin-bottom:14px;">Tỉ số chung cuộc: <strong>Bạn ${pvpMyScore} – ${pvpOppScore} Minh Anh</strong>. ${won ? 'Bạn nhận được +50 XP và +40 xu thưởng Đấu trường!' : 'Nhận +20 XP khuyến khích tinh thần thi đấu!'}</p>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-secondary" style="flex:1;padding:11px;" onclick="closePvpArenaModal()">Đóng</button>
+          <button class="btn-primary" style="flex:1;padding:11px;" onclick="openPvpArenaModal()">🔄 Đấu lại</button>
+        </div>
+      </div>
+    `;
+    if (won) {
+      playSound('correct');
+      addReward(50, 40, 1);
+      showXpToast('🏆 Thắng PvP 1v1! +50 XP & +40 xu');
+    } else {
+      addReward(20, 10, 1);
+    }
+    return;
+  }
+
+  const item = PVP_QUESTIONS[pvpRound];
+  if (roundLbl) roundLbl.textContent = `Câu ${pvpRound + 1}/${PVP_QUESTIONS.length}`;
+  const letters = ['A', 'B', 'C', 'D'];
+  body.innerHTML = `
+    <div class="gl-quiz-q" style="font-size:14px;">${item.q}</div>
+    <div class="gl-quiz-opts">
+      ${item.opts.map((o, idx) => `
+        <button class="gl-opt-btn" onclick="answerPvpQuestion(${idx}, this)">
+          <span class="opt-letter">${letters[idx]}</span>
+          <span>${o}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function answerPvpQuestion(idx, btn) {
+  const item = PVP_QUESTIONS[pvpRound];
+  if (!item) return;
+
+  if (idx === item.correct) {
+    btn.classList.add('correct');
+    pvpMyScore += 100;
+    playSound('correct');
+  } else {
+    btn.classList.add('wrong');
+    playSound('wrong');
+  }
+  // Opponent scores 100 on 3 out of 5 rounds
+  if (pvpRound % 2 === 0 || idx !== item.correct) {
+    pvpOppScore += 100;
+  }
+
+  document.getElementById('pvp-my-score').textContent = String(pvpMyScore);
+  document.getElementById('pvp-opp-score').textContent = String(pvpOppScore);
+
+  pvpRound += 1;
+  pvpOpponentTimer = setTimeout(() => {
+    renderPvpRound();
+  }, 420);
+}
+
+// =============================================
+// 15F. STUDENT PROGRESS REPORT & DARK MODE
+// =============================================
+function openStudentReportModal() {
+  const card = document.getElementById('student-report-card');
+  const doneUnits = appState.completedGrammar.filter(id => id.startsWith('u')).length;
+  if (card) {
+    card.innerHTML = `
+      <div style="font-size:32px;margin-bottom:4px;">🎓</div>
+      <span style="font-size:10.5px;font-weight:900;color:#B45309;background:#FEF3C3;padding:3px 10px;border-radius:999px;">CHỨNG NHẬN TIẾN ĐỘ HỌC TẬP CHYHAB AI</span>
+      <h4 style="font-size:17px;margin:8px 0 2px;color:#0F172A;">Sinh viên: Hương Giang (@huonggiang)</h4>
+      <p style="font-size:12px;color:#6B7280;margin-bottom:8px;">Lớp học phần: ENG204 · Mục tiêu chuẩn đầu ra: CEFR B1 → B2</p>
+      <div class="report-grid-2x2">
+        <div class="report-cell"><small>Chuỗi học liên tục</small><strong>🔥 ${appState.streak} ngày</strong></div>
+        <div class="report-cell"><small>Tổng điểm tích lũy</small><strong>⚡ ${appState.xp.toLocaleString('vi-VN')} XP</strong></div>
+        <div class="report-cell"><small>Từ vựng đã nắm vững</small><strong>📖 ${appState.vocabLearned.toLocaleString('vi-VN')} từ</strong></div>
+        <div class="report-cell"><small>Lộ trình 60 Units Ngữ pháp</small><strong>📘 ${doneUnits} / 60 Units</strong></div>
+      </div>
+      <p style="font-size:11.5px;color:#15803D;font-weight:800;margin:6px 0 0;">✓ Xác nhận bởi hệ thống đánh giá thích ứng ChYHab AI · Ngày xuất: 24/11/2026</p>
+    `;
+  }
+  openModal('modal-report');
+}
+
+function toggleDarkMode(forceVal) {
+  const frame = document.getElementById('phone-frame');
+  if (!frame) return;
+  const nextVal = typeof forceVal === 'boolean' ? forceVal : !frame.classList.contains('dark-mode');
+  frame.classList.toggle('dark-mode', nextVal);
+  appState.settings.darkMode = nextVal;
+
+  const chk = document.getElementById('toggle-darkmode');
+  if (chk) chk.checked = nextVal;
+  const devBtn = document.getElementById('btn-device-dark');
+  if (devBtn) devBtn.textContent = nextVal ? '☀️ Light' : '🌙 Dark';
+
+  saveState();
+  playSound('pop');
+}
+
+// =============================================
+// 16. INITIALIZATION & KEYBOARD SHORTCUTS
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
   if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
@@ -2536,6 +2818,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initRoleplayScreen();
+  renderReadingScreen();
+
+  if (appState.settings.darkMode) {
+    toggleDarkMode(true);
+  }
+
+  // Smart Keyboard Shortcuts for Laptop/PC users
+  document.addEventListener('keydown', e => {
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    if (e.code === 'Space' && currentScreenId === 'screen-practice-flashcard') {
+      e.preventDefault();
+      flipFlashcard();
+    } else if ((e.key === 'r' || e.key === 'R') && (currentScreenId.startsWith('screen-practice-') || currentScreenId === 'screen-reading')) {
+      const v = getCurrentVocab();
+      if (v) speakWord(v.word);
+    } else if (['1', '2', '3', '4'].includes(e.key)) {
+      const idx = parseInt(e.key, 10) - 1;
+      let btns = [];
+      if (currentScreenId === 'screen-practice-choose') {
+        const activeView = currentChooseSubmode === 'meaning' ? '#meaning-options .opt-btn' : '#word-options .opt-btn';
+        btns = document.querySelectorAll(activeView);
+      } else if (currentScreenId === 'screen-practice-complete') {
+        btns = document.querySelectorAll('#complete-sentence-options .opt-btn');
+      } else if (currentScreenId === 'screen-grammar-lesson') {
+        btns = document.querySelectorAll('#gl-quiz-options .gl-opt-btn');
+      } else if (currentScreenId === 'screen-reading') {
+        btns = document.querySelectorAll('#rd-quiz-opts .gl-opt-btn');
+      }
+      if (btns[idx]) btns[idx].click();
+    }
+  });
 
   // Register PWA Offline Service Worker
   if ('serviceWorker' in navigator) {

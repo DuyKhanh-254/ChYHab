@@ -1081,3 +1081,232 @@
   padding: 10px 12px;
 }
 
+/* ---------- 11. INTERACTIVE READING & TAP-TO-LOOKUP ---------- */
+.reading-passage-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  line-height: 1.75;
+  font-size: 13.5px;
+  color: #1F2937;
+}
+
+.tap-word {
+  background: #FFF7ED;
+  color: #C2410C;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 6px;
+  border-bottom: 1.5px dashed #F97316;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tap-word:hover, .tap-word.active-tap {
+  background: #F97316;
+  color: #FFFFFF;
+}
+
+.tap-lookup-popup {
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
+}
+
+.tap-lookup-info strong {
+  font-size: 14.5px;
+  color: #FDBA74;
+}
+
+.tap-lookup-info span {
+  display: block;
+  font-size: 12px;
+  color: #E2E8F0;
+  margin-top: 2px;
+}
+
+.tap-lookup-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ---------- 12. PVP 1V1 STUDENT ARENA ---------- */
+.pvp-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(135deg, #EFF6FF, #FFF7ED);
+  border: 1.5px solid #FDBA74;
+  border-radius: 16px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.pvp-fighter {
+  flex: 1;
+  text-align: center;
+}
+
+.pvp-fighter strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.pvp-score-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #EA580C;
+}
+
+.pvp-fighter.opponent .pvp-score-num {
+  color: #2563EB;
+}
+
+.pvp-vs-badge {
+  background: #111827;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 5px 8px;
+  border-radius: 999px;
+}
+
+/* ---------- 13. 6-SKILL RADAR BARS & STUDENT REPORT ---------- */
+.skill-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.skill-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.skill-bar-label {
+  width: 78px;
+  font-weight: 800;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.skill-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #E5E7EB;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.skill-bar-pct {
+  width: 36px;
+  text-align: right;
+  font-weight: 800;
+  color: #111827;
+  font-size: 12px;
+}
+
+.report-cert-card {
+  background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%);
+  border: 2px solid #F59E0B;
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.report-grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+  text-align: left;
+}
+
+.report-cell {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 9px 11px;
+}
+
+.report-cell small {
+  display: block;
+  font-size: 10.5px;
+  color: #6B7280;
+}
+
+.report-cell strong {
+  font-size: 14px;
+  color: #0F172A;
+}
+
+/* ---------- 14. DARK MODE THEME ---------- */
+#phone-frame.dark-mode,
+#phone-frame.dark-mode .screen,
+#phone-frame.dark-mode .app-layout {
+  background: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+#phone-frame.dark-mode h1,
+#phone-frame.dark-mode h2,
+#phone-frame.dark-mode h3,
+#phone-frame.dark-mode h4,
+#phone-frame.dark-mode strong {
+  color: #F8FAFC !important;
+}
+
+#phone-frame.dark-mode p,
+#phone-frame.dark-mode span:not(.g-sec-badge):not(.daily-cta-badge):not(.daily-goal-chip):not(.grammar-progress-pill) {
+  color: #CBD5E1;
+}
+
+#phone-frame.dark-mode .card-mockup,
+#phone-frame.dark-mode .gl-card,
+#phone-frame.dark-mode .grammar-section-card,
+#phone-frame.dark-mode .g-unit-row,
+#phone-frame.dark-mode .reading-passage-card,
+#phone-frame.dark-mode .rp-chat-box,
+#phone-frame.dark-mode .rp-msg.ai,
+#phone-frame.dark-mode .qa-card,
+#phone-frame.dark-mode .daily-cta-card,
+#phone-frame.dark-mode .skill-tile,
+#phone-frame.dark-mode .shop-item,
+#phone-frame.dark-mode .game-card,
+#phone-frame.dark-mode .modal-sheet,
+#phone-frame.dark-mode .bottom-nav,
+#phone-frame.dark-mode .screen-header,
+#phone-frame.dark-mode .study-topbar {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+#phone-frame.dark-mode .g-unit-row.done {
+  background: #064E3B !important;
+  border-color: #059669 !important;
+}
+
+
