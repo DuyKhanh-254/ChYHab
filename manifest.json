@@ -1,0 +1,25 @@
+{
+  "name": "ChYHab – Học ngoại ngữ thông minh cùng AI",
+  "short_name": "ChYHab AI",
+  "description": "Ứng dụng học tiếng Anh AI bám sát đề cương, 60 Units Ngữ pháp CEFR, SRS và Luyện nói Roleplay dành cho sinh viên.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF7ED",
+  "theme_color": "#F97316",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "assets/mascots/chy_waving.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/mascots/chy_winner.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

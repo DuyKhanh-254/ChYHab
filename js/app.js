@@ -142,6 +142,7 @@ function showScreen(targetId) {
   if (targetId === 'screen-grammar') renderGrammarRoadmap();
   if (targetId === 'screen-shop') renderShopItems(currentShopCategory);
   if (targetId === 'screen-games') renderGarden();
+  if (targetId === 'screen-ai-roleplay') initRoleplayScreen();
   if (targetId === 'screen-practice-flashcard' ||
       targetId === 'screen-practice-pronunciation' ||
       targetId === 'screen-practice-choose' ||
@@ -178,6 +179,7 @@ function syncBottomNav(screenId) {
     'screen-study': 1,
     'screen-grammar': 1,
     'screen-grammar-lesson': 1,
+    'screen-ai-roleplay': 1,
     'screen-vocabulary': 1,
     'screen-vocab-library': 1,
     'screen-vocab-modes': 1,
@@ -2139,6 +2141,360 @@ function resetDemoState() {
 }
 
 // =============================================
+// 15B. INSTANT SYLLABUS / TEXT-TO-LESSON AI GENERATOR
+// =============================================
+const ACADEMIC_GLOSSARY = {
+  methodology: { ipa: '/ˌmeθ.əˈdɒl.ə.dʒi/', type: 'noun', typeVi: 'danh từ', meaning: 'Phương pháp nghiên cứu', phonemes: ['m','e','θ','ə','d','ɒ','l','ə','dʒ','i'] },
+  hypothesis: { ipa: '/haɪˈpɒθ.ə.sɪs/', type: 'noun', typeVi: 'danh từ', meaning: 'Giả thuyết khoa học', phonemes: ['h','aɪ','p','ɒ','θ','ə','s','ɪ','s'] },
+  sustainable: { ipa: '/səˈsteɪ.nə.bəl/', type: 'adjective', typeVi: 'tính từ', meaning: 'Bền vững', phonemes: ['s','ə','s','t','eɪ','n','ə','b','əl'] },
+  innovation: { ipa: '/ˌɪn.əˈveɪ.ʃən/', type: 'noun', typeVi: 'danh từ', meaning: 'Sự đổi mới sáng tạo', phonemes: ['ɪ','n','ə','v','eɪ','ʃ','ə','n'] },
+  comprehensive: { ipa: '/ˌkɒm.prɪˈhen.sɪv/', type: 'adjective', typeVi: 'tính từ', meaning: 'Toàn diện, bao quát', phonemes: ['k','ɒ','m','p','r','ɪ','h','e','n','s','ɪ','v'] },
+  evaluate: { ipa: '/ɪˈvæl.ju.eɪt/', type: 'verb', typeVi: 'động từ', meaning: 'Đánh giá, định giá', phonemes: ['ɪ','v','æ','l','j','u','eɪ','t'] },
+  curriculum: { ipa: '/kəˈrɪk.jə.ləm/', type: 'noun', typeVi: 'danh từ', meaning: 'Chương trình giảng dạy', phonemes: ['k','ə','r','ɪ','k','j','ə','l','ə','m'] },
+  syllabus: { ipa: '/ˈsɪl.ə.bəs/', type: 'noun', typeVi: 'danh từ', meaning: 'Đề cương môn học', phonemes: ['s','ɪ','l','ə','b','ə','s'] },
+  collaborate: { ipa: '/kəˈlæb.ə.reɪt/', type: 'verb', typeVi: 'động từ', meaning: 'Hợp tác làm việc nhóm', phonemes: ['k','ə','l','æ','b','ə','r','eɪ','t'] },
+  presentation: { ipa: '/ˌprez.ənˈteɪ.ʃən/', type: 'noun', typeVi: 'danh từ', meaning: 'Bài thuyết trình', phonemes: ['p','r','e','z','ə','n','t','eɪ','ʃ','ə','n'] },
+  scholarship: { ipa: '/ˈskɒl.ə.ʃɪp/', type: 'noun', typeVi: 'danh từ', meaning: 'Học bổng', phonemes: ['s','k','ɒ','l','ə','ʃ','ɪ','p'] },
+  deadline: { ipa: '/ˈded.laɪn/', type: 'noun', typeVi: 'danh từ', meaning: 'Hạn chót nộp bài', phonemes: ['d','e','d','l','aɪ','n'] }
+};
+
+let lastExtractedWordId = null;
+
+function fillSampleSyllabusText() {
+  const el = document.getElementById('syllabus-raw-text');
+  if (!el) return;
+  el.value = 'Course Objective: Students will develop a comprehensive methodology to evaluate business innovation and sustainable growth, formulate a clear research hypothesis, and collaborate on a final academic presentation before the deadline.';
+  playSound('pop');
+}
+
+function extractVocabFromSyllabusText() {
+  const el = document.getElementById('syllabus-raw-text');
+  const raw = (el?.value || '').trim();
+  if (raw.length < 15) {
+    openInAppDialog('📑', 'Văn bản quá ngắn', 'Hãy dán ít nhất 1 câu tiếng Anh từ đề cương/giáo trình (hoặc bấm "📋 Dán mẫu học thuật") để AI trích xuất từ vựng nhé!');
+    return;
+  }
+
+  const tokens = (raw.toLowerCase().match(/[a-z]{5,}/g) || []);
+  const stopWords = new Set(['students','course','objective','develop','before','their','about','which','would','could','should','these','those','through','between']);
+  const uniqueTokens = [];
+  tokens.forEach(t => {
+    if (!stopWords.has(t) && !uniqueTokens.includes(t)) uniqueTokens.push(t);
+  });
+
+  // Prioritize known academic glossary matches, then longest content words
+  const matched = uniqueTokens.filter(t => ACADEMIC_GLOSSARY[t]);
+  const extras = uniqueTokens.filter(t => !ACADEMIC_GLOSSARY[t]).sort((a, b) => b.length - a.length);
+  const picked = [...matched, ...extras].slice(0, 4);
+
+  if (!picked.length) {
+    openInAppDialog('🔍', 'Không tìm thấy từ mới', 'Vui lòng dán đoạn văn tiếng Anh có chứa các từ vựng học thuật hoặc chuyên ngành.');
+    return;
+  }
+
+  const bank = window.CHYHAB_VOCAB || [];
+  const extractedObjs = picked.map(word => {
+    const info = ACADEMIC_GLOSSARY[word] || {
+      ipa: `/${word.slice(0, 3)}.${word.slice(3)}/`,
+      type: 'noun',
+      typeVi: 'từ học thuật',
+      meaning: `Thuật ngữ đề cương: ${word}`,
+      phonemes: word.slice(0, 5).split('')
+    };
+    const newObj = {
+      id: word,
+      word: word,
+      type: info.type,
+      typeVi: info.typeVi,
+      ipa: info.ipa,
+      phonemes: info.phonemes,
+      meaning: info.meaning,
+      level: 'B2',
+      exampleEn: `Students apply <strong>${word}</strong> in their university coursework.`,
+      exampleVi: `Sinh viên vận dụng "${info.meaning.toLowerCase()}" trong học phần đại học.`,
+      contextBefore: 'Students apply ',
+      contextAfter: ' in their university coursework.',
+      distractorsVi: ['Ký túc xá', 'Giờ giải lao', 'Bằng tốt nghiệp'],
+      distractorsEn: ['dormitory', 'cafeteria', 'timetable']
+    };
+    const existingIdx = bank.findIndex(w => w.id === word);
+    if (existingIdx === -1) {
+      bank.unshift(newObj);
+    }
+    if (!appState.srsDue.includes(word)) {
+      appState.srsDue.unshift(word);
+    }
+    return newObj;
+  });
+
+  lastExtractedWordId = extractedObjs[0].id;
+  appState.currentVocabIdx = Math.max(0, bank.findIndex(w => w.id === lastExtractedWordId));
+  saveState();
+  syncVocabScreens();
+
+  const resWrap = document.getElementById('extracted-vocab-results');
+  const listEl = document.getElementById('extracted-vocab-list');
+  const titleEl = document.getElementById('extracted-vocab-title');
+  if (titleEl) titleEl.textContent = `✅ AI đã trích xuất ${extractedObjs.length} từ vựng & tạo xong Flashcard/Quiz:`;
+  if (listEl) {
+    listEl.innerHTML = extractedObjs.map(w => `
+      <div class="gl-example-item" style="margin-top:0;background:#FFFFFF;border:1px solid #BBF7D0;align-items:center;">
+        <div>
+          <div class="gl-example-en">${escapeHtml(w.word)} <span style="font-weight:600;color:#6B7280;font-size:11px;">${escapeHtml(w.ipa)}</span></div>
+          <div class="gl-example-vi">${escapeHtml(w.meaning)}</div>
+        </div>
+        <button class="btn-audio-mini" onclick="speakWord('${escapeHtml(w.word)}')">🔊</button>
+      </div>
+    `).join('');
+  }
+  if (resWrap) resWrap.classList.remove('hidden');
+  playSound('correct');
+  addReward(25, 15, 1);
+  showXpToast(`+25 XP · Đã tạo bộ học ${extractedObjs.length} từ mới!`);
+}
+
+function startStudyingExtractedWords() {
+  closeModal('modal-syllabus');
+  const bank = window.CHYHAB_VOCAB || [];
+  if (lastExtractedWordId) {
+    const idx = bank.findIndex(w => w.id === lastExtractedWordId);
+    if (idx !== -1) appState.currentVocabIdx = idx;
+  }
+  saveState();
+  syncVocabScreens();
+  showScreen('screen-practice-flashcard');
+}
+
+// =============================================
+// 15C. LIVE 2-WAY AI VOICE ROLEPLAY ENGINE
+// =============================================
+const ROLEPLAY_SCENARIOS = {
+  vstep: {
+    name: 'Giám khảo VSTEP B2',
+    turns: [
+      {
+        aiEn: 'Good morning! In VSTEP Speaking Part 1, let’s talk about your university studies. How do you usually prepare for an important English exam?',
+        aiVi: 'Chào buổi sáng! Trong VSTEP Speaking Part 1, hãy nói về việc học đại học của bạn. Bạn thường ôn tập cho kỳ thi tiếng Anh quan trọng như thế nào?',
+        suggestions: [
+          'I usually review my course syllabus and practice vocabulary with flashcards every day.',
+          'To prepare effectively, I focus on academic grammar and practice speaking with AI.'
+        ]
+      },
+      {
+        aiEn: 'That sounds very systematic! Follow-up question: Do you think AI tools can help university students learn foreign languages more effectively?',
+        aiVi: 'Nghe rất có hệ thống! Câu hỏi tiếp theo: Bạn có nghĩ công cụ AI giúp sinh viên đại học học ngoại ngữ hiệu quả hơn không?',
+        suggestions: [
+          'Definitely! AI provides personalized feedback and helps me correct my grammar mistakes immediately.',
+          'Yes, because micro-tasks allow busy students to practice pronunciation anytime.'
+        ]
+      },
+      {
+        aiEn: 'Excellent B2-level response! You used strong connectors and clear academic vocabulary. Would you like to practice another scenario?',
+        aiVi: 'Câu trả lời chuẩn B2 xuất sắc! Bạn đã dùng từ nối tốt và từ vựng học thuật rõ ràng. Bạn có muốn thử tình huống tiếp theo không?',
+        suggestions: [
+          'Thank you! I feel much more confident for my upcoming VSTEP speaking exam.'
+        ]
+      }
+    ]
+  },
+  interview: {
+    name: 'Nhà tuyển dụng (HR Manager)',
+    turns: [
+      {
+        aiEn: 'Welcome to the internship interview! Could you briefly introduce yourself and tell me why you applied for this position?',
+        aiVi: 'Chào mừng bạn đến buổi phỏng vấn thực tập! Bạn hãy giới thiệu ngắn gọn bản thân và lý do ứng tuyển vị trí này nhé?',
+        suggestions: [
+          'I am a second-year university student passionate about technology and eager to gain real-world experience.',
+          'I applied because I want to collaborate with a professional team and contribute to innovative projects.'
+        ]
+      },
+      {
+        aiEn: 'Impressive! Tell me about a time when you worked in a student team to meet a tight deadline.',
+        aiVi: 'Ấn tượng đấy! Hãy kể về một lần bạn làm việc nhóm ở trường để kịp một hạn chót gấp rút.',
+        suggestions: [
+          'Last semester, our team divided the research tasks clearly and rehearsed our presentation two days before the deadline.',
+          'When our group faced a tight deadline, I organized daily check-ins so everyone completed their assignment on time.'
+        ]
+      },
+      {
+        aiEn: 'Great STAR-method answer! Your communication is clear, confident, and professional.',
+        aiVi: 'Câu trả lời theo mô hình STAR rất tốt! Giao tiếp của bạn rõ ràng, tự tin và chuyên nghiệp.',
+        suggestions: [
+          'Thank you so much for your valuable feedback and this interview opportunity!'
+        ]
+      }
+    ]
+  },
+  defense: {
+    name: 'Giảng viên Phản biện (Lecturer)',
+    turns: [
+      {
+        aiEn: 'Thank you for your presentation. My first question is: What is the core methodology behind your group’s capstone project?',
+        aiVi: 'Cảm ơn bài thuyết trình của nhóm. Câu hỏi đầu tiên của thầy/cô: Phương pháp nghiên cứu cốt lõi trong đồ án của nhóm em là gì?',
+        suggestions: [
+          'Our research combines quantitative survey data from 200 students with adaptive AI evaluation.',
+          'We designed a comprehensive methodology focusing on spaced repetition and personalized syllabus analysis.'
+        ]
+      },
+      {
+        aiEn: 'Good point. And how does your solution stand out compared to existing apps like Duolingo or Quizlet?',
+        aiVi: 'Ý rất hay. Vậy giải pháp của nhóm có gì nổi bật hơn so với các ứng dụng hiện có như Duolingo hay Quizlet?',
+        suggestions: [
+          'Unlike general apps, our platform transforms university course syllabi directly into personalized daily micro-tasks.',
+          'We integrate a 60-unit CEFR grammar roadmap directly with AI mistake analysis tailored for university exams.'
+        ]
+      },
+      {
+        aiEn: 'Outstanding defense! Your academic vocabulary and argumentation easily meet B2–C1 standards.',
+        aiVi: 'Phần bảo vệ xuất sắc! Vốn từ học thuật và lập luận của em hoàn toàn đạt chuẩn B2–C1.',
+        suggestions: [
+          'Thank you Professor for your insightful questions!'
+        ]
+      }
+    ]
+  }
+};
+
+let currentRoleplayKey = 'vstep';
+let currentRoleplayTurn = 0;
+let roleplayInitialized = false;
+
+function initRoleplayScreen() {
+  if (!roleplayInitialized) {
+    roleplayInitialized = true;
+    resetRoleplayConversation('vstep');
+  }
+}
+
+function switchRoleplayScenario(key, btn) {
+  document.querySelectorAll('#rp-scenario-tabs .rp-tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  resetRoleplayConversation(key);
+  playSound('pop');
+}
+
+function resetRoleplayConversation(key) {
+  currentRoleplayKey = key;
+  currentRoleplayTurn = 0;
+  const chatBox = document.getElementById('rp-chat-box');
+  if (chatBox) chatBox.innerHTML = '';
+  appendRoleplayAiTurn();
+}
+
+function appendRoleplayAiTurn() {
+  const sc = ROLEPLAY_SCENARIOS[currentRoleplayKey];
+  if (!sc) return;
+  const turnObj = sc.turns[Math.min(currentRoleplayTurn, sc.turns.length - 1)];
+  const chatBox = document.getElementById('rp-chat-box');
+  const sugRow = document.getElementById('rp-suggestions-row');
+  if (!chatBox) return;
+
+  const safeSpeak = turnObj.aiEn.replace(/'/g, "\\'");
+  const div = document.createElement('div');
+  div.className = 'rp-msg ai';
+  div.innerHTML = `
+    <div class="rp-msg-top">
+      <span>🤖 ${escapeHtml(sc.name)}</span>
+      <button class="btn-audio-mini" style="padding:2px 6px;font-size:11px;" onclick="speakWord('${safeSpeak}')">🔊 Nghe</button>
+    </div>
+    <div>${escapeHtml(turnObj.aiEn)}</div>
+    <div class="rp-msg-vi">${escapeHtml(turnObj.aiVi)}</div>
+  `;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (sugRow) {
+    sugRow.innerHTML = (turnObj.suggestions || []).map(s => `
+      <button class="rp-sug-chip" onclick="useRoleplaySuggestion(this)">💡 ${escapeHtml(s)}</button>
+    `).join('');
+  }
+}
+
+function useRoleplaySuggestion(btn) {
+  const text = btn.textContent.replace(/^💡\s*/, '').trim();
+  const inp = document.getElementById('rp-user-input');
+  if (inp) inp.value = text;
+  sendRoleplayMessage();
+}
+
+function sendRoleplayMessage() {
+  const inp = document.getElementById('rp-user-input');
+  const text = (inp?.value || '').trim();
+  if (!text) return;
+  inp.value = '';
+
+  const chatBox = document.getElementById('rp-chat-box');
+  if (!chatBox) return;
+
+  // 1. User message bubble
+  const uDiv = document.createElement('div');
+  uDiv.className = 'rp-msg user';
+  uDiv.innerHTML = `<div class="rp-msg-top"><span>🎙️ Bạn (Hương Giang)</span></div><div>${escapeHtml(text)}</div>`;
+  chatBox.appendChild(uDiv);
+
+  // 2. Instant CEFR Coaching feedback pill
+  const words = text.split(/\s+/).filter(Boolean);
+  const hasAcademic = /\b(syllabus|vocabulary|effectively|personalized|collaborate|experience|deadline|methodology|comprehensive|confident|presentation|research)\b/i.test(text);
+  const cefrEst = (words.length >= 12 && hasAcademic) ? 'B2–C1 Xuất sắc 🌟' : (words.length >= 7 ? 'B1+ Tự nhiên ✓' : 'A2–B1 (Nên mở rộng câu dài hơn)');
+  const fbDiv = document.createElement('div');
+  fbDiv.className = 'rp-feedback-pill';
+  fbDiv.innerHTML = `<strong>✨ AI Đánh giá phản xạ (${cefrEst}):</strong> Câu trả lời ${words.length} từ, đúng ngữ cảnh hội thoại. ${hasAcademic ? 'Vận dụng từ vựng học thuật rất tốt!' : 'Mẹo: Thêm từ nối (Because, Furthermore) hoặc từ học thuật để nâng điểm B2.'}`;
+  chatBox.appendChild(fbDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  playSound('correct');
+  addReward(25, 15, 1);
+  showXpToast(`+25 XP · Phản xạ nói ${cefrEst}!`);
+
+  // 3. Advance AI turn
+  currentRoleplayTurn += 1;
+  setTimeout(() => {
+    appendRoleplayAiTurn();
+    const sc = ROLEPLAY_SCENARIOS[currentRoleplayKey];
+    const turnObj = sc?.turns[Math.min(currentRoleplayTurn, sc.turns.length - 1)];
+    if (turnObj && appState.settings.autoPlay) {
+      speakWord(turnObj.aiEn);
+    }
+  }, 500);
+}
+
+function startRoleplayVoiceInput() {
+  const micBtn = document.getElementById('rp-mic-btn');
+  const inp = document.getElementById('rp-user-input');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+    try {
+      const rec = new SpeechRecognition();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      if (micBtn) micBtn.classList.add('listening');
+      showXpToast('🎙️ Đang nghe câu trả lời tiếng Anh của bạn...');
+      rec.onresult = (e) => {
+        if (micBtn) micBtn.classList.remove('listening');
+        const transcript = e.results[0][0].transcript;
+        if (inp) inp.value = transcript;
+        sendRoleplayMessage();
+      };
+      rec.onerror = () => {
+        if (micBtn) micBtn.classList.remove('listening');
+      };
+      rec.onend = () => {
+        if (micBtn) micBtn.classList.remove('listening');
+      };
+      rec.start();
+      return;
+    } catch (_) {}
+  }
+
+  // Fallback: populate the first smart suggestion and send
+  const firstChip = document.querySelector('#rp-suggestions-row .rp-sug-chip');
+  if (firstChip) {
+    useRoleplaySuggestion(firstChip);
+  }
+}
+
+// =============================================
 // 16. INITIALIZATION
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -2170,5 +2526,19 @@ document.addEventListener('DOMContentLoaded', () => {
     dictationInp.addEventListener('keypress', e => {
       if (e.key === 'Enter') checkDictationAnswer();
     });
+  }
+
+  const rpInp = document.getElementById('rp-user-input');
+  if (rpInp) {
+    rpInp.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendRoleplayMessage();
+    });
+  }
+
+  initRoleplayScreen();
+
+  // Register PWA Offline Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 });
