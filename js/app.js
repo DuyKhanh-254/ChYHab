@@ -225,9 +225,11 @@ function setDeviceView(mode) {
 }
 
 // =============================================
-// 3. WEB SPEECH, AUDIO SFX, TOAST & CUSTOM DIALOG
+// 3. NATIVE STUDIO & GOOGLE NEURAL TTS + AUDIO SFX
 // =============================================
-function speakWord(word, rate = 1.0) {
+let activeTtsAudio = null;
+
+function speakWordBrowserFallback(word, rate = 1.0) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
 
@@ -241,6 +243,41 @@ function speakWord(word, rate = 1.0) {
   if (enVoice) utterance.voice = enVoice;
 
   window.speechSynthesis.speak(utterance);
+}
+
+function speakWord(word, rate = 1.0) {
+  const cleanText = String(word || '').replace(/<[^>]*>/g, '').trim();
+  if (!cleanText) return;
+
+  if (activeTtsAudio) {
+    try {
+      activeTtsAudio.pause();
+      activeTtsAudio.currentTime = 0;
+    } catch (_) {}
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  // Use local/ngrok Neural TTS + Studio Dictionary MP3 proxy first
+  if (typeof Audio !== 'undefined') {
+    try {
+      const audioUrl = `/api/tts?text=${encodeURIComponent(cleanText)}`;
+      const audio = new Audio(audioUrl);
+      audio.playbackRate = Number(rate) || 1.0;
+      activeTtsAudio = audio;
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          speakWordBrowserFallback(cleanText, rate);
+        });
+      }
+      return;
+    } catch (e) {
+      // Fall back to Web Speech API
+    }
+  }
+  speakWordBrowserFallback(cleanText, rate);
 }
 
 let audioCtx = null;
