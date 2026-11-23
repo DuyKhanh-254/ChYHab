@@ -1,0 +1,886 @@
+/* =============================================
+   ChYHab — UX/UI Upgrade Stylesheet
+   - Home Daily Action Hub, SRS Banner & Exam Countdown
+   - Full 60-Unit CEFR Grammar Roadmap & Interactive Lesson/Quiz
+   - ELSA-style Phoneme Breakdown
+   - Interactive Living Garden & Playable Match-Pairs Mini-game
+   - Custom In-App Dialog & Enhanced Polish
+   ============================================= */
+
+/* ---------- 1. HOME DAILY ACTION HUB ---------- */
+.home-action-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.daily-cta-card {
+  background: linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 65%, #FEF3C7 100%);
+  border: 1.5px solid #FDBA74;
+  border-radius: 20px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.12);
+}
+
+.daily-cta-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.daily-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #FFF1E6;
+  color: #EA580C;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.daily-goal-chip {
+  font-size: 11px;
+  font-weight: 800;
+  color: #16A34A;
+  background: #DCFCE7;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.daily-cta-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.daily-cta-info h3 {
+  font-size: 15.5px;
+  font-weight: 900;
+  color: #111827;
+  margin-bottom: 3px;
+}
+
+.daily-cta-info p {
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0 0 8px 0;
+}
+
+.daily-goal-bar {
+  height: 7px;
+  background: #FED7AA;
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.daily-goal-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F97316, #EA580C);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.btn-cta-start {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #F97316, #EA580C);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  padding: 11px 14px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.32);
+  transition: transform 0.15s ease;
+}
+
+.btn-cta-start:active {
+  transform: scale(0.95);
+}
+
+/* Quick Action Row: Micro-task 60s & SRS Review */
+.quick-actions-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.qa-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1.5px solid #E5E7EB;
+  background: #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.qa-card:active {
+  transform: scale(0.97);
+}
+
+.qa-card.qa-micro {
+  background: linear-gradient(135deg, #EFF6FF, #FFFFFF);
+  border-color: #BFDBFE;
+}
+
+.qa-card.qa-srs {
+  background: linear-gradient(135deg, #F0FDF4, #FFFFFF);
+  border-color: #BBF7D0;
+}
+
+.qa-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.qa-micro .qa-ico { background: #DBEAFE; }
+.qa-srs .qa-ico { background: #DCFCE7; }
+
+.qa-text strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.25;
+}
+
+.qa-text span {
+  display: block;
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+/* Exam Countdown Strip (Student USP) */
+.exam-countdown-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(90deg, #1E293B, #334155);
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 11px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+}
+
+.exam-cd-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exam-cd-days {
+  background: #F97316;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 9px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.exam-cd-info strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.exam-cd-info span {
+  font-size: 11px;
+  color: #CBD5E1;
+}
+
+.exam-cd-btn {
+  font-size: 11px;
+  font-weight: 800;
+  color: #FDBA74;
+  white-space: nowrap;
+}
+
+/* Leaderboard Scope Pills */
+.bxh-scope-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.bxh-scope-btn {
+  flex: 1;
+  border: 1.5px solid #E5E7EB;
+  background: #F9FAFB;
+  color: #6B7280;
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bxh-scope-btn.active {
+  background: #FFF7ED;
+  border-color: #F97316;
+  color: #EA580C;
+  font-weight: 800;
+}
+
+/* Collapsible Daily Breakdown */
+.breakdown-toggle-btn {
+  margin-left: auto;
+  background: #F3F4F6;
+  border: none;
+  color: #4B5563;
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.daily-breakdown-body.collapsed .day-breakdown-block:nth-child(n+2) {
+  display: none;
+}
+
+/* ---------- 2. GRAMMAR 60-UNIT ROADMAP ---------- */
+.grammar-hero-banner {
+  background: linear-gradient(135deg, #EEF2FF 0%, #FFF7ED 100%);
+  border: 1.5px solid #C7D2FE;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+
+.grammar-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.grammar-hero-top strong {
+  font-size: 15px;
+  font-weight: 900;
+  color: #1E1B4B;
+}
+
+.grammar-progress-pill {
+  background: #4F46E5;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.grammar-hero-banner p {
+  font-size: 12px;
+  color: #4B5563;
+  margin-bottom: 8px;
+}
+
+.grammar-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.grammar-search-wrap input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: var(--font);
+  font-size: 13px;
+  color: #111827;
+}
+
+.grammar-level-pills {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  scrollbar-width: none;
+}
+
+.grammar-level-pills::-webkit-scrollbar { display: none; }
+
+.g-pill {
+  flex-shrink: 0;
+  border: 1.5px solid #E5E7EB;
+  background: #FFFFFF;
+  color: #4B5563;
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.g-pill.active {
+  background: #F97316;
+  border-color: #F97316;
+  color: #FFFFFF;
+}
+
+.grammar-section-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.g-sec-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding-left: 10px;
+  border-left: 4px solid #F97316;
+  margin-bottom: 12px;
+}
+
+.g-sec-badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.g-sec-title {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #111827;
+  line-height: 1.25;
+}
+
+.g-sec-sub {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.g-sec-count {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #4B5563;
+  background: #F3F4F6;
+  padding: 4px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.g-unit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.g-unit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1.5px solid #F3F4F6;
+  background: #F9FAFB;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.g-unit-row:hover {
+  border-color: #FDBA74;
+  background: #FFF7ED;
+}
+
+.g-unit-row:active {
+  transform: scale(0.98);
+}
+
+.g-unit-row.done {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+}
+
+.g-unit-row.is-minitest {
+  background: #FEFCE8;
+  border-color: #FDE047;
+}
+
+.g-unit-row.is-test {
+  background: #F5F3FF;
+  border-color: #C4B5FD;
+}
+
+.g-unit-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: #FFFFFF;
+  background: #64748B;
+  flex-shrink: 0;
+}
+
+.g-unit-row.done .g-unit-num {
+  background: #22C55E;
+}
+
+.g-unit-row.is-minitest .g-unit-num {
+  background: #EAB308;
+  font-size: 14px;
+}
+
+.g-unit-row.is-test .g-unit-num {
+  background: #7C3AED;
+  font-size: 14px;
+}
+
+.g-unit-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.g-unit-info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.g-unit-info span {
+  display: block;
+  font-size: 11.5px;
+  color: #6B7280;
+  margin-top: 1px;
+}
+
+.g-unit-status {
+  font-size: 14px;
+  font-weight: 800;
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.g-unit-row.done .g-unit-status {
+  color: #16A34A;
+}
+
+/* ---------- 3. GRAMMAR LESSON & QUIZ SCREEN ---------- */
+.gl-tabs {
+  display: flex;
+  gap: 8px;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 14px;
+  margin: 10px 0 14px;
+}
+
+.gl-tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #4B5563;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gl-tab-btn.active {
+  background: #FFFFFF;
+  color: #EA580C;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.gl-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.gl-formula-box {
+  background: linear-gradient(135deg, #EFF6FF, #EEF2FF);
+  border: 1.5px solid #93C5FD;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.gl-formula-label {
+  font-size: 11px;
+  font-weight: 900;
+  color: #1D4ED8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.gl-formula-text {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1E3A8A;
+  line-height: 1.45;
+}
+
+.gl-example-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  background: #F9FAFB;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.gl-example-en {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.gl-example-vi {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.gl-mistake-box {
+  background: #FFF7ED;
+  border: 1.5px solid #FDBA74;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #9A3412;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.gl-quiz-q {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.gl-quiz-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gl-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #E5E7EB;
+  background: #FFFFFF;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  color: #1F2937;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gl-opt-btn.correct {
+  background: #F0FDF4;
+  border-color: #22C55E;
+  color: #15803D;
+}
+
+.gl-opt-btn.wrong {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+
+.gl-explain-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #F0FDF4;
+  border: 1.5px solid #86EFAC;
+  font-size: 12.5px;
+  color: #166534;
+  line-height: 1.45;
+}
+
+.gl-explain-box.is-wrong {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+  color: #991B1B;
+}
+
+/* ---------- 4. ELSA-STYLE PHONEME BREAKDOWN ---------- */
+.phoneme-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+
+.phoneme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 9px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.phoneme-chip.warn {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.phoneme-chip.bad {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* ---------- 5. LIVING GARDEN & PLAYABLE MATCH GAME ---------- */
+.garden-stage-card {
+  background: linear-gradient(180deg, #E0F2FE 0%, #DCFCE7 65%, #BBF7D0 100%);
+  border: 1.5px solid #86EFAC;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+  text-align: center;
+  position: relative;
+}
+
+.garden-stage-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.garden-lvl-badge {
+  background: #16A34A;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.garden-water-badge {
+  background: #FFFFFF;
+  color: #0284C7;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.garden-visual {
+  font-size: 56px;
+  line-height: 1.1;
+  margin: 6px 0;
+  animation: gardenFloat 2.8s ease-in-out infinite;
+}
+
+@keyframes gardenFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.garden-stage-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #14532D;
+  margin-bottom: 4px;
+}
+
+.garden-stage-sub {
+  font-size: 12px;
+  color: #166534;
+  margin-bottom: 10px;
+}
+
+.garden-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-water-plant {
+  flex: 1;
+  background: linear-gradient(135deg, #0EA5E9, #0284C7);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Match-Pairs Mini-game Grid */
+.match-game-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.match-tile {
+  padding: 12px 10px;
+  border-radius: 14px;
+  border: 2px solid #E5E7EB;
+  background: #FFFFFF;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.match-tile.selected {
+  border-color: #F97316;
+  background: #FFF7ED;
+  color: #EA580C;
+}
+
+.match-tile.matched {
+  border-color: #22C55E;
+  background: #DCFCE7;
+  color: #15803D;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.match-tile.wrong-flash {
+  border-color: #EF4444;
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* ---------- 6. SHOP OWNED STATE ---------- */
+.btn-buy.owned {
+  background: #DCFCE7 !important;
+  color: #15803D !important;
+  border: 1.5px solid #86EFAC !important;
+}
+
+/* ---------- 7. IN-APP CUSTOM DIALOG ---------- */
+.chyhab-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.chyhab-dialog-backdrop.hidden {
+  display: none;
+}
+
+.chyhab-dialog-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  padding: 20px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: dialogPop 0.2s ease-out;
+}
+
+@keyframes dialogPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.chyhab-dialog-emoji {
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.chyhab-dialog-card h4 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.chyhab-dialog-card p {
+  font-size: 13px;
+  color: #4B5563;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* ---------- 8. MICRO-POLISH ---------- */
+.btn-secondary.btn-sm {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/screens.css" />
   <link rel="stylesheet" href="css/extra.css?v=33" />
+  <link rel="stylesheet" href="css/upgrade.css?v=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -23,6 +24,7 @@
     <div class="device-actions">
       <button class="device-btn btn-home-jump" onclick="showScreen('screen-home')" style="background:#F97316;color:white;font-weight:800;border:none;box-shadow:0 2px 8px rgba(249,115,22,0.4);" title="Về Trang chủ">🏠 Trang chủ</button>
       <button class="device-btn" onclick="showScreen('screen-study')" title="Về Học tập">📖 Học tập</button>
+      <button class="device-btn" onclick="showScreen('screen-grammar')" title="Lộ trình 60 Units Ngữ pháp">📘 60 Units Ngữ pháp</button>
       <button class="device-btn active" onclick="setDeviceView('iphone')" title="iPhone Frame">📱 iPhone</button>
       <button class="device-btn" onclick="setDeviceView('android')" title="Android Frame">🤖 Android</button>
       <button class="device-btn" onclick="setDeviceView('responsive')" title="Toàn màn hình">🖥️ Responsive</button>
@@ -281,7 +283,7 @@
             <div class="login-divider"><span>hoặc tiếp tục với</span></div>
             <button class="btn-social" onclick="showScreen('screen-home')"><span>🌐</span> Tài khoản Google Sinh viên</button>
             <button class="btn-social" onclick="showScreen('screen-home')"><span>🎓</span> Cổng thông tin trường Đại học</button>
-            <p class="login-footer">Chưa có tài khoản? <a href="#" onclick="showScreen('screen-onboard-1')">Đăng ký miễn phí</a></p>
+            <p class="login-footer">Chưa có tài khoản? <a href="#" onclick="event.preventDefault(); showScreen('screen-onboard-1')">Đăng ký miễn phí</a></p>
           </div>
         </article>
 
@@ -322,7 +324,7 @@
                   <div class="landscape-stats-right">
                     <div class="streak-badge-large">
                       <img src="assets/3d_icons/flame_3d.png?v=10" alt="Streak" class="flame-ico-img" />
-                      <span class="streak-num-big">7</span>
+                      <span class="streak-num-big" id="home-streak-num">7</span>
                     </div>
                     <img src="assets/3d_icons/three_hearts_3d.png?v=10" alt="Lives" class="three-hearts-img" />
                   </div>
@@ -331,8 +333,56 @@
 
               <!-- MAIN CARDS AREA -->
               <div class="home-cards-container">
+
+                <!-- DAILY ACTION HUB (CTA HỌC NGAY + SRS + EXAM COUNTDOWN) -->
+                <section class="home-action-hub">
+                  <div class="daily-cta-card">
+                    <div class="daily-cta-top">
+                      <span class="daily-cta-badge">🎯 Nhiệm vụ hôm nay</span>
+                      <span class="daily-goal-chip" id="home-goal-chip">6 / 10 phút</span>
+                    </div>
+                    <div class="daily-cta-main">
+                      <div class="daily-cta-info">
+                        <h3 id="home-cta-title">Tiếp tục: Giao tiếp hằng ngày</h3>
+                        <p id="home-cta-sub">Từ tiếp theo: book · 8 chế độ luyện tập</p>
+                        <div class="daily-goal-bar">
+                          <div class="daily-goal-fill" id="home-goal-fill" style="width: 60%;"></div>
+                        </div>
+                      </div>
+                      <button class="btn-cta-start" onclick="showScreen('screen-vocab-modes')">Học ngay ▶</button>
+                    </div>
+                  </div>
+
+                  <div class="quick-actions-2col">
+                    <button class="qa-card qa-micro" onclick="openMicroTaskModal()">
+                      <span class="qa-ico">⚡</span>
+                      <span class="qa-text">
+                        <strong>Micro-task 60s</strong>
+                        <span>Ôn nhanh 3 câu</span>
+                      </span>
+                    </button>
+                    <button class="qa-card qa-srs" onclick="openSrsReviewModal()">
+                      <span class="qa-ico">⏰</span>
+                      <span class="qa-text">
+                        <strong>Ôn tập SRS</strong>
+                        <span id="home-srs-count">4 từ cần ôn ngay</span>
+                      </span>
+                    </button>
+                  </div>
+
+                  <div class="exam-countdown-strip" onclick="openModal('modal-syllabus')">
+                    <div class="exam-cd-left">
+                      <div class="exam-cd-days">18<br><small style="font-size:9px;font-weight:700;">ngày</small></div>
+                      <div class="exam-cd-info">
+                        <strong>Đếm ngược kỳ thi chuẩn đầu ra B2</strong>
+                        <span>Lộ trình AI bám sát đề cương · 60 Units Ngữ pháp</span>
+                      </div>
+                    </div>
+                    <span class="exam-cd-btn">Đề cương ›</span>
+                  </div>
+                </section>
                 
-                <!-- CARD 1: BXH THÁNG (EXACT MOCKUP) -->
+                <!-- CARD 1: BXH THÁNG (CÓ LỌC TRƯỜNG / LỚP / TOÀN HỆ THỐNG) -->
                 <section class="card-mockup bxh-card-mockup">
                   <!-- Header -->
                   <div class="card-mockup-header">
@@ -341,12 +391,19 @@
                       <h3>BXH tháng</h3>
                     </div>
                     <div class="cm-dropdown-pill">
-                      <span>Tháng 11/2026 ▾</span>
+                      <span>Tháng 11/2026</span>
                     </div>
                   </div>
 
-                  <!-- 4 Rows -->
-                  <div class="bxh-rows-list">
+                  <!-- Scope Tabs: Trường / Lớp / Toàn hệ thống -->
+                  <div class="bxh-scope-tabs">
+                    <button class="bxh-scope-btn active" onclick="switchLeaderboardScope('school', this)">🎓 Trường</button>
+                    <button class="bxh-scope-btn" onclick="switchLeaderboardScope('class', this)">👥 Lớp ENG204</button>
+                    <button class="bxh-scope-btn" onclick="switchLeaderboardScope('global', this)">🌏 Toàn quốc</button>
+                  </div>
+
+                  <!-- Dynamic Rows -->
+                  <div class="bxh-rows-list" id="home-bxh-rows">
                     <!-- Rank 1: Minh Anh 1.250 XP -->
                     <div class="bxh-user-row">
                       <img src="assets/3d_icons/medal_gold_3d.png?v=10" alt="Rank 1" class="bxh-medal-img" />
@@ -390,7 +447,7 @@
 
                   <!-- Card Footer: Xem tất cả -->
                   <div class="card-mockup-footer">
-                    <a href="#" class="btn-see-all-bxh" onclick="showScreen('screen-leaderboard')">Xem tất cả</a>
+                    <a href="#" class="btn-see-all-bxh" onclick="event.preventDefault(); showScreen('screen-leaderboard')">Xem tất cả</a>
                   </div>
                 </section>
 
@@ -499,12 +556,15 @@
                   </div>
                 </section>
 
-                <!-- CARD 3: CHI TIẾT TỪNG NGÀY (EXACT MOCKUP FROM USER IMAGE) -->
+                <!-- CARD 3: CHI TIẾT TỪNG NGÀY (COLLAPSIBLE) -->
                 <section class="card-mockup daily-breakdown-mockup">
                   <div class="breakdown-header-title">
                     <img src="assets/3d_icons/checklist_3d.png?v=10" alt="Chi tiết" class="cm-icon-img" />
                     <h3>Chi tiết từng ngày</h3>
+                    <button class="breakdown-toggle-btn" id="btn-toggle-breakdown" onclick="toggleDailyBreakdown()">Xem 4 ngày ▾</button>
                   </div>
+
+                  <div class="daily-breakdown-body collapsed" id="home-daily-breakdown-body">
 
                   <!-- Thứ 2 · 02/11: 5 phút -->
                   <div class="day-breakdown-block">
@@ -585,6 +645,7 @@
                       </div>
                     </div>
                   </div>
+                  </div><!-- /.daily-breakdown-body -->
                 </section>
 
               </div> <!-- /.home-cards-container -->
@@ -647,13 +708,13 @@
                 <!-- Calendar navigation row: < 02–08/11/2026 > | 105 phút tuần này -->
                 <div class="chart-info-subbar">
                   <div class="calendar-nav-wrap">
-                    <button class="cal-arrow-btn">‹</button>
+                    <button class="cal-arrow-btn" onclick="switchStatsWeek(-1)">‹</button>
                     <img src="assets/3d_icons/calendar_3d.png?v=10" alt="Calendar" class="cal-icon-img" />
-                    <span class="cal-date-label">02–08/11/2026</span>
-                    <button class="cal-arrow-btn">›</button>
+                    <span class="cal-date-label" id="stats-week-label">02–08/11/2026</span>
+                    <button class="cal-arrow-btn" onclick="switchStatsWeek(1)">›</button>
                   </div>
                   <div class="total-week-pill">
-                    <span>105 phút tuần này</span>
+                    <span id="stats-week-total">105 phút tuần này</span>
                   </div>
                 </div>
 
@@ -678,7 +739,7 @@
                     </div>
                   </div>
 
-                  <div class="chart-bars-row">
+                  <div class="chart-bars-row" id="stats-chart-bars">
                     <div class="chart-day-col">
                       <span class="bar-top-val">5</span>
                       <div class="bar-stick" style="height: 10px;"></div>
@@ -895,13 +956,13 @@
                     <div class="tile-arrow">›</div>
                   </div>
 
-                  <!-- 2. Ngữ pháp -->
-                  <div class="skill-tile tile-grammar" onclick="openModal('modal-mistakes')">
+                  <!-- 2. Ngữ pháp (Mở lộ trình 60 Units A1-C2) -->
+                  <div class="skill-tile tile-grammar" onclick="showScreen('screen-grammar')">
                     <div class="tile-icon-wrap">
                       <img src="assets/icons/study_grammar_books.png" alt="Ngữ pháp" />
                     </div>
                     <strong>Ngữ pháp</strong>
-                    <span>18 bài · AI Sửa lỗi</span>
+                    <span id="study-grammar-sub">60 Units A1–C2 · AI</span>
                     <div class="tile-arrow">›</div>
                   </div>
 
@@ -989,6 +1050,127 @@
                 <span>Hồ sơ</span>
               </button>
             </nav>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             08B. LỘ TRÌNH NGỮ PHÁP 60 UNITS (A1 - C2)
+             ========================================== -->
+        <article class="screen" id="screen-grammar">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-study')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2>Ngữ pháp (60 Units)</h2>
+              <button class="icon-btn" onclick="openModal('modal-mistakes')" title="AI Phân tích lỗi sai">
+                <img src="assets/icons/ai_mistake_analysis.png" alt="AI" />
+              </button>
+            </header>
+
+            <div class="screen-scroll">
+              <div class="grammar-hero-banner">
+                <div class="grammar-hero-top">
+                  <strong>📘 Lộ trình Ngữ pháp CEFR A1 → C2</strong>
+                  <span class="grammar-progress-pill" id="grammar-overall-pill">3 / 60 Units</span>
+                </div>
+                <p>Từ cơ bản (Beginner) đến học thuật nâng cao (Advanced), kèm Mini Test &amp; Test tổng hợp mỗi chặng.</p>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="grammar-overall-bar" style="width: 5%;"></div>
+                </div>
+              </div>
+
+              <div class="grammar-search-wrap">
+                <span>🔍</span>
+                <input type="text" id="grammar-search-input" placeholder="Tìm Unit ngữ pháp (VD: Present Simple, Passive, Conditional...)" oninput="renderGrammarRoadmap()" />
+              </div>
+
+              <div class="grammar-level-pills" id="grammar-level-pills">
+                <button class="g-pill active" onclick="filterGrammarLevel('ALL', this)">Tất cả (60)</button>
+                <button class="g-pill" onclick="filterGrammarLevel('A', this)">A · Beginner</button>
+                <button class="g-pill" onclick="filterGrammarLevel('B', this)">B · Elementary</button>
+                <button class="g-pill" onclick="filterGrammarLevel('C', this)">C · Pre-Int</button>
+                <button class="g-pill" onclick="filterGrammarLevel('D', this)">D · Inter</button>
+                <button class="g-pill" onclick="filterGrammarLevel('E', this)">E · Upper-Int</button>
+                <button class="g-pill" onclick="filterGrammarLevel('F', this)">F · Advanced</button>
+              </div>
+
+              <div id="grammar-roadmap-container"></div>
+              <div style="height: 36px;"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             08C. CHI TIẾT BÀI HỌC & QUIZ NGỮ PHÁP
+             ========================================== -->
+        <article class="screen" id="screen-grammar-lesson">
+          <div class="app-layout">
+            <header class="screen-header">
+              <button class="btn-back" onclick="showScreen('screen-grammar')">
+                <img src="assets/icons/action_back.png" alt="back" />
+              </button>
+              <h2 id="gl-header-title" style="font-size: 16px;">Unit 11: Present Simple</h2>
+              <span class="grammar-progress-pill" id="gl-cefr-badge" style="font-size:11px;">A2</span>
+            </header>
+
+            <div class="screen-scroll">
+              <div class="gl-tabs">
+                <button class="gl-tab-btn active" id="gl-tab-theory" onclick="switchGrammarLessonTab('theory')">📖 Lý thuyết</button>
+                <button class="gl-tab-btn" id="gl-tab-quiz" onclick="switchGrammarLessonTab('quiz')">✍️ Luyện tập (Quiz)</button>
+              </div>
+
+              <div id="gl-theory-view">
+                <div class="gl-formula-box">
+                  <span class="gl-formula-label">📌 Công thức &amp; Cấu trúc</span>
+                  <div class="gl-formula-text" id="gl-formula-text"></div>
+                </div>
+
+                <div class="gl-card">
+                  <h3 style="margin-bottom: 6px;">Cách dùng trọng tâm</h3>
+                  <p id="gl-usage-text" style="color: #374151; font-size: 13px;"></p>
+                </div>
+
+                <div class="gl-card">
+                  <h3>Ví dụ song ngữ (bấm 🔊 để nghe)</h3>
+                  <div id="gl-examples-list"></div>
+                </div>
+
+                <div class="gl-mistake-box" id="gl-mistake-box"></div>
+
+                <button class="btn-primary btn-block" onclick="switchGrammarLessonTab('quiz')">
+                  Bắt đầu làm bài luyện tập ngay ⚡
+                </button>
+              </div>
+
+              <div id="gl-quiz-view" class="hidden">
+                <div class="gl-card">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span id="gl-quiz-counter" style="font-size:12px;font-weight:800;color:#EA580C;">Câu 1 / 3</span>
+                    <span id="gl-quiz-score-live" style="font-size:12px;font-weight:800;color:#16A34A;">Đúng: 0</span>
+                  </div>
+                  <div class="progress-bar" style="margin-bottom:14px;">
+                    <div class="progress-fill" id="gl-quiz-bar" style="width:33%;"></div>
+                  </div>
+                  <div class="gl-quiz-q" id="gl-quiz-question"></div>
+                  <div class="gl-quiz-opts" id="gl-quiz-options"></div>
+                  <div class="gl-explain-box hidden" id="gl-quiz-explain"></div>
+                  <button class="btn-primary btn-block hidden" id="gl-quiz-next-btn" style="margin-top:12px;" onclick="nextGrammarQuizQuestion()">Câu tiếp theo ›</button>
+                </div>
+
+                <div class="gl-card hidden" id="gl-quiz-summary" style="text-align:center;">
+                  <div style="font-size:44px;margin-bottom:6px;" id="gl-sum-emoji">🎉</div>
+                  <h3 id="gl-sum-title" style="font-size:17px;margin-bottom:4px;">Hoàn thành Unit!</h3>
+                  <p id="gl-sum-desc" style="margin-bottom:14px;"></p>
+                  <div style="display:flex;gap:8px;">
+                    <button class="btn-secondary" style="flex:1;padding:12px;" onclick="restartGrammarQuiz()">Làm lại</button>
+                    <button class="btn-primary" style="flex:1;padding:12px;" onclick="showScreen('screen-grammar')">Về lộ trình</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height: 36px;"></div>
+            </div>
           </div>
         </article>
 
@@ -1109,7 +1291,7 @@
                   <img src="assets/icons/study_read.png" alt="Camera" />
                   <span>📷 Nhận diện ảnh AI</span>
                 </button>
-                <button class="btn-action-lib" onclick="alert('Đã sẵn sàng tạo bộ từ vựng cá nhân mới!')">
+                <button class="btn-action-lib" onclick="openCreateSetDialog()">
                   <img src="assets/icons/nav_add.png" alt="Create" />
                   <span>✏ Tạo bộ mới</span>
                 </button>
@@ -1119,7 +1301,7 @@
               <section class="home-block">
                 <div class="block-header">
                   <h3>Gợi ý cho bạn</h3>
-                  <a href="#" class="block-link">Điều chỉnh ›</a>
+                  <a href="#" class="block-link" onclick="event.preventDefault(); showScreen('screen-onboard-1')">Điều chỉnh ›</a>
                 </div>
                 <div class="suggested-list">
                   <!-- Giao tiếp hằng ngày (B1 · 60 từ · Theo mục tiêu của bạn) -->
@@ -1148,7 +1330,7 @@
               <section class="home-block">
                 <div class="block-header">
                   <h3>Thư viện giáo trình</h3>
-                  <a href="#" class="block-link">Xem tất cả ›</a>
+                  <a href="#" class="block-link" onclick="event.preventDefault(); filterTextbookTab(document.querySelector('.filter-tabs .filter-tab'), 'all')">Xem tất cả ›</a>
                 </div>
 
                 <!-- Tabs: Tất cả | A1-A2 | B1-B2 | C1-C2 -->
@@ -1554,9 +1736,9 @@
                   <span class="mic-status-text" id="mic-status-text">Nhấn để thu âm</span>
                 </div>
 
-                <!-- Nút chuyển demo nhanh 4 trạng thái kết quả (Để user test đủ 4 trạng thái như PDF Trang 5) -->
+                <!-- Nút thử nhanh các mức điểm phát âm AI -->
                 <div class="pron-demo-switcher">
-                  <small>Thử nhanh các mức điểm AI theo PDF:</small>
+                  <small>Mô phỏng nhanh các mức điểm AI:</small>
                   <div class="demo-buttons">
                     <button class="btn-demo" onclick="setPronResult(92)">92% (Xuất sắc)</button>
                     <button class="btn-demo" onclick="setPronResult(86)">86% (Tốt)</button>
@@ -1567,7 +1749,7 @@
 
                 <!-- Kết quả chấm điểm AI (4 trạng thái: Xuất sắc / Tốt / Cần cải thiện / Chưa đạt) -->
                 <div class="pron-result-box hidden" id="pron-result-box">
-                  <span class="pron-result-label">Kết quả luyện âm</span>
+                  <span class="pron-result-label">Kết quả luyện âm &amp; Phân tích âm vị</span>
                   <div class="pron-result-top">
                     <div class="pron-score-ring" id="pron-score-ring">
                       <span class="pron-score-pct" id="pron-score-pct">92%</span>
@@ -1577,9 +1759,10 @@
                         <span class="pron-grade-dot" id="pron-grade-dot">✓</span>
                         <span id="pron-grade-text">Xuất sắc</span>
                       </span>
-                      <span class="pron-result-ipa">/bʊk/</span>
+                      <span class="pron-result-ipa" id="pron-result-ipa">/bʊk/</span>
                     </div>
                   </div>
+                  <div class="phoneme-breakdown" id="pron-phoneme-breakdown"></div>
 
                   <!-- Các nút sau khi ghi âm -->
                   <div class="result-actions-row">
@@ -2084,9 +2267,9 @@
                   <textarea id="user-sentence-input" class="sentence-textarea" placeholder="Nhập câu tiếng Anh của bạn tại đây..."></textarea>
                 </div>
 
-                <!-- Nút điền câu mẫu demo (để user test ngay câu đúng như trong tài liệu) -->
+                <!-- Nút điền câu mẫu gợi ý -->
                 <div class="sample-sentence-helper">
-                  <small>Điền câu mẫu theo tài liệu:</small>
+                  <small>Gợi ý câu mẫu chuẩn CEFR:</small>
                   <button class="btn-sample-fill" id="btn-fill-sample" onclick="fillSampleSentence()">
                     📋 Điền câu mẫu Level A2
                   </button>
@@ -2134,11 +2317,10 @@
                   </button>
                 </div>
 
-                <!-- Ghi chú luật của PDF Trang 9 -->
+                <!-- Ghi chú tiêu chí chấm CEFR -->
                 <div class="pdf-rules-note">
-                  <p>› Độ khó dễ của yêu cầu sẽ phụ thuộc vào level của user</p>
-                  <p>› AI sẽ chấm và hướng dẫn điều chỉnh câu</p>
-                  <p>› Đủ level theo CEFR: A1 - C2</p>
+                  <p>› AI kiểm tra từ khóa mục tiêu, độ dài câu, dấu câu và cấu trúc ngữ pháp theo chuẩn CEFR A1–C2</p>
+                  <p>› Gợi ý câu nâng cấp tự nhiên hơn ngay sau khi chấm điểm</p>
                 </div>
 
               </div>
@@ -2195,38 +2377,55 @@
         <article class="screen" id="screen-games">
           <div class="app-layout">
             <header class="screen-header">
-              <h2>🎮 Khu vườn & Trò chơi</h2>
-              <div class="shop-coins"><span>🪙 2,400</span></div>
+              <h2>🌱 Khu vườn &amp; Trò chơi</h2>
+              <div class="shop-coins"><span class="live-coins-display">🪙 2,400</span></div>
             </header>
             <div class="screen-scroll">
-              <p class="study-subtitle">Ôn tập từ vựng qua trò chơi giúp việc học vui và không nhàm chán (PDF Trang 1)</p>
-              <div class="games-grid">
-                <div class="game-card" onclick="alert('Đang mở mini-game Lật thẻ trí nhớ!')">
-                  <div class="game-img">🃏</div>
-                  <strong>Lật thẻ từ vựng</strong>
-                  <span>+20 XP · Trí nhớ</span>
+              <!-- LIVING MASCOT GARDEN -->
+              <div class="garden-stage-card">
+                <div class="garden-stage-top">
+                  <span class="garden-lvl-badge" id="garden-level-badge">Cấp 2 · Cây Mầm Xanh</span>
+                  <span class="garden-water-badge" id="garden-water-count">💧 3 bình nước</span>
                 </div>
-                <div class="game-card" onclick="alert('Đang mở mini-game Ghép đôi từ & nghĩa!')">
+                <div class="garden-visual" id="garden-plant-emoji">🌿</div>
+                <div class="garden-stage-title" id="garden-stage-title">Khu vườn học tập của Giang</div>
+                <div class="garden-stage-sub" id="garden-stage-sub">Học từ vựng &amp; tưới nước để cây nở hoa cùng ChY!</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="garden-growth-bar" style="width: 45%;"></div>
+                </div>
+                <div class="garden-actions-row">
+                  <button class="btn-water-plant" onclick="waterGardenPlant()">💧 Tưới cây (+25% trưởng thành)</button>
+                </div>
+              </div>
+
+              <p class="study-subtitle">Ôn tập từ vựng &amp; ngữ pháp qua trò chơi phản xạ nhanh:</p>
+              <div class="games-grid">
+                <div class="game-card" onclick="openMatchGameModal()">
                   <div class="game-img">🧩</div>
                   <strong>Ghép đôi từ vựng</strong>
-                  <span>+30 XP · Phản xạ</span>
+                  <span>+30 XP · Chơi ngay</span>
                 </div>
-                <div class="game-card" onclick="alert('Đang mở trò chơi Chạy đua từ!')">
-                  <div class="game-img">🏃</div>
-                  <strong>Chạy đua từ</strong>
-                  <span>+40 XP · Tốc độ</span>
+                <div class="game-card" onclick="openMicroTaskModal()">
+                  <div class="game-img">⚡</div>
+                  <strong>Đua 60 giây</strong>
+                  <span>+20 XP · Tốc độ</span>
                 </div>
-                <div class="game-card" onclick="alert('Đang mở trò Bắn từ vựng!')">
-                  <div class="game-img">🎯</div>
-                  <strong>Bắn từ vựng</strong>
-                  <span>+50 XP · Thử thách</span>
+                <div class="game-card" onclick="showScreen('screen-practice-flashcard')">
+                  <div class="game-img">🃏</div>
+                  <strong>Lật thẻ trí nhớ</strong>
+                  <span>+20 XP · Flashcard</span>
                 </div>
-                <div class="game-card" onclick="alert('Đang mở Đố vui tiếng Anh!')">
+                <div class="game-card" onclick="openSrsReviewModal()">
+                  <div class="game-img">⏰</div>
+                  <strong>Ôn tập Thời điểm vàng</strong>
+                  <span>+25 XP · SRS</span>
+                </div>
+                <div class="game-card" onclick="showScreen('screen-grammar')">
                   <div class="game-img">🧠</div>
-                  <strong>Đố vui AI</strong>
-                  <span>+60 XP · Kiến thức</span>
+                  <strong>Đố vui Ngữ pháp</strong>
+                  <span>60 Units · A1–C2</span>
                 </div>
-                <div class="game-card" onclick="alert('Đang kết nối bạn cùng trường để thách đấu!')">
+                <div class="game-card" onclick="openInAppDialog('⚔️', 'Thách đấu Sinh viên 1v1', 'Chế độ đấu trí trực tiếp cùng bạn cùng lớp ENG204 sẽ mở khi kết nối máy chủ thời gian thực. Hiện tại bạn có thể luyện tốc độ với Đua 60 giây hoặc Ghép đôi từ vựng!')">
                   <div class="game-img">⚔️</div>
                   <strong>Thách đấu Sinh viên</strong>
                   <span>PvP Đấu 1v1</span>
@@ -2266,41 +2465,16 @@
           <div class="app-layout">
             <header class="screen-header">
               <h2>🛍️ Cửa hàng</h2>
-              <div class="shop-coins"><span>🪙 2,400 xu</span></div>
+              <div class="shop-coins"><span class="live-coins-display">🪙 2,400 xu</span></div>
             </header>
             <div class="screen-scroll">
               <div class="shop-tabs">
-                <button class="shop-tab active">Linh vật</button>
-                <button class="shop-tab">Trang phục</button>
-                <button class="shop-tab">Bảo vệ Streak</button>
-                <button class="shop-tab">Vật phẩm</button>
+                <button class="shop-tab active" onclick="filterShopCategory('all', this)">Tất cả</button>
+                <button class="shop-tab" onclick="filterShopCategory('mascot', this)">Linh vật</button>
+                <button class="shop-tab" onclick="filterShopCategory('streak', this)">Bảo vệ Streak</button>
+                <button class="shop-tab" onclick="filterShopCategory('item', this)">Vật phẩm</button>
               </div>
-              <div class="shop-grid">
-                <div class="shop-item">
-                  <img src="assets/mascots/pear_friend.png" alt="Pear Friend" />
-                  <strong>Bạn Lê (Pear Friend)</strong>
-                  <span>Đồng hành học tập</span>
-                  <button class="btn-buy" onclick="alert('Đã mua bạn Lê đồng hành thành công!')">🪙 500 xu</button>
-                </div>
-                <div class="shop-item">
-                  <img src="assets/mascots/orange_friend.png" alt="Orange Friend" />
-                  <strong>Bạn Cam (Orange Friend)</strong>
-                  <span>Cổ vũ luyện viết</span>
-                  <button class="btn-buy" onclick="alert('Đã mua bạn Cam đồng hành thành công!')">🪙 500 xu</button>
-                </div>
-                <div class="shop-item">
-                  <div class="shop-placeholder">🛡️</div>
-                  <strong>Khiên bảo vệ Chuỗi</strong>
-                  <span>Không mất chuỗi khi quên học</span>
-                  <button class="btn-buy" onclick="alert('Đã trang bị Khiên bảo vệ chuỗi!')">🪙 300 xu</button>
-                </div>
-                <div class="shop-item">
-                  <div class="shop-placeholder">❤️</div>
-                  <strong>Hồi đầy 3 Tim</strong>
-                  <span>Tiếp tục làm bài tập</span>
-                  <button class="btn-buy" onclick="alert('Đã nạp đầy 3 tim!')">🪙 150 xu</button>
-                </div>
-              </div>
+              <div class="shop-grid" id="shop-grid"></div>
               <div style="height: 90px;"></div>
             </div>
             <nav class="bottom-nav">
@@ -2353,19 +2527,19 @@
             <div class="screen-scroll">
               <div class="profile-stats-row">
                 <div class="p-stat">
-                  <span class="p-stat-num orange-text">7</span>
+                  <span class="p-stat-num orange-text" id="profile-streak-num">7</span>
                   <span class="p-stat-label">🔥 Ngày streak</span>
                 </div>
                 <div class="p-stat">
-                  <span class="p-stat-num blue-text">720</span>
+                  <span class="p-stat-num blue-text" id="profile-xp-num">720</span>
                   <span class="p-stat-label">⚡ XP tháng 11</span>
                 </div>
                 <div class="p-stat">
-                  <span class="p-stat-num green-text">1,240</span>
+                  <span class="p-stat-num green-text" id="profile-vocab-num">1,240</span>
                   <span class="p-stat-label">📖 Từ đã học</span>
                 </div>
                 <div class="p-stat">
-                  <span class="p-stat-num purple-text">48</span>
+                  <span class="p-stat-num purple-text" id="profile-done-num">48</span>
                   <span class="p-stat-label">✅ Bài tập xong</span>
                 </div>
               </div>
@@ -2553,23 +2727,27 @@
                   </div>
                   <div class="settings-item">
                     <span>Phát âm AI tự động</span>
-                    <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                    <label class="toggle"><input type="checkbox" checked id="toggle-autoplay" onchange="saveSettingsFromUI()" /><span class="toggle-slider"></span></label>
                   </div>
                 </div>
 
                 <div class="settings-group">
-                  <span class="settings-label">MICRO-TASK & THÔNG BÁO</span>
+                  <span class="settings-label">MICRO-TASK &amp; THÔNG BÁO</span>
                   <div class="settings-item">
                     <span>Nhắc nhở Micro-task thông minh</span>
-                    <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+                    <label class="toggle"><input type="checkbox" checked id="toggle-microtask" onchange="saveSettingsFromUI()" /><span class="toggle-slider"></span></label>
                   </div>
                   <div class="settings-item">
                     <span>Âm thanh chúc mừng SFX</span>
-                    <label class="toggle"><input type="checkbox" checked id="toggle-sfx" /><span class="toggle-slider"></span></label>
+                    <label class="toggle"><input type="checkbox" checked id="toggle-sfx" onchange="saveSettingsFromUI()" /><span class="toggle-slider"></span></label>
                   </div>
                 </div>
 
                 <div class="settings-group">
+                  <div class="settings-item" onclick="resetDemoState()">
+                    <span>🔄 Đặt lại dữ liệu học tập mẫu</span>
+                    <span class="settings-value">Reset ›</span>
+                  </div>
                   <div class="settings-item danger" onclick="showScreen('screen-splash')">
                     <span>Đăng xuất tài khoản</span>
                   </div>
@@ -2596,7 +2774,7 @@
           </div>
           <div class="modal-body">
             <p class="modal-desc">
-              Sinh viên có thể tải đề cương chi tiết học phần môn Đọc-Viết ở trường để AI thiết kế lộ trình bám sát môn học (PDF Trang 1).
+              Sinh viên có thể tải đề cương chi tiết học phần môn Tiếng Anh ở trường để AI thiết kế lộ trình học bám sát ngày thi.
             </p>
             <div class="upload-dropzone" onclick="document.getElementById('file-upload-input').click()">
               <div class="drop-icon">📤</div>
@@ -2634,7 +2812,7 @@
           </div>
           <div class="modal-body">
             <p class="modal-desc">
-              Chụp ảnh trang sách, giáo trình hoặc bảng từ vựng để AI quét và tự động lọc danh sách từ mới cho bạn học (PDF Trang 1).
+              Chụp ảnh trang sách, giáo trình hoặc bảng từ vựng để AI quét và tự động lọc danh sách từ mới vào kho ôn tập SRS.
             </p>
             <div class="camera-simulator-box" id="camera-box">
               <div class="cam-viewfinder">
@@ -2674,12 +2852,12 @@
         <div class="modal-sheet">
           <div class="sheet-handle"></div>
           <div class="modal-header">
-            <h3>🔍 AI Phân Tích Lỗi Sai & Luyện Thích Ứng</h3>
+            <h3>🔍 AI Phân Tích Lỗi Sai &amp; Luyện Thích Ứng</h3>
             <button class="modal-close-btn" onclick="closeModal('modal-mistakes')">✕</button>
           </div>
           <div class="modal-body">
             <div class="ai-case-card">
-              <div class="case-badge">Trường hợp thực tế (PDF Trang 1)</div>
+              <div class="case-badge">AI Phát hiện lỗi lặp lại</div>
               <h4>Lỗi sai phát hiện: Hiện tại đơn (HTĐ) vs Hiện tại tiếp diễn (HTTD)</h4>
               <p>Hệ thống AI ghi nhận bạn trả lời sai <strong>4 lần</strong> ở cấu trúc câu Hiện tại đơn (quên chia động từ -s/-es khi chủ ngữ ngôi thứ 3 số ít).</p>
               
@@ -2690,49 +2868,84 @@
             </div>
 
             <div class="adaptive-plan-box">
-              <strong>Lộ trình khắc phục do AI tạo:</strong>
+              <strong>Lộ trình khắc phục liên kết 60 Units Ngữ pháp:</strong>
               <ul>
-                <li>Bài luyện bổ sung 1: Nhận diện dấu hiệu thì HTĐ (always, usually, often...)</li>
-                <li>Bài luyện bổ sung 2: Quy tắc thêm -s / -es với động từ</li>
-                <li>Đánh giá lại tự động cho đến khi thành thạo 100%</li>
+                <li>Mở ngay <strong>Unit 11: Present Simple Tense</strong> (Lý thuyết + Quy tắc -s/-es)</li>
+                <li>Thực hành Quiz thích ứng &amp; nhận giải thích chi tiết từng câu</li>
+                <li>Tự động đánh dấu hoàn thành &amp; cộng +40 XP khi đạt chuẩn</li>
               </ul>
             </div>
 
             <button class="btn-primary btn-block" onclick="startAdaptiveRemedy()">
-              Luyện bài tập thích ứng ngay (5 câu) ⚡
+              Mở Unit 11: Present Simple ngay ⚡
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Modal 4: Micro-task 60s (PDF Trang 1) -->
+      <!-- Modal 4: Micro-task 60s (Đếm ngược thật 3 câu) -->
       <div class="modal-backdrop hidden" id="modal-microtask">
         <div class="modal-sheet">
           <div class="sheet-handle"></div>
           <div class="modal-header">
             <h3>⚡ Micro-task 60 Giây</h3>
-            <button class="modal-close-btn" onclick="closeModal('modal-microtask')">✕</button>
+            <button class="modal-close-btn" onclick="closeMicroTaskModal()">✕</button>
           </div>
           <div class="modal-body">
             <p class="modal-desc">
-              Tận dụng 60 giây chờ xe buýt hoặc giải lao để củng cố 3 từ vựng nhanh (PDF Trang 1).
+              Tận dụng 60 giây chờ xe buýt hoặc giải lao để ôn nhanh 3 từ vựng trọng tâm.
             </p>
             <div class="micro-quiz-box">
-              <div class="mq-timer">⏱️ Còn lại: <strong id="mq-timer-val">58s</strong></div>
+              <div class="mq-timer">⏱️ Còn lại: <strong id="mq-timer-val">60s</strong> · <span id="mq-step-val">Câu 1/3</span></div>
               <h4 id="mq-question">"book" nghĩa là gì?</h4>
-              <div class="mq-options">
-                <button class="mq-btn" onclick="answerMicroTask(true, this)">Cuốn sách</button>
-                <button class="mq-btn" onclick="answerMicroTask(false, this)">Bàn học</button>
-                <button class="mq-btn" onclick="answerMicroTask(false, this)">Bút mực</button>
-              </div>
+              <div class="mq-options" id="mq-options"></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Modal 5: Ôn tập SRS Thời điểm vàng -->
+      <div class="modal-backdrop hidden" id="modal-srs">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>⏰ Ôn tập SRS – Thời điểm vàng</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-srs')">✕</button>
+          </div>
+          <div class="modal-body" id="srs-modal-body"></div>
+        </div>
+      </div>
+
+      <!-- Modal 6: Mini-game Ghép đôi từ vựng (Playable) -->
+      <div class="modal-backdrop hidden" id="modal-match-game">
+        <div class="modal-sheet">
+          <div class="sheet-handle"></div>
+          <div class="modal-header">
+            <h3>🧩 Ghép đôi Từ &amp; Nghĩa</h3>
+            <button class="modal-close-btn" onclick="closeModal('modal-match-game')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc" id="match-game-status">Chọn cặp từ tiếng Anh và nghĩa tiếng Việt tương ứng (0/4 cặp):</p>
+            <div class="match-game-grid" id="match-game-grid"></div>
+            <button class="btn-secondary btn-block" style="margin-top:8px;" onclick="initMatchGame()">🔄 Chơi bộ từ mới</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom In-App Dialog (Thay thế toàn bộ alert() trình duyệt) -->
+      <div class="chyhab-dialog-backdrop hidden" id="chyhab-dialog" onclick="closeInAppDialog()">
+        <div class="chyhab-dialog-card" onclick="event.stopPropagation()">
+          <div class="chyhab-dialog-emoji" id="chyhab-dialog-emoji">✨</div>
+          <h4 id="chyhab-dialog-title">Thông báo</h4>
+          <p id="chyhab-dialog-msg"></p>
+          <button class="btn-primary btn-block" onclick="closeInAppDialog()">Đã hiểu</button>
         </div>
       </div>
 
     </div> <!-- /#phone-frame -->
   </main> <!-- /#app-container -->
 
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=1"></script>
+  <script src="js/app.js?v=3"></script>
 </body>
 </html>
