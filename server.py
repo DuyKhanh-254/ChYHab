@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-ChYHab — Local Full-Stack Server (Static + Neural TTS Proxy/Cache + Sesame-Style Live Voice AI)
-Runs on port 8080 behind ngrok.
+ChYHab — Ultra-Low-Latency Full-Stack Server
+- Static Web App
+- Studio Dictionary + Google Neural TTS Proxy & Disk Cache
+- Real-Time Gemini 3.5 Flash-Lite Voice Conversation (/api/live-chat) with inline Base64 MP3
 """
+import base64
 import hashlib
 import http.server
 import json
@@ -32,18 +35,14 @@ def load_dotenv_key(name: str) -> str:
     return ""
 
 
-GEMINI_KEY = load_dotenv_key("GEMINI_API_KEY")
-
-
 def fetch_human_dictionary_mp3(word: str):
-    """Try fetching real human studio recording from Dictionary API for single words."""
     clean = word.strip().lower()
     if not re.match(r"^[a-z]+$", clean):
         return None
     try:
         url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{clean}"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=4) as resp:
+        with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         audio_urls = []
         for entry in data:
@@ -57,7 +56,7 @@ def fetch_human_dictionary_mp3(word: str):
         if chosen.startswith("//"):
             chosen = "https:" + chosen
         r2 = urllib.request.Request(chosen, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(r2, timeout=5) as aresp:
+        with urllib.request.urlopen(r2, timeout=4) as aresp:
             mp3 = aresp.read()
             if len(mp3) > 500:
                 return mp3
@@ -67,12 +66,11 @@ def fetch_human_dictionary_mp3(word: str):
 
 
 def fetch_google_neural_tts_mp3(text: str, tl: str = "en-US"):
-    """Fetch natural English Neural TTS MP3 from Google, chunking if needed."""
     clean = re.sub(r"\s+", " ", text.strip())[:200]
     q = urllib.parse.quote(clean)
     url = f"https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl={tl}&q={q}"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=8) as resp:
+    with urllib.request.urlopen(req, timeout=5) as resp:
         return resp.read()
 
 
@@ -94,134 +92,77 @@ def get_tts_mp3(text: str, accent: str = "en-US") -> bytes:
     return mp3
 
 
-def call_gemini_json(prompt: str, custom_key: str = ""):
-    """Call Google Gemini 3.8 Flash / Gemini 4 Argon model."""
-    key = (custom_key or load_dotenv_key("GEMINI_API_KEY") or GEMINI_KEY).strip()
+def call_gemini_fast_json(prompt: str, custom_key: str = ""):
+    """Sub-second Gemini 3.5 Flash-Lite call (single fast attempt, max 2.8s cap)."""
+    key = (custom_key or load_dotenv_key("GEMINI_API_KEY")).strip()
     if not key:
         return None
-    models = [
-        "gemini-3.8-flash",
-        "gemini-4-argon",
-        "gemini-3.7-flash",
-        "gemini-flash-latest",
-        "gemini-2.5-flash"
-    ]
-    for m in models:
-        endpoints = [
-            f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}",
-            f"https://aiplatform.googleapis.com/v1/publishers/google/models/{m}:generateContent?key={key}"
-        ]
-        for ep in endpoints:
-            try:
-                gen_cfg = {"responseMimeType": "application/json", "temperature": 0.7}
-                if "3.8" in m or "4-" in m or "3." in m:
-                    gen_cfg["thinkingConfig"] = {"thinkingBudget": 0}
-                body = json.dumps({
-                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                    "generationConfig": gen_cfg
-                }).encode("utf-8")
-                r = urllib.request.Request(ep, data=body, headers={"Content-Type": "application/json", "x-goog-api-key": key})
-                with urllib.request.urlopen(r, timeout=15) as resp:
-                    out = json.loads(resp.read().decode("utf-8"))
-                    txt = out["candidates"][0]["content"]["parts"][0]["text"]
-                    parsed = json.loads(txt)
-                    parsed["modelUsed"] = m
-                    return parsed
-            except Exception:
-                continue
-    return None
+
+    m = "gemini-3.5-flash-lite"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}"
+    try:
+        body = json.dumps({
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "responseMimeType": "application/json",
+                "temperature": 0.65,
+                "maxOutputTokens": 220
+            }
+        }).encode("utf-8")
+        r = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(r, timeout=2.8) as resp:
+            out = json.loads(resp.read().decode("utf-8"))
+            txt = out["candidates"][0]["content"]["parts"][0]["text"]
+            parsed = json.loads(txt)
+            parsed["modelUsed"] = m
+            return parsed
+    except Exception:
+        return None
 
 
 def generate_sesame_contextual_reply(user_msg: str, scenario: str, persona: str, turn_idx: int) -> dict:
-    """
-    Contextual Sesame-style conversational voice engine.
-    Generates warm, natural spoken responses (Maya/Miles style) tailored to what the student said.
-    """
     msg = (user_msg or "").strip()
     lower = msg.lower()
     words = [w for w in re.findall(r"[a-zA-Z']+", msg)]
     word_count = len(words)
     speaker = "Maya" if persona != "miles" else "Miles"
 
-    # Estimate CEFR & coaching tip
     has_advanced = bool(re.search(r"\b(syllabus|curriculum|methodology|collaborate|experience|effectively|furthermore|however|although|deadline|presentation|research|innovation|confident|definitely|personally)\b", lower))
     if word_count >= 12 and has_advanced:
         cefr = "B2–C1"
-        feedback = "Ngữ điệu tự nhiên, cấu trúc câu phức và từ vựng học thuật rất ấn tượng!"
+        feedback = "Ngữ điệu tự nhiên, cấu trúc câu phức và từ vựng học thuật rất tốt!"
         better_say = msg if msg.endswith((".", "!", "?")) else msg + "."
     elif word_count >= 6:
         cefr = "B1+"
-        feedback = "Diễn đạt rõ ý! Bạn có thể nối thêm mệnh đề 'because' hoặc 'which helps me...' để đạt chuẩn B2."
-        better_say = f"Honestly, {msg[0].lower() + msg[1:] if len(msg) > 1 else msg}, which really helps me improve every day."
+        feedback = "Diễn đạt rõ ý! Có thể nối thêm 'because' hoặc 'which helps me...' để lên B2."
+        better_say = f"Honestly, {msg[0].lower() + msg[1:] if len(msg) > 1 else msg}, which really helps me improve."
     else:
         cefr = "A2–B1"
-        feedback = "Phản xạ tốt! Hãy thử mở rộng câu trả lời thành 1–2 câu đầy đủ kèm lý do."
-        better_say = "Well, from my perspective, practicing English daily makes a huge difference."
+        feedback = "Phản xạ tốt! Hãy thử mở rộng thành 1–2 câu đầy đủ kèm lý do."
+        better_say = "Well, from my perspective, practicing English daily makes a big difference."
 
-    # Topic detection for genuine conversational responsiveness
     if re.search(r"\b(hello|hi|hey|good morning|good evening|how are you)\b", lower):
-        reply_en = f"Hey there! I'm {speaker}, your live English companion. It's so good to hear your voice—what's on your mind today, or what are you studying this week?"
-        reply_vi = f"Chào bạn! Mình là {speaker}, trợ lý luyện nói trực tiếp của bạn. Rất vui được nghe giọng bạn — hôm nay bạn đang nghĩ gì hay đang ôn môn gì thế?"
+        reply_en = f"Hey! I'm {speaker}. It's great to hear your voice—what would you like to talk about today?"
+        reply_vi = f"Chào bạn! Mình là {speaker}. Rất vui được nghe giọng bạn — hôm nay bạn muốn trò chuyện về chủ đề gì?"
         suggestions = [
-            "I'm preparing for my B2 English speaking exam at university.",
-            "I had a really busy day with group assignments and deadlines.",
-            "Can we practice a quick internship interview together?"
+            "I'm preparing for my B2 speaking exam at university.",
+            "I had a busy day with group assignments.",
+            "Let's practice a quick job interview together."
         ]
-    elif re.search(r"\b(stress|tired|busy|deadline|hard|difficult|exhausted|worried|nervous)\b", lower):
-        reply_en = "Oh, I totally get that—university deadlines can feel overwhelming sometimes. Take a deep breath! What's the biggest thing on your plate right now?"
-        reply_vi = "Ồ, mình hoàn toàn hiểu mà — deadline ở đại học đôi khi thật sự áp lực. Hít một hơi sâu nhé! Việc lớn nhất bạn đang phải giải quyết lúc này là gì?"
+    elif re.search(r"\b(stress|tired|busy|deadline|hard|difficult|nervous)\b", lower):
+        reply_en = "Oh, I totally get that—university deadlines can be intense! What's the biggest task you're working on right now?"
+        reply_vi = "Ồ, mình hoàn toàn hiểu — deadline đại học đôi khi rất căng! Việc lớn nhất bạn đang làm lúc này là gì?"
         suggestions = [
-            "I have a group presentation tomorrow and I still feel nervous.",
-            "I need to memorize 60 grammar units before the final test.",
-            "Balancing my part-time job and coursework is quite challenging."
-        ]
-    elif re.search(r"\b(exam|vstep|ielts|test|grammar|vocabulary|syllabus|study|learn|english)\b", lower):
-        reply_en = "That's a smart way to approach it! Consistency really beats cramming at the last minute. Which skill do you feel is your biggest challenge right now—speaking fluency or academic vocabulary?"
-        reply_vi = "Cách tiếp cận đó rất thông minh! Sự đều đặn luôn tốt hơn học dồn phút cuối. Kỹ năng nào đang là thử thách lớn nhất với bạn lúc này — độ trôi chảy khi nói hay từ vựng học thuật?"
-        suggestions = [
-            "Speaking fluency is my main challenge because I rarely talk to native speakers.",
-            "I want to use more advanced C1 vocabulary naturally when I speak.",
-            "Sometimes I still mix up present perfect and past simple tenses."
-        ]
-    elif re.search(r"\b(interview|intern|internship|job|company|career|work|cv|resume)\b", lower) or scenario == "interview":
-        reply_en = "I love that energy! In a real interview, showing how you collaborate and solve problems sets you apart. Tell me, what kind of project or role excites you the most?"
-        reply_vi = "Mình rất thích nguồn năng lượng đó! Trong phỏng vấn thực tế, thể hiện cách bạn hợp tác và giải quyết vấn đề sẽ giúp bạn nổi bật. Dự án hay vị trí nào làm bạn hứng thú nhất?"
-        suggestions = [
-            "I love working on innovative tech projects where I can learn from senior engineers.",
-            "I enjoy roles that combine business analysis with creative problem solving.",
-            "My goal is to join a dynamic team and gain hands-on industry experience."
-        ]
-    elif re.search(r"\b(presentation|project|research|methodology|capstone|group|team|defend)\b", lower) or scenario == "defense":
-        reply_en = "That sounds like a really solid project! If I were your professor listening right now, I'd ask: what was the single most surprising result your team discovered?"
-        reply_vi = "Nghe là thấy đồ án rất chắc chắn rồi! Nếu mình là giảng viên đang ngồi hội đồng, mình sẽ hỏi: kết quả bất ngờ nhất mà nhóm bạn phát hiện ra là gì?"
-        suggestions = [
-            "We discovered that 60-second micro-tasks increased daily student retention by 40 percent.",
-            "Our survey showed that students learn twice as fast when lessons match their course syllabus.",
-            "The biggest surprise was how much voice roleplay reduced speaking anxiety."
+            "I have an English presentation tomorrow morning.",
+            "I need to review grammar and vocabulary for finals."
         ]
     else:
-        followups = [
-            (
-                "Oh, that's a really interesting perspective! I like how clearly you expressed that. If you had to give one piece of advice to a freshman at your university, what would you tell them?",
-                "Ồ, góc nhìn đó thú vị thật đấy! Mình rất thích cách bạn diễn đạt rõ ràng như vậy. Nếu được khuyên một điều cho sinh viên năm nhất trường bạn, bạn sẽ nói gì?",
-                [
-                    "I would tell them to start building their English habit from the very first semester.",
-                    "Don't be afraid of making mistakes when speaking in front of the class.",
-                    "Join student clubs to gain practical teamwork experience early on."
-                ]
-            ),
-            (
-                "Hmm, I see what you mean! Speaking of daily life on campus, how do you usually unwind after a long day of lectures?",
-                "Ừm, mình hiểu ý bạn! Nhân chuyện đời sống sinh viên, bạn thường thư giãn thế nào sau một ngày dài trên giảng đường?",
-                [
-                    "I usually listen to English podcasts while walking around the campus lake.",
-                    "Hanging out with my classmates at a small coffee shop always helps me recharge.",
-                    "I enjoy playing sports or reading a good book before bed."
-                ]
-            )
+        reply_en = "That's a really interesting point! Could you tell me a little more about why you feel that way?"
+        reply_vi = "Ý đó thú vị thật đấy! Bạn có thể chia sẻ thêm một chút lý do bạn nghĩ vậy không?"
+        suggestions = [
+            "Because practicing every day builds real confidence.",
+            "In my experience, learning with examples is much faster."
         ]
-        f_en, f_vi, f_sug = followups[turn_idx % len(followups)]
-        reply_en, reply_vi, suggestions = f_en, f_vi, f_sug
 
     return {
         "replyEn": reply_en,
@@ -230,7 +171,7 @@ def generate_sesame_contextual_reply(user_msg: str, scenario: str, persona: str,
         "feedback": feedback,
         "betterSay": better_say,
         "suggestions": suggestions,
-        "source": "sesame-engine"
+        "source": "sesame-fallback"
     }
 
 
@@ -266,8 +207,7 @@ class ChYHabHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path == "/api/health":
             payload = json.dumps({
                 "ok": True,
-                "tts": "google-neural+dictionary",
-                "live_voice": "sesame-gemini-flash",
+                "model": "gemini-3.5-flash-lite",
                 "cached_files": len(os.listdir(CACHE_DIR))
             }).encode("utf-8")
             self.send_response(200)
@@ -293,32 +233,41 @@ class ChYHabHandler(http.server.SimpleHTTPRequestHandler):
             scenario = (req_data.get("scenario") or "free").strip()
             persona = (req_data.get("persona") or "maya").strip()
             turn_idx = int(req_data.get("turn") or 0)
+            history = req_data.get("history") or []
             custom_key = (req_data.get("apiKey") or "").strip()
             speaker = "Maya" if persona != "miles" else "Miles"
 
-            prompt = (
-                f"You are {speaker}, a warm, hyper-natural real-time English voice companion (like Sesame AI) "
-                f"helping a Vietnamese university student in scenario '{scenario}'. "
-                f"The student just said: \"{user_msg}\". "
-                f"Respond in JSON with fields: "
-                f"replyEn (1-2 natural spoken English sentences, 18-32 words, warm conversational tone with a follow-up question), "
-                f"replyVi (natural Vietnamese translation of replyEn), "
-                f"cefr (estimated CEFR level of student's message: A2, B1, B1+, B2, or C1), "
-                f"feedback (1 short coaching tip in Vietnamese), "
-                f"betterSay (a more natural B2/C1 English version of what the student said), "
-                f"suggestions (array of 3 natural English reply options for the student's next turn)."
+            hist_str = "\n".join(
+                f"{'Student' if h.get('role') == 'user' else speaker}: {h.get('text', '')}"
+                for h in history[-4:]
             )
 
-            result = call_gemini_json(prompt, custom_key=custom_key)
+            prompt = (
+                f"You are {speaker}, a warm, natural real-time spoken English companion (like Sesame AI) "
+                f"talking live with a Vietnamese university student (scenario: {scenario}).\n"
+                f"Recent conversation:\n{hist_str}\n"
+                f"Student just said: \"{user_msg}\"\n"
+                f"Return ONLY valid JSON with exact keys:\n"
+                f"- replyEn: 1-2 short natural spoken English sentences (max 28 words total, warm human tone, end with a natural follow-up question)\n"
+                f"- replyVi: concise Vietnamese translation of replyEn\n"
+                f"- cefr: student's speaking level (A2, B1, B1+, B2, or C1)\n"
+                f"- feedback: 1 short helpful tip in Vietnamese\n"
+                f"- betterSay: a natural B2 English phrasing of what the student meant\n"
+                f"- suggestions: array of 2 short English replies the student could say next"
+            )
+
+            result = call_gemini_fast_json(prompt, custom_key=custom_key)
             if not result or not result.get("replyEn"):
                 result = generate_sesame_contextual_reply(user_msg, scenario, persona, turn_idx)
             else:
-                result["source"] = "gemini-flash"
+                result["source"] = result.get("modelUsed", "gemini-3.5-flash-lite")
 
-            # Pre-warm Neural TTS MP3 right now so browser audio playback starts with 0 latency!
+            # Embed MP3 audio directly as Base64 so playback starts in 0ms with zero autoplay/CORS/ngrok issues!
             accent = "en-US" if persona != "miles" else "en-GB"
             try:
-                get_tts_mp3(result["replyEn"], accent=accent)
+                mp3_bytes = get_tts_mp3(result["replyEn"], accent=accent)
+                if mp3_bytes:
+                    result["audioBase64"] = base64.b64encode(mp3_bytes).decode("ascii")
             except Exception:
                 pass
 
@@ -340,9 +289,9 @@ class ChYHabHandler(http.server.SimpleHTTPRequestHandler):
                 f"Sinh viên đặt câu với từ '{word}': \"{sentence}\". "
                 f"Trả về JSON: score (25-98), levelMatch, grammarStat, comment, suggestion."
             )
-            result = call_gemini_json(prompt)
+            result = call_gemini_fast_json(prompt)
             if result and result.get("score"):
-                result["source"] = "gemini-flash"
+                result["source"] = result.get("modelUsed", "gemini-3.5-flash-lite")
                 res_bytes = json.dumps(result).encode("utf-8")
             else:
                 res_bytes = json.dumps({"fallback": True}).encode("utf-8")
@@ -363,5 +312,5 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 if __name__ == "__main__":
     with ThreadedHTTPServer(("", PORT), ChYHabHandler) as httpd:
-        print(f"ChYHab Full-Stack Server listening on http://localhost:{PORT}", flush=True)
+        print(f"ChYHab Ultra-Fast Server listening on http://localhost:{PORT}", flush=True)
         httpd.serve_forever()

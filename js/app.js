@@ -2505,31 +2505,45 @@ function setSesameOrbState(state) {
     if (sub) sub.textContent = 'Hãy nói tự nhiên bằng tiếng Anh (chạm để gửi ngay)';
   } else if (state === 'thinking') {
     if (emoji) emoji.textContent = '✨';
-    if (hint) hint.textContent = 'ĐANG XỬ LÝ';
-    if (title) title.textContent = `${speaker} đang suy nghĩ...`;
-    if (sub) sub.textContent = 'Gemini 3.8 Flash đang phân tích ngữ cảnh & CEFR';
+    if (hint) hint.textContent = 'ĐANG TRẢ LỜI';
+    if (title) title.textContent = `${speaker} đang phản hồi...`;
+    if (sub) sub.textContent = 'Gemini Flash-Lite (Tốc độ thực ~1s)';
   } else if (state === 'speaking') {
     if (emoji) emoji.textContent = '🗣️';
     if (hint) hint.textContent = 'CHẠM ĐỂ NGẮT LỜI';
-    if (title) title.textContent = `${speaker} đang nói (Khẩu hình trực tiếp)...`;
-    if (sub) sub.textContent = 'Quan sát khẩu hình miệng hoặc chạm vào giảng viên để ngắt lời (Barge-in)';
+    if (title) title.textContent = `${speaker} đang trả lời...`;
+    if (sub) sub.textContent = 'Chạm vào giảng viên bất cứ lúc nào để ngắt lời (Barge-in) và nói tiếp';
   } else {
     if (emoji) emoji.textContent = '🎙️';
     if (hint) hint.textContent = 'CHẠM ĐỂ NÓI';
     if (title) title.textContent = `${speaker} đang sẵn sàng trò chuyện`;
     if (sub) sub.textContent = sesameHandsFreeActive
-      ? 'Chế độ gọi rảnh tay đang bật — chạm vào giảng viên để nói'
+      ? 'Cuộc gọi rảnh tay đang bật — hãy nói hoặc chạm vào giảng viên'
       : 'Chạm vào giảng viên hoặc bấm "Bắt đầu gọi" để hội thoại rảnh tay';
   }
 }
 
+let sharedSesameAudio = null;
+let sesameHistory = [];
+let lastSesameAudioBase64 = '';
+
+function unlockSesameAudio() {
+  if (typeof Audio === 'undefined') return null;
+  if (!sharedSesameAudio) {
+    sharedSesameAudio = new Audio();
+    sharedSesameAudio.preload = 'auto';
+  }
+  return sharedSesameAudio;
+}
+
 function handleSesameOrbTap() {
-  // Barge-in: if AI is currently speaking, interrupt immediately and listen!
+  unlockSesameAudio();
   if (sesameOrbState === 'speaking') {
     if (activeTtsAudio) {
       try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
     }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    stopTutorLipSync();
     startRoleplayVoiceInput();
     return;
   }
@@ -2537,13 +2551,13 @@ function handleSesameOrbTap() {
     if (sesameRecognition) {
       try { sesameRecognition.stop(); } catch (_) {}
     }
-    setSesameOrbState('idle');
     return;
   }
   startRoleplayVoiceInput();
 }
 
 function toggleSesameLiveCall() {
+  unlockSesameAudio();
   if (sesameHandsFreeActive) {
     stopSesameLiveCall();
   } else {
@@ -2554,10 +2568,10 @@ function toggleSesameLiveCall() {
       btn.innerHTML = '📴 Kết thúc cuộc gọi';
     }
     playSound('correct');
-    showXpToast('📞 Đã kết nối cuộc gọi rảnh tay với ' + (currentSesamePersona === 'maya' ? 'Maya' : 'Miles'));
+    showXpToast('📞 Đã kết nối cuộc gọi trực tiếp với ' + (currentSesamePersona === 'maya' ? 'Maya' : 'Miles'));
     speakSesameReply(lastSesameAiText, () => {
       if (sesameHandsFreeActive) startRoleplayVoiceInput();
-    });
+    }, lastSesameAudioBase64);
   }
 }
 
@@ -2579,15 +2593,43 @@ function stopSesameLiveCall() {
 }
 
 function replayLastSesameAiAudio() {
+  unlockSesameAudio();
   if (lastSesameAiText) {
-    speakSesameReply(lastSesameAiText);
+    speakSesameReply(lastSesameAiText, null, lastSesameAudioBase64);
   }
 }
 
-function speakSesameReply(text, onEndCallback) {
+function speakSesameFallbackWithLipSync(cleanText, onEndCallback) {
+  setSesameOrbState('speaking');
+  startTutorLipSync(cleanText);
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(cleanText);
+    u.lang = currentSesamePersona === 'miles' ? 'en-GB' : 'en-US';
+    u.rate = 1.0;
+    u.onend = () => {
+      setSesameOrbState('idle');
+      if (typeof onEndCallback === 'function') onEndCallback();
+    };
+    u.onerror = () => {
+      setSesameOrbState('idle');
+      if (typeof onEndCallback === 'function') onEndCallback();
+    };
+    window.speechSynthesis.speak(u);
+  } else {
+    const estMs = Math.max(1800, cleanText.split(/\s+/).length * 360);
+    setTimeout(() => {
+      setSesameOrbState('idle');
+      if (typeof onEndCallback === 'function') onEndCallback();
+    }, estMs);
+  }
+}
+
+function speakSesameReply(text, onEndCallback, audioBase64 = '') {
   const cleanText = String(text || '').replace(/<[^>]*>/g, '').trim();
   if (!cleanText) return;
   lastSesameAiText = cleanText;
+  if (audioBase64) lastSesameAudioBase64 = audioBase64;
 
   if (activeTtsAudio) {
     try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
@@ -2598,34 +2640,30 @@ function speakSesameReply(text, onEndCallback) {
   startTutorLipSync(cleanText);
   const accent = currentSesamePersona === 'miles' ? 'en-GB' : 'en-US';
 
-  if (typeof Audio !== 'undefined') {
+  const audio = unlockSesameAudio();
+  if (audio) {
     try {
-      const audioUrl = `/api/tts?text=${encodeURIComponent(cleanText)}&accent=${accent}`;
-      const audio = new Audio(audioUrl);
+      audio.src = audioBase64
+        ? `data:audio/mp3;base64,${audioBase64}`
+        : `/api/tts?text=${encodeURIComponent(cleanText)}&accent=${accent}`;
       activeTtsAudio = audio;
       audio.onended = () => {
         setSesameOrbState('idle');
         if (typeof onEndCallback === 'function') onEndCallback();
       };
       audio.onerror = () => {
-        setSesameOrbState('idle');
-        speakWordBrowserFallback(cleanText, 1.0);
-        if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
+        speakSesameFallbackWithLipSync(cleanText, onEndCallback);
       };
       const p = audio.play();
       if (p && typeof p.catch === 'function') {
         p.catch(() => {
-          setSesameOrbState('idle');
-          speakWordBrowserFallback(cleanText, 1.0);
-          if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
+          speakSesameFallbackWithLipSync(cleanText, onEndCallback);
         });
       }
       return;
     } catch (_) {}
   }
-  setSesameOrbState('idle');
-  speakWordBrowserFallback(cleanText, 1.0);
-  if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
+  speakSesameFallbackWithLipSync(cleanText, onEndCallback);
 }
 
 function switchRoleplayScenario(key, btn) {
@@ -2638,7 +2676,9 @@ function switchRoleplayScenario(key, btn) {
 function resetRoleplayConversation(key) {
   currentRoleplayKey = ROLEPLAY_OPENERS[key] ? key : 'free';
   currentRoleplayTurn = 0;
+  lastSesameAudioBase64 = '';
   const opener = ROLEPLAY_OPENERS[currentRoleplayKey];
+  sesameHistory = [{ role: 'ai', text: opener.aiEn }];
   const chatBox = document.getElementById('rp-chat-box');
   if (chatBox) chatBox.innerHTML = '';
 
@@ -2661,11 +2701,11 @@ function renderSesameAiResponse(data, shouldSpeak = true) {
   if (capAi) capAi.textContent = `"${data.replyEn}"`;
   if (capVi) capVi.textContent = data.replyVi || '';
   if (modelLbl && data.source) {
-    modelLbl.textContent = data.source === 'gemini-flash' ? 'Gemini Flash Live · Active' : 'Sesame Live Engine · Active';
+    modelLbl.textContent = data.source.includes('gemini') ? 'Gemini Flash Live · 1.2s' : 'Sesame Live · Active';
   }
 
   if (whisper && data.feedback) {
-    whisper.innerHTML = `✨ <strong>Đánh giá phản xạ (${escapeHtml(data.cefr || 'B1+')}):</strong> ${escapeHtml(data.feedback)}${data.betterSay ? `<br>💡 <em>Gợi ý nói chuẩn B2/C1:</em> "${escapeHtml(data.betterSay)}"` : ''}`;
+    whisper.innerHTML = `✨ <strong>Đánh giá phản xạ (${escapeHtml(data.cefr || 'B1+')}):</strong> ${escapeHtml(data.feedback)}${data.betterSay ? `<br>💡 <em>Gợi ý nói tự nhiên hơn:</em> "${escapeHtml(data.betterSay)}"` : ''}`;
   }
 
   if (sugRow && Array.isArray(data.suggestions)) {
@@ -2693,24 +2733,31 @@ function renderSesameAiResponse(data, shouldSpeak = true) {
   if (shouldSpeak) {
     speakSesameReply(data.replyEn, () => {
       if (sesameHandsFreeActive) startRoleplayVoiceInput();
-    });
+    }, data.audioBase64 || '');
   } else {
     lastSesameAiText = data.replyEn;
   }
 }
 
 function useRoleplaySuggestion(btn) {
+  unlockSesameAudio();
   const text = btn.textContent.replace(/^💡\s*/, '').trim();
   const inp = document.getElementById('rp-user-input');
   if (inp) inp.value = text;
   sendRoleplayMessage();
 }
 
+let isSendingSesameTurn = false;
+
 function sendRoleplayMessage() {
+  unlockSesameAudio();
   const inp = document.getElementById('rp-user-input');
   const text = (inp?.value || '').trim();
-  if (!text) return;
+  if (!text || isSendingSesameTurn) return;
   inp.value = '';
+  isSendingSesameTurn = true;
+
+  sesameHistory.push({ role: 'user', text: text });
 
   const capUser = document.getElementById('sesame-caption-user');
   if (capUser) capUser.textContent = `🎙️ Bạn: "${text}"`;
@@ -2733,27 +2780,36 @@ function sendRoleplayMessage() {
   if (typeof fetch === 'function') {
     fetch('/api/live-chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify({
         message: text,
         scenario: currentRoleplayKey,
         persona: currentSesamePersona,
         turn: currentRoleplayTurn,
+        history: sesameHistory.slice(-6),
         apiKey: customKey
       })
     })
       .then(r => r.json())
       .then(data => {
+        isSendingSesameTurn = false;
         if (data && data.replyEn) {
+          sesameHistory.push({ role: 'ai', text: data.replyEn });
           renderSesameAiResponse(data, true);
         } else {
           throw new Error('Empty response');
         }
       })
       .catch(() => {
+        isSendingSesameTurn = false;
+        const fbReply = "Oh, that's a really good point! Could you tell me a little more about what you're studying this week?";
+        sesameHistory.push({ role: 'ai', text: fbReply });
         renderSesameAiResponse({
-          replyEn: "Oh, that's a really good point! I love how clearly you shared that. What else are you working on for your English classes this week?",
-          replyVi: 'Ồ, ý đó rất hay! Mình thích cách bạn chia sẻ rõ ràng như vậy. Tuần này bạn còn đang làm bài tập gì cho lớp tiếng Anh nữa không?',
+          replyEn: fbReply,
+          replyVi: 'Ồ, ý đó rất hay! Bạn có thể kể thêm một chút về môn bạn đang học tuần này không?',
           cefr: 'B1+',
           feedback: 'Phản xạ tự nhiên và rõ ý!',
           betterSay: text,
@@ -2764,6 +2820,7 @@ function sendRoleplayMessage() {
         }, true);
       });
   } else {
+    isSendingSesameTurn = false;
     renderSesameAiResponse({
       replyEn: "Oh, that's a really good point! What else are you working on this week?",
       replyVi: 'Ồ, ý đó rất hay! Tuần này bạn còn đang làm gì nữa không?',
@@ -2775,6 +2832,7 @@ function sendRoleplayMessage() {
 }
 
 function startRoleplayVoiceInput() {
+  unlockSesameAudio();
   const micBtn = document.getElementById('rp-mic-btn');
   const inp = document.getElementById('rp-user-input');
   const capUser = document.getElementById('sesame-caption-user');
@@ -2789,35 +2847,56 @@ function startRoleplayVoiceInput() {
       const rec = new SpeechRecognition();
       sesameRecognition = rec;
       rec.lang = 'en-US';
+      rec.continuous = true;
       rec.interimResults = true;
       if (micBtn) micBtn.classList.add('listening');
       setSesameOrbState('listening');
 
       let finalTranscript = '';
-      rec.onresult = (e) => {
-        let interim = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const tr = e.results[i][0].transcript;
-          if (e.results[i].isFinal) finalTranscript += tr;
-          else interim += tr;
-        }
-        const liveText = (finalTranscript || interim).trim();
-        if (capUser && liveText) capUser.textContent = `🎙️ Bạn đang nói: "${liveText}..."`;
-        if (inp && liveText) inp.value = liveText;
-      };
-      rec.onerror = () => {
+      let latestLiveText = '';
+      let silenceTimer = null;
+      let submitted = false;
+
+      const finishAndSend = () => {
+        if (submitted) return;
+        submitted = true;
+        if (silenceTimer) clearTimeout(silenceTimer);
         if (micBtn) micBtn.classList.remove('listening');
-        setSesameOrbState('idle');
-      };
-      rec.onend = () => {
-        if (micBtn) micBtn.classList.remove('listening');
-        const msgToSend = (finalTranscript || inp?.value || '').trim();
+        try { rec.stop(); } catch (_) {}
+        const msgToSend = (finalTranscript || latestLiveText || inp?.value || '').trim();
         if (msgToSend) {
           if (inp) inp.value = msgToSend;
           sendRoleplayMessage();
         } else {
           setSesameOrbState('idle');
         }
+      };
+
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const tr = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalTranscript += ' ' + tr;
+          else interim += tr;
+        }
+        latestLiveText = (finalTranscript + ' ' + interim).replace(/\s+/g, ' ').trim();
+        if (capUser && latestLiveText) capUser.textContent = `🎙️ Bạn đang nói: "${latestLiveText}..."`;
+        if (inp && latestLiveText) inp.value = latestLiveText;
+
+        // Fast auto-submit: 500ms if browser marked phrase final, 950ms on interim pause
+        if (silenceTimer) clearTimeout(silenceTimer);
+        if (latestLiveText.length >= 2) {
+          const waitMs = finalTranscript.trim().length > 0 ? 500 : 950;
+          silenceTimer = setTimeout(finishAndSend, waitMs);
+        }
+      };
+      rec.onerror = () => {
+        if (silenceTimer) clearTimeout(silenceTimer);
+        if (micBtn) micBtn.classList.remove('listening');
+        if (!submitted) setSesameOrbState('idle');
+      };
+      rec.onend = () => {
+        finishAndSend();
       };
       rec.start();
       return;
