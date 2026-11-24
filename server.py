@@ -95,11 +95,17 @@ def get_tts_mp3(text: str, accent: str = "en-US") -> bytes:
 
 
 def call_gemini_json(prompt: str, custom_key: str = ""):
-    """Call Google Gemini Flash model (supports both AI Studio and Vertex Express keys)."""
-    key = (custom_key or GEMINI_KEY).strip()
+    """Call Google Gemini 3.8 Flash / Gemini 4 Argon model."""
+    key = (custom_key or load_dotenv_key("GEMINI_API_KEY") or GEMINI_KEY).strip()
     if not key:
         return None
-    models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+    models = [
+        "gemini-3.8-flash",
+        "gemini-4-argon",
+        "gemini-3.7-flash",
+        "gemini-flash-latest",
+        "gemini-2.5-flash"
+    ]
     for m in models:
         endpoints = [
             f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}",
@@ -107,15 +113,20 @@ def call_gemini_json(prompt: str, custom_key: str = ""):
         ]
         for ep in endpoints:
             try:
+                gen_cfg = {"responseMimeType": "application/json", "temperature": 0.7}
+                if "3.8" in m or "4-" in m or "3." in m:
+                    gen_cfg["thinkingConfig"] = {"thinkingBudget": 0}
                 body = json.dumps({
                     "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                    "generationConfig": {"responseMimeType": "application/json", "temperature": 0.7}
+                    "generationConfig": gen_cfg
                 }).encode("utf-8")
-                r = urllib.request.Request(ep, data=body, headers={"Content-Type": "application/json"})
-                with urllib.request.urlopen(r, timeout=7) as resp:
+                r = urllib.request.Request(ep, data=body, headers={"Content-Type": "application/json", "x-goog-api-key": key})
+                with urllib.request.urlopen(r, timeout=15) as resp:
                     out = json.loads(resp.read().decode("utf-8"))
                     txt = out["candidates"][0]["content"]["parts"][0]["text"]
-                    return json.loads(txt)
+                    parsed = json.loads(txt)
+                    parsed["modelUsed"] = m
+                    return parsed
             except Exception:
                 continue
     return None
