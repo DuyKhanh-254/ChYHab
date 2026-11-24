@@ -1309,4 +1309,290 @@
   border-color: #059669 !important;
 }
 
+/* ---------- 15. SESAME-STYLE REAL-TIME LIVE VOICE AI STAGE ---------- */
+.sesame-stage-card {
+  background: radial-gradient(circle at 50% 35%, #1E293B 0%, #0B1120 75%, #070B14 100%);
+  border: 1.5px solid #334155;
+  border-radius: 24px;
+  padding: 16px 14px;
+  color: #F8FAFC;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
+  margin-bottom: 12px;
+}
+
+.sesame-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sesame-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  color: #4ADE80 !important;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.sesame-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22C55E;
+  box-shadow: 0 0 8px #22C55E;
+  animation: sesamePulseDot 1.4s infinite;
+}
+
+@keyframes sesamePulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.sesame-persona-switch {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px;
+  border-radius: 999px;
+  gap: 3px;
+}
+
+.sesame-persona-btn {
+  border: none;
+  background: transparent;
+  color: #CBD5E1;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sesame-persona-btn.active {
+  background: #F97316;
+  color: #FFFFFF;
+}
+
+/* The Organic Voice Orb */
+.sesame-orb-container {
+  position: relative;
+  width: 142px;
+  height: 142px;
+  margin: 12px auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sesame-orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(249, 115, 22, 0.28);
+  transform: scale(1);
+  transition: transform 0.2s ease, border-color 0.3s ease;
+}
+
+.sesame-orb-ring.ring-2 {
+  inset: -12px;
+  border-color: rgba(56, 189, 248, 0.18);
+}
+
+.sesame-orb-core {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FDBA74 0%, #F97316 48%, #9A3412 100%);
+  box-shadow: 0 0 32px rgba(249, 115, 22, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  animation: orbBreathe 3.2s ease-in-out infinite;
+}
+
+@keyframes orbBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* State: LISTENING (Green/Emerald reactive glow) */
+.sesame-orb-container.state-listening .sesame-orb-core {
+  background: radial-gradient(circle at 35% 30%, #86EFAC 0%, #22C55E 50%, #15803D 100%);
+  box-shadow: 0 0 42px rgba(34, 197, 94, 0.75), inset 0 0 22px rgba(255, 255, 255, 0.45);
+  animation: orbListenPulse 0.9s ease-in-out infinite;
+}
+
+.sesame-orb-container.state-listening .sesame-orb-ring {
+  border-color: rgba(74, 222, 128, 0.55);
+  animation: ringExpand 1.3s ease-out infinite;
+}
+
+/* State: THINKING (Cyan/Indigo fast morph) */
+.sesame-orb-container.state-thinking .sesame-orb-core {
+  background: radial-gradient(circle at 35% 30%, #A5F3FC 0%, #0EA5E9 50%, #1D4ED8 100%);
+  box-shadow: 0 0 40px rgba(14, 165, 233, 0.75);
+  animation: orbSpinPulse 0.8s linear infinite;
+}
+
+/* State: SPEAKING (Warm Coral/Amber Sesame voice wave) */
+.sesame-orb-container.state-speaking .sesame-orb-core {
+  background: radial-gradient(circle at 35% 30%, #FDE047 0%, #F97316 52%, #EA580C 100%);
+  box-shadow: 0 0 48px rgba(249, 115, 22, 0.85), inset 0 0 24px rgba(255, 255, 255, 0.5);
+  animation: orbSpeakWave 0.55s ease-in-out infinite alternate;
+}
+
+.sesame-orb-container.state-speaking .sesame-orb-ring {
+  border-color: rgba(251, 146, 60, 0.65);
+  animation: ringExpand 0.9s ease-out infinite;
+}
+
+@keyframes orbListenPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes orbSpinPulse {
+  0% { transform: scale(0.96) rotate(0deg); }
+  50% { transform: scale(1.06) rotate(180deg); }
+  100% { transform: scale(0.96) rotate(360deg); }
+}
+
+@keyframes orbSpeakWave {
+  0% { transform: scale(0.97); border-radius: 50%; }
+  50% { transform: scale(1.08); border-radius: 47% 53% 51% 49%; }
+  100% { transform: scale(1.13); border-radius: 52% 48% 49% 51%; }
+}
+
+@keyframes ringExpand {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1.32); opacity: 0; }
+}
+
+.sesame-orb-emoji {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.sesame-orb-hint {
+  font-size: 10px;
+  font-weight: 800;
+  color: #FFFFFF !important;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+.sesame-status-title {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #FFFFFF !important;
+  margin-bottom: 3px;
+}
+
+.sesame-status-sub {
+  font-size: 11.5px;
+  color: #94A3B8 !important;
+  margin-bottom: 10px;
+}
+
+/* Live Subtitle Box */
+.sesame-caption-box {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 16px;
+  padding: 11px 13px;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.sesame-caption-user {
+  font-size: 11.5px;
+  color: #38BDF8 !important;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.sesame-caption-ai {
+  font-size: 13px;
+  color: #F8FAFC !important;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.sesame-caption-vi {
+  font-size: 11.5px;
+  color: #94A3B8 !important;
+  margin-top: 4px;
+}
+
+.sesame-coach-whisper {
+  background: rgba(22, 163, 74, 0.16);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  border-radius: 12px;
+  padding: 8px 11px;
+  text-align: left;
+  font-size: 11.5px;
+  color: #BBF7D0 !important;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* Call Action Bar */
+.sesame-call-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-sesame-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.btn-sesame-call:active {
+  transform: scale(0.95);
+}
+
+.btn-sesame-call.start-call {
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+}
+
+.btn-sesame-call.end-call {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+}
+
+.btn-sesame-call.secondary-call {
+  background: rgba(255, 255, 255, 0.12);
+  color: #F8FAFC;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
 

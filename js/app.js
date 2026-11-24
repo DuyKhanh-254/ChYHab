@@ -2268,104 +2268,216 @@ function startStudyingExtractedWords() {
 }
 
 // =============================================
-// 15C. LIVE 2-WAY AI VOICE ROLEPLAY ENGINE
+// 15C. SESAME-STYLE REAL-TIME LIVE VOICE AI ENGINE
 // =============================================
-const ROLEPLAY_SCENARIOS = {
+const ROLEPLAY_OPENERS = {
+  free: {
+    name: 'Maya · Trợ lý Giọng nói Tự nhiên',
+    aiEn: "Hey there! I'm Maya, your live English companion. It's so good to hear you—what's on your mind today, or what are you studying this week?",
+    aiVi: 'Chào bạn! Mình là Maya, trợ lý luyện nói trực tiếp của bạn. Rất vui được trò chuyện — hôm nay bạn đang nghĩ gì hay đang ôn môn gì thế?',
+    suggestions: [
+      "I'm preparing for my B2 English speaking exam at university.",
+      "I had a really busy day with group assignments and deadlines.",
+      "Can we practice a quick internship interview together?"
+    ]
+  },
   vstep: {
     name: 'Giám khảo VSTEP B2',
-    turns: [
-      {
-        aiEn: 'Good morning! In VSTEP Speaking Part 1, let’s talk about your university studies. How do you usually prepare for an important English exam?',
-        aiVi: 'Chào buổi sáng! Trong VSTEP Speaking Part 1, hãy nói về việc học đại học của bạn. Bạn thường ôn tập cho kỳ thi tiếng Anh quan trọng như thế nào?',
-        suggestions: [
-          'I usually review my course syllabus and practice vocabulary with flashcards every day.',
-          'To prepare effectively, I focus on academic grammar and practice speaking with AI.'
-        ]
-      },
-      {
-        aiEn: 'That sounds very systematic! Follow-up question: Do you think AI tools can help university students learn foreign languages more effectively?',
-        aiVi: 'Nghe rất có hệ thống! Câu hỏi tiếp theo: Bạn có nghĩ công cụ AI giúp sinh viên đại học học ngoại ngữ hiệu quả hơn không?',
-        suggestions: [
-          'Definitely! AI provides personalized feedback and helps me correct my grammar mistakes immediately.',
-          'Yes, because micro-tasks allow busy students to practice pronunciation anytime.'
-        ]
-      },
-      {
-        aiEn: 'Excellent B2-level response! You used strong connectors and clear academic vocabulary. Would you like to practice another scenario?',
-        aiVi: 'Câu trả lời chuẩn B2 xuất sắc! Bạn đã dùng từ nối tốt và từ vựng học thuật rõ ràng. Bạn có muốn thử tình huống tiếp theo không?',
-        suggestions: [
-          'Thank you! I feel much more confident for my upcoming VSTEP speaking exam.'
-        ]
-      }
+    aiEn: "Good morning! In VSTEP Speaking Part 1, let's talk about your university studies. How do you usually prepare for an important English exam?",
+    aiVi: 'Chào buổi sáng! Trong VSTEP Speaking Part 1, hãy nói về việc học đại học của bạn. Bạn thường ôn tập cho kỳ thi tiếng Anh quan trọng như thế nào?',
+    suggestions: [
+      'I usually review my course syllabus and practice vocabulary with flashcards every day.',
+      'To prepare effectively, I focus on academic grammar and practice speaking with AI.'
     ]
   },
   interview: {
     name: 'Nhà tuyển dụng (HR Manager)',
-    turns: [
-      {
-        aiEn: 'Welcome to the internship interview! Could you briefly introduce yourself and tell me why you applied for this position?',
-        aiVi: 'Chào mừng bạn đến buổi phỏng vấn thực tập! Bạn hãy giới thiệu ngắn gọn bản thân và lý do ứng tuyển vị trí này nhé?',
-        suggestions: [
-          'I am a second-year university student passionate about technology and eager to gain real-world experience.',
-          'I applied because I want to collaborate with a professional team and contribute to innovative projects.'
-        ]
-      },
-      {
-        aiEn: 'Impressive! Tell me about a time when you worked in a student team to meet a tight deadline.',
-        aiVi: 'Ấn tượng đấy! Hãy kể về một lần bạn làm việc nhóm ở trường để kịp một hạn chót gấp rút.',
-        suggestions: [
-          'Last semester, our team divided the research tasks clearly and rehearsed our presentation two days before the deadline.',
-          'When our group faced a tight deadline, I organized daily check-ins so everyone completed their assignment on time.'
-        ]
-      },
-      {
-        aiEn: 'Great STAR-method answer! Your communication is clear, confident, and professional.',
-        aiVi: 'Câu trả lời theo mô hình STAR rất tốt! Giao tiếp của bạn rõ ràng, tự tin và chuyên nghiệp.',
-        suggestions: [
-          'Thank you so much for your valuable feedback and this interview opportunity!'
-        ]
-      }
+    aiEn: 'Welcome to the internship interview! Could you briefly introduce yourself and tell me why you applied for this position?',
+    aiVi: 'Chào mừng bạn đến buổi phỏng vấn thực tập! Bạn hãy giới thiệu ngắn gọn bản thân và lý do ứng tuyển vị trí này nhé?',
+    suggestions: [
+      'I am a second-year university student passionate about technology and eager to gain real-world experience.',
+      'I applied because I want to collaborate with a professional team and contribute to innovative projects.'
     ]
   },
   defense: {
     name: 'Giảng viên Phản biện (Lecturer)',
-    turns: [
-      {
-        aiEn: 'Thank you for your presentation. My first question is: What is the core methodology behind your group’s capstone project?',
-        aiVi: 'Cảm ơn bài thuyết trình của nhóm. Câu hỏi đầu tiên của thầy/cô: Phương pháp nghiên cứu cốt lõi trong đồ án của nhóm em là gì?',
-        suggestions: [
-          'Our research combines quantitative survey data from 200 students with adaptive AI evaluation.',
-          'We designed a comprehensive methodology focusing on spaced repetition and personalized syllabus analysis.'
-        ]
-      },
-      {
-        aiEn: 'Good point. And how does your solution stand out compared to existing apps like Duolingo or Quizlet?',
-        aiVi: 'Ý rất hay. Vậy giải pháp của nhóm có gì nổi bật hơn so với các ứng dụng hiện có như Duolingo hay Quizlet?',
-        suggestions: [
-          'Unlike general apps, our platform transforms university course syllabi directly into personalized daily micro-tasks.',
-          'We integrate a 60-unit CEFR grammar roadmap directly with AI mistake analysis tailored for university exams.'
-        ]
-      },
-      {
-        aiEn: 'Outstanding defense! Your academic vocabulary and argumentation easily meet B2–C1 standards.',
-        aiVi: 'Phần bảo vệ xuất sắc! Vốn từ học thuật và lập luận của em hoàn toàn đạt chuẩn B2–C1.',
-        suggestions: [
-          'Thank you Professor for your insightful questions!'
-        ]
-      }
+    aiEn: "Thank you for your presentation. My first question is: What is the core methodology behind your group's capstone project?",
+    aiVi: 'Cảm ơn bài thuyết trình của nhóm. Câu hỏi đầu tiên của thầy/cô: Phương pháp nghiên cứu cốt lõi trong đồ án của nhóm em là gì?',
+    suggestions: [
+      'Our research combines quantitative survey data from 200 students with adaptive AI evaluation.',
+      'We designed a comprehensive methodology focusing on spaced repetition and personalized syllabus analysis.'
     ]
   }
 };
 
-let currentRoleplayKey = 'vstep';
+let currentRoleplayKey = 'free';
 let currentRoleplayTurn = 0;
 let roleplayInitialized = false;
+let currentSesamePersona = 'maya'; // 'maya' (en-US) | 'miles' (en-GB)
+let sesameOrbState = 'idle'; // 'idle' | 'listening' | 'thinking' | 'speaking'
+let sesameHandsFreeActive = false;
+let sesameRecognition = null;
+let lastSesameAiText = ROLEPLAY_OPENERS.free.aiEn;
 
 function initRoleplayScreen() {
   if (!roleplayInitialized) {
     roleplayInitialized = true;
-    resetRoleplayConversation('vstep');
+    resetRoleplayConversation('free');
   }
+}
+
+function switchSesamePersona(persona) {
+  currentSesamePersona = persona === 'miles' ? 'miles' : 'maya';
+  document.getElementById('btn-persona-maya')?.classList.toggle('active', currentSesamePersona === 'maya');
+  document.getElementById('btn-persona-miles')?.classList.toggle('active', currentSesamePersona === 'miles');
+  const speaker = currentSesamePersona === 'maya' ? 'Maya' : 'Miles';
+  const titleEl = document.getElementById('sesame-status-title');
+  if (titleEl) titleEl.textContent = `${speaker} đang sẵn sàng trò chuyện`;
+  playSound('pop');
+  showXpToast(`Đã chuyển giọng sang ${speaker} (${currentSesamePersona === 'maya' ? 'US' : 'UK'})`);
+}
+
+function setSesameOrbState(state) {
+  sesameOrbState = state;
+  const orb = document.getElementById('sesame-orb');
+  const emoji = document.getElementById('sesame-orb-emoji');
+  const hint = document.getElementById('sesame-orb-hint');
+  const title = document.getElementById('sesame-status-title');
+  const sub = document.getElementById('sesame-status-sub');
+  const speaker = currentSesamePersona === 'maya' ? 'Maya' : 'Miles';
+
+  if (orb) {
+    orb.classList.remove('state-listening', 'state-thinking', 'state-speaking');
+    if (state !== 'idle') orb.classList.add(`state-${state}`);
+  }
+
+  if (state === 'listening') {
+    if (emoji) emoji.textContent = '🎧';
+    if (hint) hint.textContent = 'ĐANG NGHE...';
+    if (title) title.textContent = `${speaker} đang lắng nghe bạn...`;
+    if (sub) sub.textContent = 'Hãy nói tự nhiên bằng tiếng Anh (chạm để gửi ngay)';
+  } else if (state === 'thinking') {
+    if (emoji) emoji.textContent = '✨';
+    if (hint) hint.textContent = 'ĐANG XỬ LÝ';
+    if (title) title.textContent = `${speaker} đang suy nghĩ...`;
+    if (sub) sub.textContent = 'Google AI Flash đang phân tích ngữ cảnh & CEFR';
+  } else if (state === 'speaking') {
+    if (emoji) emoji.textContent = '🗣️';
+    if (hint) hint.textContent = 'CHẠM ĐỂ NGẮT LỜI';
+    if (title) title.textContent = `${speaker} đang phản hồi...`;
+    if (sub) sub.textContent = 'Chạm vào quả cầu bất cứ lúc nào để ngắt lời (Barge-in) và nói tiếp';
+  } else {
+    if (emoji) emoji.textContent = '🎙️';
+    if (hint) hint.textContent = 'CHẠM ĐỂ NÓI';
+    if (title) title.textContent = `${speaker} đang sẵn sàng trò chuyện`;
+    if (sub) sub.textContent = sesameHandsFreeActive
+      ? 'Chế độ gọi rảnh tay đang bật — chạm quả cầu để nói'
+      : 'Chạm vào quả cầu hoặc bấm "Bắt đầu gọi" để hội thoại rảnh tay';
+  }
+}
+
+function handleSesameOrbTap() {
+  // Barge-in: if AI is currently speaking, interrupt immediately and listen!
+  if (sesameOrbState === 'speaking') {
+    if (activeTtsAudio) {
+      try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    startRoleplayVoiceInput();
+    return;
+  }
+  if (sesameOrbState === 'listening') {
+    if (sesameRecognition) {
+      try { sesameRecognition.stop(); } catch (_) {}
+    }
+    setSesameOrbState('idle');
+    return;
+  }
+  startRoleplayVoiceInput();
+}
+
+function toggleSesameLiveCall() {
+  if (sesameHandsFreeActive) {
+    stopSesameLiveCall();
+  } else {
+    sesameHandsFreeActive = true;
+    const btn = document.getElementById('btn-sesame-call-toggle');
+    if (btn) {
+      btn.className = 'btn-sesame-call end-call';
+      btn.innerHTML = '📴 Kết thúc cuộc gọi';
+    }
+    playSound('correct');
+    showXpToast('📞 Đã kết nối cuộc gọi rảnh tay với ' + (currentSesamePersona === 'maya' ? 'Maya' : 'Miles'));
+    speakSesameReply(lastSesameAiText, () => {
+      if (sesameHandsFreeActive) startRoleplayVoiceInput();
+    });
+  }
+}
+
+function stopSesameLiveCall() {
+  sesameHandsFreeActive = false;
+  if (sesameRecognition) {
+    try { sesameRecognition.stop(); } catch (_) {}
+  }
+  if (activeTtsAudio) {
+    try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
+  }
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  const btn = document.getElementById('btn-sesame-call-toggle');
+  if (btn) {
+    btn.className = 'btn-sesame-call start-call';
+    btn.innerHTML = '📞 Bắt đầu gọi (Hands-Free)';
+  }
+  setSesameOrbState('idle');
+}
+
+function replayLastSesameAiAudio() {
+  if (lastSesameAiText) {
+    speakSesameReply(lastSesameAiText);
+  }
+}
+
+function speakSesameReply(text, onEndCallback) {
+  const cleanText = String(text || '').replace(/<[^>]*>/g, '').trim();
+  if (!cleanText) return;
+  lastSesameAiText = cleanText;
+
+  if (activeTtsAudio) {
+    try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
+  }
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+  setSesameOrbState('speaking');
+  const accent = currentSesamePersona === 'miles' ? 'en-GB' : 'en-US';
+
+  if (typeof Audio !== 'undefined') {
+    try {
+      const audioUrl = `/api/tts?text=${encodeURIComponent(cleanText)}&accent=${accent}`;
+      const audio = new Audio(audioUrl);
+      activeTtsAudio = audio;
+      audio.onended = () => {
+        setSesameOrbState('idle');
+        if (typeof onEndCallback === 'function') onEndCallback();
+      };
+      audio.onerror = () => {
+        setSesameOrbState('idle');
+        speakWordBrowserFallback(cleanText, 1.0);
+        if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
+      };
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {
+          setSesameOrbState('idle');
+          speakWordBrowserFallback(cleanText, 1.0);
+          if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
+        });
+      }
+      return;
+    } catch (_) {}
+  }
+  setSesameOrbState('idle');
+  speakWordBrowserFallback(cleanText, 1.0);
+  if (typeof onEndCallback === 'function') setTimeout(onEndCallback, 2500);
 }
 
 function switchRoleplayScenario(key, btn) {
@@ -2376,39 +2488,66 @@ function switchRoleplayScenario(key, btn) {
 }
 
 function resetRoleplayConversation(key) {
-  currentRoleplayKey = key;
+  currentRoleplayKey = ROLEPLAY_OPENERS[key] ? key : 'free';
   currentRoleplayTurn = 0;
+  const opener = ROLEPLAY_OPENERS[currentRoleplayKey];
   const chatBox = document.getElementById('rp-chat-box');
   if (chatBox) chatBox.innerHTML = '';
-  appendRoleplayAiTurn();
+
+  renderSesameAiResponse({
+    replyEn: opener.aiEn,
+    replyVi: opener.aiVi,
+    suggestions: opener.suggestions
+  }, false);
 }
 
-function appendRoleplayAiTurn() {
-  const sc = ROLEPLAY_SCENARIOS[currentRoleplayKey];
-  if (!sc) return;
-  const turnObj = sc.turns[Math.min(currentRoleplayTurn, sc.turns.length - 1)];
-  const chatBox = document.getElementById('rp-chat-box');
+function renderSesameAiResponse(data, shouldSpeak = true) {
+  const speaker = currentSesamePersona === 'maya' ? 'Maya' : 'Miles';
+  const capAi = document.getElementById('sesame-caption-ai');
+  const capVi = document.getElementById('sesame-caption-vi');
+  const whisper = document.getElementById('sesame-coach-whisper');
   const sugRow = document.getElementById('rp-suggestions-row');
-  if (!chatBox) return;
+  const chatBox = document.getElementById('rp-chat-box');
+  const modelLbl = document.getElementById('sesame-model-label');
 
-  const safeSpeak = turnObj.aiEn.replace(/'/g, "\\'");
-  const div = document.createElement('div');
-  div.className = 'rp-msg ai';
-  div.innerHTML = `
-    <div class="rp-msg-top">
-      <span>🤖 ${escapeHtml(sc.name)}</span>
-      <button class="btn-audio-mini" style="padding:2px 6px;font-size:11px;" onclick="speakWord('${safeSpeak}')">🔊 Nghe</button>
-    </div>
-    <div>${escapeHtml(turnObj.aiEn)}</div>
-    <div class="rp-msg-vi">${escapeHtml(turnObj.aiVi)}</div>
-  `;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  if (capAi) capAi.textContent = `"${data.replyEn}"`;
+  if (capVi) capVi.textContent = data.replyVi || '';
+  if (modelLbl && data.source) {
+    modelLbl.textContent = data.source === 'gemini-flash' ? 'Gemini Flash Live · Active' : 'Sesame Live Engine · Active';
+  }
 
-  if (sugRow) {
-    sugRow.innerHTML = (turnObj.suggestions || []).map(s => `
+  if (whisper && data.feedback) {
+    whisper.innerHTML = `✨ <strong>Đánh giá phản xạ (${escapeHtml(data.cefr || 'B1+')}):</strong> ${escapeHtml(data.feedback)}${data.betterSay ? `<br>💡 <em>Gợi ý nói chuẩn B2/C1:</em> "${escapeHtml(data.betterSay)}"` : ''}`;
+  }
+
+  if (sugRow && Array.isArray(data.suggestions)) {
+    sugRow.innerHTML = data.suggestions.map(s => `
       <button class="rp-sug-chip" onclick="useRoleplaySuggestion(this)">💡 ${escapeHtml(s)}</button>
     `).join('');
+  }
+
+  if (chatBox) {
+    const safeSpeak = String(data.replyEn || '').replace(/'/g, "\\'");
+    const div = document.createElement('div');
+    div.className = 'rp-msg ai';
+    div.innerHTML = `
+      <div class="rp-msg-top">
+        <span>🤖 ${escapeHtml(speaker)}</span>
+        <button class="btn-audio-mini" style="padding:2px 6px;font-size:11px;" onclick="speakSesameReply('${safeSpeak}')">🔊 Nghe</button>
+      </div>
+      <div>${escapeHtml(data.replyEn)}</div>
+      <div class="rp-msg-vi">${escapeHtml(data.replyVi || '')}</div>
+    `;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  if (shouldSpeak) {
+    speakSesameReply(data.replyEn, () => {
+      if (sesameHandsFreeActive) startRoleplayVoiceInput();
+    });
+  } else {
+    lastSesameAiText = data.replyEn;
   }
 }
 
@@ -2425,74 +2564,140 @@ function sendRoleplayMessage() {
   if (!text) return;
   inp.value = '';
 
+  const capUser = document.getElementById('sesame-caption-user');
+  if (capUser) capUser.textContent = `🎙️ Bạn: "${text}"`;
+
   const chatBox = document.getElementById('rp-chat-box');
-  if (!chatBox) return;
+  if (chatBox) {
+    const uDiv = document.createElement('div');
+    uDiv.className = 'rp-msg user';
+    uDiv.innerHTML = `<div class="rp-msg-top"><span>🎙️ Bạn (Hương Giang)</span></div><div>${escapeHtml(text)}</div>`;
+    chatBox.appendChild(uDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 
-  // 1. User message bubble
-  const uDiv = document.createElement('div');
-  uDiv.className = 'rp-msg user';
-  uDiv.innerHTML = `<div class="rp-msg-top"><span>🎙️ Bạn (Hương Giang)</span></div><div>${escapeHtml(text)}</div>`;
-  chatBox.appendChild(uDiv);
-
-  // 2. Instant CEFR Coaching feedback pill
-  const words = text.split(/\s+/).filter(Boolean);
-  const hasAcademic = /\b(syllabus|vocabulary|effectively|personalized|collaborate|experience|deadline|methodology|comprehensive|confident|presentation|research)\b/i.test(text);
-  const cefrEst = (words.length >= 12 && hasAcademic) ? 'B2–C1 Xuất sắc 🌟' : (words.length >= 7 ? 'B1+ Tự nhiên ✓' : 'A2–B1 (Nên mở rộng câu dài hơn)');
-  const fbDiv = document.createElement('div');
-  fbDiv.className = 'rp-feedback-pill';
-  fbDiv.innerHTML = `<strong>✨ AI Đánh giá phản xạ (${cefrEst}):</strong> Câu trả lời ${words.length} từ, đúng ngữ cảnh hội thoại. ${hasAcademic ? 'Vận dụng từ vựng học thuật rất tốt!' : 'Mẹo: Thêm từ nối (Because, Furthermore) hoặc từ học thuật để nâng điểm B2.'}`;
-  chatBox.appendChild(fbDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  playSound('correct');
-  addReward(25, 15, 1);
-  showXpToast(`+25 XP · Phản xạ nói ${cefrEst}!`);
-
-  // 3. Advance AI turn
+  setSesameOrbState('thinking');
   currentRoleplayTurn += 1;
-  setTimeout(() => {
-    appendRoleplayAiTurn();
-    const sc = ROLEPLAY_SCENARIOS[currentRoleplayKey];
-    const turnObj = sc?.turns[Math.min(currentRoleplayTurn, sc.turns.length - 1)];
-    if (turnObj && appState.settings.autoPlay) {
-      speakWord(turnObj.aiEn);
-    }
-  }, 500);
+  addReward(25, 15, 1);
+
+  const customKey = localStorage.getItem('chyhab_gemini_key') || '';
+
+  if (typeof fetch === 'function') {
+    fetch('/api/live-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        scenario: currentRoleplayKey,
+        persona: currentSesamePersona,
+        turn: currentRoleplayTurn,
+        apiKey: customKey
+      })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.replyEn) {
+          renderSesameAiResponse(data, true);
+        } else {
+          throw new Error('Empty response');
+        }
+      })
+      .catch(() => {
+        renderSesameAiResponse({
+          replyEn: "Oh, that's a really good point! I love how clearly you shared that. What else are you working on for your English classes this week?",
+          replyVi: 'Ồ, ý đó rất hay! Mình thích cách bạn chia sẻ rõ ràng như vậy. Tuần này bạn còn đang làm bài tập gì cho lớp tiếng Anh nữa không?',
+          cefr: 'B1+',
+          feedback: 'Phản xạ tự nhiên và rõ ý!',
+          betterSay: text,
+          suggestions: [
+            "I'm reviewing 60 grammar units and practicing daily vocabulary.",
+            "We have a group presentation on business innovation this Friday."
+          ]
+        }, true);
+      });
+  } else {
+    renderSesameAiResponse({
+      replyEn: "Oh, that's a really good point! What else are you working on this week?",
+      replyVi: 'Ồ, ý đó rất hay! Tuần này bạn còn đang làm gì nữa không?',
+      cefr: 'B1+',
+      feedback: 'Phản xạ tốt!',
+      suggestions: ["I'm reviewing 60 grammar units."]
+    }, false);
+  }
 }
 
 function startRoleplayVoiceInput() {
   const micBtn = document.getElementById('rp-mic-btn');
   const inp = document.getElementById('rp-user-input');
+  const capUser = document.getElementById('sesame-caption-user');
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (activeTtsAudio) {
+    try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
+  }
 
   if (SpeechRecognition) {
     try {
       const rec = new SpeechRecognition();
+      sesameRecognition = rec;
       rec.lang = 'en-US';
-      rec.interimResults = false;
+      rec.interimResults = true;
       if (micBtn) micBtn.classList.add('listening');
-      showXpToast('🎙️ Đang nghe câu trả lời tiếng Anh của bạn...');
+      setSesameOrbState('listening');
+
+      let finalTranscript = '';
       rec.onresult = (e) => {
-        if (micBtn) micBtn.classList.remove('listening');
-        const transcript = e.results[0][0].transcript;
-        if (inp) inp.value = transcript;
-        sendRoleplayMessage();
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const tr = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalTranscript += tr;
+          else interim += tr;
+        }
+        const liveText = (finalTranscript || interim).trim();
+        if (capUser && liveText) capUser.textContent = `🎙️ Bạn đang nói: "${liveText}..."`;
+        if (inp && liveText) inp.value = liveText;
       };
       rec.onerror = () => {
         if (micBtn) micBtn.classList.remove('listening');
+        setSesameOrbState('idle');
       };
       rec.onend = () => {
         if (micBtn) micBtn.classList.remove('listening');
+        const msgToSend = (finalTranscript || inp?.value || '').trim();
+        if (msgToSend) {
+          if (inp) inp.value = msgToSend;
+          sendRoleplayMessage();
+        } else {
+          setSesameOrbState('idle');
+        }
       };
       rec.start();
       return;
     } catch (_) {}
   }
 
-  // Fallback: populate the first smart suggestion and send
+  // Fallback for browsers without Web Speech Recognition: use first suggestion chip
   const firstChip = document.querySelector('#rp-suggestions-row .rp-sug-chip');
   if (firstChip) {
     useRoleplaySuggestion(firstChip);
+  }
+}
+
+function promptGeminiApiKey() {
+  const current = localStorage.getItem('chyhab_gemini_key') || '';
+  const entered = window.prompt(
+    'Nhập Google AI Studio API Key (bắt đầu bằng AIzaSy... từ aistudio.google.com/apikey):',
+    current
+  );
+  if (entered !== null) {
+    const trimmed = entered.trim();
+    if (trimmed) {
+      localStorage.setItem('chyhab_gemini_key', trimmed);
+      showXpToast('🔑 Đã lưu Google AI Studio Key!');
+    } else {
+      localStorage.removeItem('chyhab_gemini_key');
+      showXpToast('Đã xóa API Key tùy chỉnh');
+    }
   }
 }
 

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/screens.css" />
   <link rel="stylesheet" href="css/extra.css?v=33" />
-  <link rel="stylesheet" href="css/upgrade.css?v=3" />
+  <link rel="stylesheet" href="css/upgrade.css?v=4" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -1183,34 +1183,91 @@
         </article>
 
         <!-- ==========================================
-             08D. PHÒNG LUYỆN NÓI & PHỎNG VẤN AI 2 CHIỀU (LIVE AI ROLEPLAY)
+             08D. PHÒNG LUYỆN NÓI & TRỢ LÝ GIỌNG NÓI THỜI GIAN THỰC (SESAME LIVE VOICE AI)
              ========================================== -->
         <article class="screen" id="screen-ai-roleplay">
           <div class="app-layout">
             <header class="screen-header">
-              <button class="btn-back" onclick="showScreen('screen-study')">
+              <button class="btn-back" onclick="stopSesameLiveCall(); showScreen('screen-study')">
                 <img src="assets/icons/action_back.png" alt="back" />
               </button>
-              <h2 style="font-size:16px;">🎙️ Phòng Luyện Nói AI</h2>
-              <span class="grammar-progress-pill" style="background:#0284C7;font-size:11px;">B1–C1</span>
+              <h2 style="font-size:15.5px;">🎙️ AI Live Voice (Sesame)</h2>
+              <button class="btn-audio-mini" onclick="promptGeminiApiKey()" title="Cấu hình Google AI Studio Key" style="font-size:11px;padding:4px 8px;">🔑 API Key</button>
             </header>
 
             <div class="screen-scroll">
+              <!-- Scenario Selector -->
               <div class="rp-scenario-tabs" id="rp-scenario-tabs">
-                <button class="rp-tab-btn active" onclick="switchRoleplayScenario('vstep', this)">🎓 Thi nói VSTEP B2</button>
+                <button class="rp-tab-btn active" onclick="switchRoleplayScenario('free', this)">🟢 Trò chuyện Tự do</button>
+                <button class="rp-tab-btn" onclick="switchRoleplayScenario('vstep', this)">🎓 Thi nói VSTEP B2</button>
                 <button class="rp-tab-btn" onclick="switchRoleplayScenario('interview', this)">💼 Phỏng vấn Thực tập</button>
-                <button class="rp-tab-btn" onclick="switchRoleplayScenario('defense', this)">📊 Bảo vệ Thuyết trình</button>
+                <button class="rp-tab-btn" onclick="switchRoleplayScenario('defense', this)">📊 Bảo vệ Đồ án</button>
               </div>
 
-              <div class="rp-chat-box" id="rp-chat-box"></div>
+              <!-- SESAME-STYLE REAL-TIME VOICE ORB STAGE -->
+              <section class="sesame-stage-card">
+                <div class="sesame-top-bar">
+                  <span class="sesame-live-badge">
+                    <span class="sesame-live-dot"></span>
+                    <span id="sesame-model-label">Google AI Live · Flash</span>
+                  </span>
+                  <div class="sesame-persona-switch">
+                    <button class="sesame-persona-btn active" id="btn-persona-maya" onclick="switchSesamePersona('maya')">🌸 Maya (US)</button>
+                    <button class="sesame-persona-btn" id="btn-persona-miles" onclick="switchSesamePersona('miles')">🌊 Miles (UK)</button>
+                  </div>
+                </div>
 
+                <!-- Organic Reactive Voice Orb -->
+                <div class="sesame-orb-container" id="sesame-orb" onclick="handleSesameOrbTap()">
+                  <div class="sesame-orb-ring"></div>
+                  <div class="sesame-orb-ring ring-2"></div>
+                  <div class="sesame-orb-core" id="sesame-orb-core">
+                    <span class="sesame-orb-emoji" id="sesame-orb-emoji">🎙️</span>
+                    <span class="sesame-orb-hint" id="sesame-orb-hint">CHẠM ĐỂ NÓI</span>
+                  </div>
+                </div>
+
+                <div class="sesame-status-title" id="sesame-status-title">Maya đang sẵn sàng trò chuyện</div>
+                <div class="sesame-status-sub" id="sesame-status-sub">Chạm vào quả cầu hoặc bấm "Bắt đầu gọi" để hội thoại rảnh tay</div>
+
+                <!-- Live Subtitles (User + AI + Vietnamese) -->
+                <div class="sesame-caption-box">
+                  <div class="sesame-caption-user" id="sesame-caption-user">🎙️ Bạn: (Chưa nói — hãy nói hoặc chọn gợi ý bên dưới)</div>
+                  <div class="sesame-caption-ai" id="sesame-caption-ai">"Hey there! I'm Maya, your live English companion. What's on your mind today?"</div>
+                  <div class="sesame-caption-vi" id="sesame-caption-vi">Chào bạn! Mình là Maya, trợ lý luyện nói trực tiếp của bạn. Hôm nay bạn muốn trò chuyện về chủ đề gì?</div>
+                </div>
+
+                <!-- Instant CEFR Coaching Whisper -->
+                <div class="sesame-coach-whisper" id="sesame-coach-whisper">
+                  ✨ <strong>Mẹo phản xạ (Sesame Live):</strong> Khi AI đang nói, bạn có thể chạm vào quả cầu để <strong>ngắt lời (Barge-in)</strong> và nói tiếp bất cứ lúc nào y như gọi điện thật!
+                </div>
+
+                <!-- Call Controls -->
+                <div class="sesame-call-controls">
+                  <button class="btn-sesame-call start-call" id="btn-sesame-call-toggle" onclick="toggleSesameLiveCall()">
+                    📞 Bắt đầu gọi (Hands-Free)
+                  </button>
+                  <button class="btn-sesame-call secondary-call" onclick="replayLastSesameAiAudio()">
+                    🔊 Nghe lại
+                  </button>
+                </div>
+              </section>
+
+              <!-- Smart Reply Suggestions -->
               <div class="rp-suggestions-row" id="rp-suggestions-row"></div>
 
+              <!-- Text Input & Push-to-Talk Bar -->
               <div class="rp-input-bar">
                 <button class="rp-mic-btn" id="rp-mic-btn" onclick="startRoleplayVoiceInput()" title="Nhấn để nói bằng tiếng Anh">🎙️</button>
-                <input type="text" id="rp-user-input" placeholder="Nói bằng mic hoặc nhập câu trả lời tiếng Anh..." />
+                <input type="text" id="rp-user-input" placeholder="Nói trực tiếp qua mic hoặc gõ tiếng Anh tại đây..." />
                 <button class="rp-send-btn" onclick="sendRoleplayMessage()">➤</button>
               </div>
+
+              <!-- Transcript History Drawer -->
+              <details style="margin-top:12px;">
+                <summary style="font-size:12px;font-weight:800;color:#6B7280;cursor:pointer;">📜 Xem lịch sử hội thoại chi tiết</summary>
+                <div class="rp-chat-box" id="rp-chat-box" style="margin-top:8px;max-height:220px;min-height:100px;"></div>
+              </details>
 
               <div style="height: 30px;"></div>
             </div>
@@ -3127,6 +3184,6 @@
   </main> <!-- /#app-container -->
 
   <script src="js/data.js?v=1"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>
