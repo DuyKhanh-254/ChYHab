@@ -65,13 +65,46 @@ def fetch_human_dictionary_mp3(word: str):
     return None
 
 
+def split_tts_chunks(text: str, max_len: int = 175) -> list:
+    clean = re.sub(r"\s+", " ", text.strip())
+    if len(clean) <= max_len:
+        return [clean] if clean else []
+    # Split by sentence boundaries first, then clauses/words if a sentence is still > max_len
+    parts = re.split(r"(?<=[.!?;,])\s+", clean)
+    chunks = []
+    cur = ""
+    for p in parts:
+        while len(p) > max_len:
+            cut = p.rfind(" ", 0, max_len)
+            if cut <= 0:
+                cut = max_len
+            if cur:
+                chunks.append(cur.strip())
+                cur = ""
+            chunks.append(p[:cut].strip())
+            p = p[cut:].strip()
+        if not cur:
+            cur = p
+        elif len(cur) + 1 + len(p) <= max_len:
+            cur += " " + p
+        else:
+            chunks.append(cur.strip())
+            cur = p
+    if cur:
+        chunks.append(cur.strip())
+    return chunks
+
+
 def fetch_google_neural_tts_mp3(text: str, tl: str = "en-US"):
-    clean = re.sub(r"\s+", " ", text.strip())[:200]
-    q = urllib.parse.quote(clean)
-    url = f"https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl={tl}&q={q}"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=5) as resp:
-        return resp.read()
+    chunks = split_tts_chunks(text, max_len=175)
+    mp3_parts = []
+    for ch in chunks[:6]:
+        q = urllib.parse.quote(ch)
+        url = f"https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl={tl}&q={q}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            mp3_parts.append(resp.read())
+    return b"".join(mp3_parts)
 
 
 def get_tts_mp3(text: str, accent: str = "en-US") -> bytes:
@@ -112,10 +145,14 @@ def call_gemini_fast_json(prompt: str, custom_key: str = ""):
         r = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(r, timeout=2.8) as resp:
             out = json.loads(resp.read().decode("utf-8"))
-            txt = out["candidates"][0]["content"]["parts"][0]["text"]
+            txt = out["candidates"][0]["content"]["parts"][0]["text"].strip()
+            txt = re.sub(r"^```(?:json)?\s*|\s*```$", "", txt, flags=re.IGNORECASE).strip()
             parsed = json.loads(txt)
-            parsed["modelUsed"] = m
-            return parsed
+            if isinstance(parsed, dict):
+                if "suggestions" in parsed and not isinstance(parsed["suggestions"], list):
+                    parsed["suggestions"] = [str(parsed["suggestions"])]
+                parsed["modelUsed"] = m
+                return parsed
     except Exception:
         return None
 

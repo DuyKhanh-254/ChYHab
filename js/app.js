@@ -126,6 +126,9 @@ function showScreen(targetId) {
 
   if (currentScreen !== targetScreen) {
     if (currentScreen) {
+      if (currentScreen.id === 'screen-ai-roleplay' && typeof stopSesameLiveCall === 'function') {
+        stopSesameLiveCall();
+      }
       screenStack.push(currentScreen.id);
       currentScreen.classList.remove('active');
     }
@@ -1426,15 +1429,36 @@ function fillSampleSentence() {
   playSound('pop');
 }
 
-function evaluateSentenceWithAI() {
-  const input = document.getElementById('user-sentence-input');
-  const sentence = input.value.trim();
+function applySentenceEvalUI(score, lvlText, gramText, commText, sugText) {
+  const resultCard = document.getElementById('ai-eval-result');
+  const scoreBadge = document.getElementById('ai-eval-score');
+  const levelMatch = document.getElementById('ai-level-match');
+  const grammarStat = document.getElementById('grammar-eval-stat');
+  const commentText = document.getElementById('ai-comment-text');
+  const suggestionText = document.getElementById('ai-suggestion-text');
 
-  if (sentence.length < 5) {
-    openInAppDialog('✍️', 'Chưa đủ nội dung', 'Vui lòng viết một câu tiếng Anh hoàn chỉnh có chứa từ "experience" trước khi nhờ AI chấm nhé!');
-    return;
+  resultCard.classList.remove('hidden');
+  scoreBadge.textContent = `${score}/100`;
+  levelMatch.textContent = lvlText;
+  if (grammarStat) grammarStat.textContent = gramText;
+  commentText.textContent = commText;
+  suggestionText.textContent = sugText;
+
+  if (score >= 88) {
+    playSound('correct');
+    appState.exercisesDone += 1;
+    addReward(50, 25, 2);
+    showXpToast(`+50 XP · AI chấm ${score}/100!`);
+  } else if (score >= 65) {
+    playSound('correct');
+    addReward(25, 10, 1);
+    showXpToast(`+25 XP · AI chấm ${score}/100`);
+  } else {
+    playSound('wrong');
   }
+}
 
+function evaluateSentenceLocalFallback(sentence) {
   const words = sentence.split(/\s+/).filter(Boolean);
   const lower = sentence.toLowerCase();
   const hasTarget = /\bexperience(s|d)?\b/.test(lower);
@@ -1445,64 +1469,85 @@ function evaluateSentenceWithAI() {
 
   let score = 45;
   const issues = [];
-
   if (hasTarget) score += 20;
   else issues.push('Chưa sử dụng từ khóa mục tiêu "experience".');
-
   if (startsUpper && endsPunct) score += 10;
-  else issues.push('Cần viết hoa chữ cái đầu câu và kết thúc bằng dấu chấm/chấm hỏi.');
+  else issues.push('Cần viết hoa chữ cái đầu câu và kết thúc bằng dấu chấm.');
 
   if (currentSentenceLevel === 'A2') {
     if (words.length >= 6) score += 10;
-    else issues.push('Câu hơi ngắn (nên có ít nhất 6 từ để đủ ngữ cảnh).');
+    else issues.push('Câu hơi ngắn (nên có ít nhất 6 từ).');
     if (hasPastMarker) score += 13;
-    else issues.push('Chưa thấy rõ động từ thì Quá khứ đơn (VD: had, visited, went, last summer...).');
+    else issues.push('Chưa thấy rõ động từ thì Quá khứ đơn (VD: had, visited, last summer...).');
   } else {
     if (words.length >= 12) score += 10;
     else issues.push('Ở trình độ C2, nên mở rộng thành câu phức (≥ 12 từ).');
     if (hasAcademicC2) score += 15;
-    else issues.push('Nên bổ sung từ vựng học thuật / mệnh đề phức (VD: fundamentally, perception, whereas...).');
+    else issues.push('Nên bổ sung từ vựng học thuật / mệnh đề phức.');
   }
-
   score = Math.min(98, Math.max(25, score));
 
-  const resultCard = document.getElementById('ai-eval-result');
-  const scoreBadge = document.getElementById('ai-eval-score');
-  const levelMatch = document.getElementById('ai-level-match');
-  const grammarStat = document.getElementById('grammar-eval-stat');
-  const commentText = document.getElementById('ai-comment-text');
-  const suggestionText = document.getElementById('ai-suggestion-text');
-
-  resultCard.classList.remove('hidden');
-  scoreBadge.textContent = `${score}/100`;
-
-  if (score >= 88) {
-    levelMatch.textContent = currentSentenceLevel === 'A2' ? 'Chuẩn CEFR A2: Xuất sắc 🌟' : 'Chuẩn CEFR C2: Đỉnh cao 💎';
-    if (grammarStat) grammarStat.textContent = 'Cấu trúc chuẩn xác, diễn đạt tự nhiên';
-    commentText.textContent = currentSentenceLevel === 'A2'
-      ? 'Câu văn mạch lạc, chia thì quá khứ đơn chính xác và vận dụng từ "experience" rất tự nhiên.'
-      : 'Tư duy học thuật xuất sắc! Cấu trúc câu phức tinh tế và vốn từ vựng nâng cao thuyết phục.';
-    playSound('correct');
-    appState.exercisesDone += 1;
-    addReward(50, 25, 2);
-    showXpToast(`+50 XP · AI chấm ${score}/100!`);
-  } else if (score >= 65) {
-    levelMatch.textContent = `Khá tốt (${currentSentenceLevel}) · Cần tinh chỉnh nhẹ`;
-    if (grammarStat) grammarStat.textContent = issues[0] || 'Cần trau chuốt thêm từ vựng';
-    commentText.textContent = `Điểm cần cải thiện: ${issues.join(' ')}`;
-    playSound('correct');
-    addReward(25, 10, 1);
-    showXpToast(`+25 XP · AI chấm ${score}/100`);
-  } else {
-    levelMatch.textContent = 'Chưa đạt yêu cầu đề bài ⚠️';
-    if (grammarStat) grammarStat.textContent = issues[0] || 'Thiếu thành phần câu';
-    commentText.textContent = `Lưu ý sửa lại: ${issues.join(' ')}`;
-    playSound('wrong');
-  }
-
-  suggestionText.textContent = currentSentenceLevel === 'A2'
+  const sug = currentSentenceLevel === 'A2'
     ? '"I had an unforgettable experience when I explored the historic streets of Hanoi last summer."'
     : '"Personal experience fundamentally refines human perception, exerting a far more profound influence on personal judgment than theoretical knowledge ever could."';
+
+  if (score >= 88) {
+    applySentenceEvalUI(
+      score,
+      currentSentenceLevel === 'A2' ? 'Chuẩn CEFR A2: Xuất sắc 🌟' : 'Chuẩn CEFR C2: Đỉnh cao 💎',
+      'Cấu trúc chuẩn xác, diễn đạt tự nhiên',
+      currentSentenceLevel === 'A2'
+        ? 'Câu văn mạch lạc, chia thì quá khứ đơn chính xác và vận dụng từ "experience" rất tự nhiên.'
+        : 'Tư duy học thuật xuất sắc! Cấu trúc câu phức tinh tế và vốn từ vựng nâng cao thuyết phục.',
+      sug
+    );
+  } else if (score >= 65) {
+    applySentenceEvalUI(score, `Khá tốt (${currentSentenceLevel}) · Cần tinh chỉnh nhẹ`, issues[0] || 'Cần trau chuốt thêm', `Điểm cần cải thiện: ${issues.join(' ')}`, sug);
+  } else {
+    applySentenceEvalUI(score, 'Chưa đạt yêu cầu đề bài ⚠️', issues[0] || 'Thiếu thành phần câu', `Lưu ý sửa lại: ${issues.join(' ')}`, sug);
+  }
+}
+
+function evaluateSentenceWithAI() {
+  const input = document.getElementById('user-sentence-input');
+  const sentence = input.value.trim();
+
+  if (sentence.length < 5) {
+    openInAppDialog('✍️', 'Chưa đủ nội dung', 'Vui lòng viết một câu tiếng Anh hoàn chỉnh có chứa từ "experience" trước khi nhờ AI chấm nhé!');
+    return;
+  }
+
+  if (typeof fetch === 'function') {
+    const btn = document.getElementById('btn-ai-evaluate');
+    if (btn) btn.textContent = '⏳ Gemini AI đang chấm câu...';
+    fetch('/api/ai-grade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+      body: JSON.stringify({ sentence: sentence, level: currentSentenceLevel, word: 'experience' })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (btn) btn.textContent = '🤖 Kiểm tra với AI';
+        if (data && typeof data.score === 'number' && !data.fallback) {
+          const sc = Math.min(98, Math.max(25, Math.round(data.score)));
+          applySentenceEvalUI(
+            sc,
+            data.levelMatch || `Đánh giá CEFR ${currentSentenceLevel}`,
+            data.grammarStat || 'Đã phân tích bằng Gemini Flash',
+            data.comment || 'Câu văn đã được chấm bởi AI.',
+            data.suggestion || sentence
+          );
+        } else {
+          evaluateSentenceLocalFallback(sentence);
+        }
+      })
+      .catch(() => {
+        if (btn) btn.textContent = '🤖 Kiểm tra với AI';
+        evaluateSentenceLocalFallback(sentence);
+      });
+    return;
+  }
+  evaluateSentenceLocalFallback(sentence);
 }
 
 // =============================================
@@ -2526,6 +2571,21 @@ function setSesameOrbState(state) {
 let sharedSesameAudio = null;
 let sesameHistory = [];
 let lastSesameAudioBase64 = '';
+let sesameRequestSeq = 0;
+
+function stopActiveMicSafely() {
+  if (sesameRecognition) {
+    try {
+      sesameRecognition.onresult = null;
+      sesameRecognition.onend = null;
+      sesameRecognition.onerror = null;
+      sesameRecognition.stop();
+    } catch (_) {}
+    sesameRecognition = null;
+  }
+  const micBtn = document.getElementById('rp-mic-btn');
+  if (micBtn) micBtn.classList.remove('listening');
+}
 
 function unlockSesameAudio() {
   if (typeof Audio === 'undefined') return null;
@@ -2577,9 +2637,9 @@ function toggleSesameLiveCall() {
 
 function stopSesameLiveCall() {
   sesameHandsFreeActive = false;
-  if (sesameRecognition) {
-    try { sesameRecognition.stop(); } catch (_) {}
-  }
+  isSendingSesameTurn = false;
+  sesameRequestSeq += 1;
+  stopActiveMicSafely();
   if (activeTtsAudio) {
     try { activeTtsAudio.pause(); activeTtsAudio.currentTime = 0; } catch (_) {}
   }
@@ -2677,6 +2737,9 @@ function resetRoleplayConversation(key) {
   currentRoleplayKey = ROLEPLAY_OPENERS[key] ? key : 'free';
   currentRoleplayTurn = 0;
   lastSesameAudioBase64 = '';
+  isSendingSesameTurn = false;
+  sesameRequestSeq += 1;
+  stopActiveMicSafely();
   const opener = ROLEPLAY_OPENERS[currentRoleplayKey];
   sesameHistory = [{ role: 'ai', text: opener.aiEn }];
   const chatBox = document.getElementById('rp-chat-box');
@@ -2732,7 +2795,11 @@ function renderSesameAiResponse(data, shouldSpeak = true) {
 
   if (shouldSpeak) {
     speakSesameReply(data.replyEn, () => {
-      if (sesameHandsFreeActive) startRoleplayVoiceInput();
+      if (sesameHandsFreeActive && currentScreenId === 'screen-ai-roleplay') {
+        setTimeout(() => {
+          if (sesameHandsFreeActive && currentScreenId === 'screen-ai-roleplay') startRoleplayVoiceInput();
+        }, 220);
+      }
     }, data.audioBase64 || '');
   } else {
     lastSesameAiText = data.replyEn;
@@ -2755,7 +2822,9 @@ function sendRoleplayMessage() {
   const text = (inp?.value || '').trim();
   if (!text || isSendingSesameTurn) return;
   inp.value = '';
+  stopActiveMicSafely();
   isSendingSesameTurn = true;
+  const myReqSeq = ++sesameRequestSeq;
 
   sesameHistory.push({ role: 'user', text: text });
 
@@ -2795,6 +2864,7 @@ function sendRoleplayMessage() {
     })
       .then(r => r.json())
       .then(data => {
+        if (myReqSeq !== sesameRequestSeq || currentScreenId !== 'screen-ai-roleplay') return;
         isSendingSesameTurn = false;
         if (data && data.replyEn) {
           sesameHistory.push({ role: 'ai', text: data.replyEn });
@@ -2804,6 +2874,7 @@ function sendRoleplayMessage() {
         }
       })
       .catch(() => {
+        if (myReqSeq !== sesameRequestSeq || currentScreenId !== 'screen-ai-roleplay') return;
         isSendingSesameTurn = false;
         const fbReply = "Oh, that's a really good point! Could you tell me a little more about what you're studying this week?";
         sesameHistory.push({ role: 'ai', text: fbReply });
