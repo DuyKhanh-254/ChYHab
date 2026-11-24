@@ -2318,8 +2318,129 @@ let sesameOrbState = 'idle'; // 'idle' | 'listening' | 'thinking' | 'speaking'
 let sesameHandsFreeActive = false;
 let sesameRecognition = null;
 let lastSesameAiText = ROLEPLAY_OPENERS.free.aiEn;
+let sesameAvatarMode = 'human'; // 'human' | 'orb'
+let tutorLipSyncInterval = null;
+let tutorBlinkInterval = null;
+
+// Viseme mouth definitions (rx = horizontal mouth opening, ry = vertical jaw drop)
+const VISEME_SHAPES = {
+  REST: { rx: 13.0, ry: 1.8, label: 'Tự nhiên' },
+  MBP:  { rx: 14.5, ry: 0.9, label: '/m·b·p/ Khép môi' },
+  AA:   { rx: 13.5, ry: 9.2, label: '/ɑː·æ/ Mở rộng hàm' },
+  EE:   { rx: 16.0, ry: 5.0, label: '/iː·e/ Căng khóe miệng' },
+  OO:   { rx: 8.2,  ry: 7.4, label: '/uː·oʊ/ Tròn môi' },
+  FV:   { rx: 14.0, ry: 3.0, label: '/f·v/ Răng chạm môi' },
+  TH:   { rx: 13.0, ry: 4.5, label: '/θ·ð·t/ Đầu lưỡi' }
+};
+
+function applyTutorViseme(key) {
+  const shape = VISEME_SHAPES[key] || VISEME_SHAPES.REST;
+  const cav = document.getElementById('tutor-mouth-cavity');
+  const lip = document.getElementById('tutor-lips-border');
+  const clip = document.getElementById('tutor-mouth-clip-shape');
+  const pill = document.getElementById('viseme-live-pill');
+
+  if (cav) {
+    cav.setAttribute('rx', String(shape.rx));
+    cav.setAttribute('ry', String(shape.ry));
+  }
+  if (lip) {
+    lip.setAttribute('rx', String(shape.rx + 0.5));
+    lip.setAttribute('ry', String(shape.ry + 0.4));
+  }
+  if (clip) {
+    clip.setAttribute('rx', String(shape.rx));
+    clip.setAttribute('ry', String(shape.ry));
+  }
+  if (pill) {
+    pill.textContent = `Khẩu hình: ${shape.label}`;
+  }
+}
+
+function textToVisemeSequence(text) {
+  const clean = String(text || '').toLowerCase();
+  const seq = [];
+  for (let i = 0; i < clean.length; i++) {
+    const ch = clean[i];
+    const next = clean[i + 1] || '';
+    if (ch === ' ') {
+      seq.push('REST');
+    } else if ('mbp'.includes(ch)) {
+      seq.push('MBP');
+    } else if ('fv'.includes(ch)) {
+      seq.push('FV');
+    } else if (ch === 't' && next === 'h') {
+      seq.push('TH');
+      i++;
+    } else if ('ouqw'.includes(ch)) {
+      seq.push('OO');
+    } else if ('a'.includes(ch)) {
+      seq.push('AA');
+    } else if ('eiy'.includes(ch)) {
+      seq.push('EE');
+    } else if ('tdnslzr'.includes(ch)) {
+      seq.push('TH');
+    }
+  }
+  return seq.length ? seq : ['AA', 'EE', 'OO', 'MBP'];
+}
+
+function startTutorLipSync(text) {
+  stopTutorLipSync();
+  const seq = textToVisemeSequence(text);
+  let idx = 0;
+  const brows = document.getElementById('tutor-brows');
+
+  tutorLipSyncInterval = setInterval(() => {
+    const vKey = seq[idx % seq.length];
+    applyTutorViseme(vKey);
+    if (brows && idx % 6 === 0) {
+      const lift = (idx % 12 === 0) ? -1.8 : 0;
+      brows.style.transform = `translateY(${lift}px)`;
+    }
+    idx += 1;
+  }, 85);
+}
+
+function stopTutorLipSync() {
+  if (tutorLipSyncInterval) {
+    clearInterval(tutorLipSyncInterval);
+    tutorLipSyncInterval = null;
+  }
+  applyTutorViseme('REST');
+  const brows = document.getElementById('tutor-brows');
+  if (brows) brows.style.transform = 'translateY(0)';
+}
+
+function startTutorBlinkLoop() {
+  if (tutorBlinkInterval) return;
+  tutorBlinkInterval = setInterval(() => {
+    const openG = document.getElementById('tutor-eyes-open');
+    const closeG = document.getElementById('tutor-eyes-closed');
+    if (!openG || !closeG) return;
+    openG.style.display = 'none';
+    closeG.style.display = 'block';
+    setTimeout(() => {
+      openG.style.display = 'block';
+      closeG.style.display = 'none';
+    }, 140);
+  }, 3600);
+}
+
+function toggleSesameAvatarMode() {
+  sesameAvatarMode = sesameAvatarMode === 'human' ? 'orb' : 'human';
+  const humanWrap = document.getElementById('human-avatar-wrap');
+  const orbWrap = document.getElementById('sesame-orb');
+  const btn = document.getElementById('btn-toggle-avatar-mode');
+
+  if (humanWrap) humanWrap.classList.toggle('hidden', sesameAvatarMode !== 'human');
+  if (orbWrap) orbWrap.classList.toggle('hidden', sesameAvatarMode !== 'orb');
+  if (btn) btn.textContent = sesameAvatarMode === 'human' ? '🟢 Xem Quả cầu' : '👩‍🏫 Xem Giảng viên';
+  playSound('pop');
+}
 
 function initRoleplayScreen() {
+  startTutorBlinkLoop();
   if (!roleplayInitialized) {
     roleplayInitialized = true;
     resetRoleplayConversation('free');
@@ -2328,51 +2449,77 @@ function initRoleplayScreen() {
 
 function switchSesamePersona(persona) {
   currentSesamePersona = persona === 'miles' ? 'miles' : 'maya';
-  document.getElementById('btn-persona-maya')?.classList.toggle('active', currentSesamePersona === 'maya');
-  document.getElementById('btn-persona-miles')?.classList.toggle('active', currentSesamePersona === 'miles');
-  const speaker = currentSesamePersona === 'maya' ? 'Maya' : 'Miles';
+  const isMaya = currentSesamePersona === 'maya';
+  document.getElementById('btn-persona-maya')?.classList.toggle('active', isMaya);
+  document.getElementById('btn-persona-miles')?.classList.toggle('active', !isMaya);
+
+  // Switch Human Tutor visual appearance (Maya vs Miles)
+  const hairBackMaya = document.getElementById('tutor-hair-back-maya');
+  const hairFrontMaya = document.getElementById('tutor-hair-front-maya');
+  const hairFrontMiles = document.getElementById('tutor-hair-front-miles');
+  const glassesMiles = document.getElementById('tutor-glasses-miles');
+  const blazer = document.getElementById('tutor-blazer');
+
+  if (hairBackMaya) hairBackMaya.style.display = isMaya ? 'block' : 'none';
+  if (hairFrontMaya) hairFrontMaya.style.display = isMaya ? 'block' : 'none';
+  if (hairFrontMiles) hairFrontMiles.style.display = isMaya ? 'none' : 'block';
+  if (glassesMiles) glassesMiles.style.display = isMaya ? 'none' : 'block';
+  if (blazer) blazer.setAttribute('fill', isMaya ? 'url(#blazerMaya)' : 'url(#blazerMiles)');
+
+  const speaker = isMaya ? 'Maya' : 'Miles';
   const titleEl = document.getElementById('sesame-status-title');
   if (titleEl) titleEl.textContent = `${speaker} đang sẵn sàng trò chuyện`;
   playSound('pop');
-  showXpToast(`Đã chuyển giọng sang ${speaker} (${currentSesamePersona === 'maya' ? 'US' : 'UK'})`);
+  showXpToast(`Đã chuyển giảng viên AI sang ${speaker} (${isMaya ? 'US' : 'UK'})`);
 }
 
 function setSesameOrbState(state) {
   sesameOrbState = state;
   const orb = document.getElementById('sesame-orb');
+  const humanWrap = document.getElementById('human-avatar-wrap');
+  const pupils = document.getElementById('tutor-pupils');
   const emoji = document.getElementById('sesame-orb-emoji');
   const hint = document.getElementById('sesame-orb-hint');
   const title = document.getElementById('sesame-status-title');
   const sub = document.getElementById('sesame-status-sub');
   const speaker = currentSesamePersona === 'maya' ? 'Maya' : 'Miles';
 
-  if (orb) {
-    orb.classList.remove('state-listening', 'state-thinking', 'state-speaking');
-    if (state !== 'idle') orb.classList.add(`state-${state}`);
+  [orb, humanWrap].forEach(el => {
+    if (el) {
+      el.classList.remove('state-listening', 'state-thinking', 'state-speaking');
+      if (state !== 'idle') el.classList.add(`state-${state}`);
+    }
+  });
+
+  if (state !== 'speaking') {
+    stopTutorLipSync();
+  }
+  if (pupils) {
+    pupils.style.transform = state === 'thinking' ? 'translate(2px, -2px)' : 'translate(0, 0)';
   }
 
   if (state === 'listening') {
     if (emoji) emoji.textContent = '🎧';
     if (hint) hint.textContent = 'ĐANG NGHE...';
-    if (title) title.textContent = `${speaker} đang lắng nghe bạn...`;
+    if (title) title.textContent = `${speaker} đang lắng nghe & gật đầu...`;
     if (sub) sub.textContent = 'Hãy nói tự nhiên bằng tiếng Anh (chạm để gửi ngay)';
   } else if (state === 'thinking') {
     if (emoji) emoji.textContent = '✨';
     if (hint) hint.textContent = 'ĐANG XỬ LÝ';
     if (title) title.textContent = `${speaker} đang suy nghĩ...`;
-    if (sub) sub.textContent = 'Google AI Flash đang phân tích ngữ cảnh & CEFR';
+    if (sub) sub.textContent = 'Gemini 3.8 Flash đang phân tích ngữ cảnh & CEFR';
   } else if (state === 'speaking') {
     if (emoji) emoji.textContent = '🗣️';
     if (hint) hint.textContent = 'CHẠM ĐỂ NGẮT LỜI';
-    if (title) title.textContent = `${speaker} đang phản hồi...`;
-    if (sub) sub.textContent = 'Chạm vào quả cầu bất cứ lúc nào để ngắt lời (Barge-in) và nói tiếp';
+    if (title) title.textContent = `${speaker} đang nói (Khẩu hình trực tiếp)...`;
+    if (sub) sub.textContent = 'Quan sát khẩu hình miệng hoặc chạm vào giảng viên để ngắt lời (Barge-in)';
   } else {
     if (emoji) emoji.textContent = '🎙️';
     if (hint) hint.textContent = 'CHẠM ĐỂ NÓI';
     if (title) title.textContent = `${speaker} đang sẵn sàng trò chuyện`;
     if (sub) sub.textContent = sesameHandsFreeActive
-      ? 'Chế độ gọi rảnh tay đang bật — chạm quả cầu để nói'
-      : 'Chạm vào quả cầu hoặc bấm "Bắt đầu gọi" để hội thoại rảnh tay';
+      ? 'Chế độ gọi rảnh tay đang bật — chạm vào giảng viên để nói'
+      : 'Chạm vào giảng viên hoặc bấm "Bắt đầu gọi" để hội thoại rảnh tay';
   }
 }
 
@@ -2448,6 +2595,7 @@ function speakSesameReply(text, onEndCallback) {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
   setSesameOrbState('speaking');
+  startTutorLipSync(cleanText);
   const accent = currentSesamePersona === 'miles' ? 'en-GB' : 'en-US';
 
   if (typeof Audio !== 'undefined') {

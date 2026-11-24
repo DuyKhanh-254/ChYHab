@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/screens.css" />
   <link rel="stylesheet" href="css/extra.css?v=33" />
-  <link rel="stylesheet" href="css/upgrade.css?v=4" />
+  <link rel="stylesheet" href="css/upgrade.css?v=5" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -1204,21 +1204,143 @@
                 <button class="rp-tab-btn" onclick="switchRoleplayScenario('defense', this)">📊 Bảo vệ Đồ án</button>
               </div>
 
-              <!-- SESAME-STYLE REAL-TIME VOICE ORB STAGE -->
+              <!-- SESAME-STYLE REAL-TIME VOICE + HUMAN LIP-SYNC STAGE -->
               <section class="sesame-stage-card">
                 <div class="sesame-top-bar">
                   <span class="sesame-live-badge">
                     <span class="sesame-live-dot"></span>
-                    <span id="sesame-model-label">Google AI Live · Flash</span>
+                    <span id="sesame-model-label">Gemini 3.8 Flash · Live</span>
                   </span>
+                  <button class="view-mode-pill-btn" id="btn-toggle-avatar-mode" onclick="toggleSesameAvatarMode()">🟢 Xem Quả cầu</button>
                   <div class="sesame-persona-switch">
                     <button class="sesame-persona-btn active" id="btn-persona-maya" onclick="switchSesamePersona('maya')">🌸 Maya (US)</button>
                     <button class="sesame-persona-btn" id="btn-persona-miles" onclick="switchSesamePersona('miles')">🌊 Miles (UK)</button>
                   </div>
                 </div>
 
-                <!-- Organic Reactive Voice Orb -->
-                <div class="sesame-orb-container" id="sesame-orb" onclick="handleSesameOrbTap()">
+                <!-- 1. REAL-TIME TALKING HUMAN AI TUTOR (DEFAULT) -->
+                <div class="human-avatar-wrap" id="human-avatar-wrap" onclick="handleSesameOrbTap()" title="Chạm vào giảng viên để nói hoặc ngắt lời">
+                  <svg class="human-avatar-svg" id="human-avatar-svg" viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <radialGradient id="skinGrad" cx="45%" cy="35%" r="65%">
+                        <stop offset="0%" stop-color="#FFE4D6" />
+                        <stop offset="65%" stop-color="#F7C5AD" />
+                        <stop offset="100%" stop-color="#E29E82" />
+                      </radialGradient>
+                      <linearGradient id="hairMaya" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5C3317" />
+                        <stop offset="50%" stop-color="#3B1E0D" />
+                        <stop offset="100%" stop-color="#241107" />
+                      </linearGradient>
+                      <linearGradient id="hairMiles" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#1E293B" />
+                        <stop offset="100%" stop-color="#0F172A" />
+                      </linearGradient>
+                      <linearGradient id="blazerMaya" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#EA580C" />
+                        <stop offset="100%" stop-color="#9A3412" />
+                      </linearGradient>
+                      <linearGradient id="blazerMiles" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#1E3A8A" />
+                        <stop offset="100%" stop-color="#172554" />
+                      </linearGradient>
+                      <clipPath id="mouthClip">
+                        <ellipse id="tutor-mouth-clip-shape" cx="100" cy="127" rx="14" ry="5" />
+                      </clipPath>
+                    </defs>
+
+                    <!-- Back Hair (Maya long waves) -->
+                    <g id="tutor-hair-back-maya">
+                      <path d="M 42 75 C 32 115, 34 165, 48 195 L 152 195 C 166 165, 168 115, 158 75 Z" fill="url(#hairMaya)" />
+                    </g>
+
+                    <!-- Neck & Shoulders / Blazer -->
+                    <path d="M 83 142 L 83 168 L 117 168 L 117 142 Z" fill="#E8A98E" />
+                    <path d="M 83 148 Q 100 158 117 148 L 117 156 Q 100 164 83 156 Z" fill="#D48B6E" opacity="0.55" />
+                    <path id="tutor-shirt" d="M 75 162 L 100 188 L 125 162 L 125 210 L 75 210 Z" fill="#FFFFFF" />
+                    <path id="tutor-blazer" d="M 32 174 C 46 160, 72 158, 82 160 L 100 192 L 118 160 C 128 158, 154 160, 168 174 L 176 210 L 24 210 Z" fill="url(#blazerMaya)" />
+
+                    <!-- Ears -->
+                    <ellipse cx="52" cy="100" rx="7" ry="12" fill="#F0B499" />
+                    <ellipse cx="148" cy="100" rx="7" ry="12" fill="#F0B499" />
+
+                    <!-- Head & Dynamic Jaw Group -->
+                    <g id="tutor-head-group">
+                      <path id="tutor-face-shape" d="M 55 72 C 55 40, 145 40, 145 72 C 146 105, 140 132, 122 145 C 109 154, 91 154, 78 145 C 60 132, 54 105, 55 72 Z" fill="url(#skinGrad)" />
+
+                      <!-- Soft Cheek Blush -->
+                      <ellipse cx="70" cy="110" rx="11" ry="6" fill="#F43F5E" opacity="0.16" />
+                      <ellipse cx="130" cy="110" rx="11" ry="6" fill="#F43F5E" opacity="0.16" />
+
+                      <!-- Eyebrows (animated) -->
+                      <g id="tutor-brows" style="transition: transform 0.15s ease;">
+                        <path d="M 67 79 Q 79 73 89 78" stroke="#3B1E0D" stroke-width="3.2" stroke-linecap="round" fill="none" />
+                        <path d="M 111 78 Q 121 73 133 79" stroke="#3B1E0D" stroke-width="3.2" stroke-linecap="round" fill="none" />
+                      </g>
+
+                      <!-- Eyes Open -->
+                      <g id="tutor-eyes-open">
+                        <ellipse cx="78" cy="91" rx="10.5" ry="7.2" fill="#FFFFFF" />
+                        <ellipse cx="122" cy="91" rx="10.5" ry="7.2" fill="#FFFFFF" />
+                        <g id="tutor-pupils" style="transition: transform 0.15s ease;">
+                          <circle cx="78" cy="91" r="5.5" fill="#4A2511" />
+                          <circle cx="78" cy="91" r="2.8" fill="#111827" />
+                          <circle cx="76" cy="89" r="1.8" fill="#FFFFFF" />
+                          <circle cx="122" cy="91" r="5.5" fill="#4A2511" />
+                          <circle cx="122" cy="91" r="2.8" fill="#111827" />
+                          <circle cx="120" cy="89" r="1.8" fill="#FFFFFF" />
+                        </g>
+                        <path d="M 66 89 Q 78 81 89 89" stroke="#241107" stroke-width="2.4" stroke-linecap="round" fill="none" />
+                        <path d="M 111 89 Q 122 81 134 89" stroke="#241107" stroke-width="2.4" stroke-linecap="round" fill="none" />
+                      </g>
+
+                      <!-- Eyes Closed (Blink state) -->
+                      <g id="tutor-eyes-closed" style="display:none;">
+                        <path d="M 67 92 Q 78 98 89 92" stroke="#241107" stroke-width="2.6" stroke-linecap="round" fill="none" />
+                        <path d="M 111 92 Q 122 98 133 92" stroke="#241107" stroke-width="2.6" stroke-linecap="round" fill="none" />
+                      </g>
+
+                      <!-- Glasses for Miles (Hidden for Maya) -->
+                      <g id="tutor-glasses-miles" style="display:none;">
+                        <rect x="64" y="82" width="28" height="19" rx="5" fill="none" stroke="#334155" stroke-width="2.2" />
+                        <rect x="108" y="82" width="28" height="19" rx="5" fill="none" stroke="#334155" stroke-width="2.2" />
+                        <line x1="92" y1="90" x2="108" y2="90" stroke="#334155" stroke-width="2.2" />
+                      </g>
+
+                      <!-- Nose -->
+                      <path d="M 100 93 L 98 109 Q 100 112 104 110" stroke="#C87D5F" stroke-width="2.2" stroke-linecap="round" fill="none" />
+
+                      <!-- ARTICULATED LIP-SYNC MOUTH (60-FPS VISEME RIG) -->
+                      <g id="tutor-mouth-group">
+                        <!-- Inner mouth cavity -->
+                        <ellipse id="tutor-mouth-cavity" cx="100" cy="127" rx="13" ry="1.8" fill="#5A1219" />
+                        <!-- Teeth & Tongue clipped inside mouth cavity -->
+                        <g clip-path="url(#mouthClip)">
+                          <rect id="tutor-teeth-top" x="86" y="119" width="28" height="6" rx="2" fill="#FFFFFF" />
+                          <ellipse id="tutor-tongue" cx="100" cy="134" rx="10" ry="6" fill="#E11D48" />
+                          <rect id="tutor-teeth-bot" x="88" y="132" width="24" height="5" rx="2" fill="#F8FAFC" />
+                        </g>
+                        <!-- Lip outline / smile corners -->
+                        <ellipse id="tutor-lips-border" cx="100" cy="127" rx="13.5" ry="2.2" fill="none" stroke="#C84B58" stroke-width="3.2" />
+                        <path id="tutor-smile-corners" d="M 84 126 Q 86 128 87 127 M 116 126 Q 114 128 113 127" stroke="#A3333F" stroke-width="2" stroke-linecap="round" fill="none" />
+                      </g>
+
+                      <!-- Front Hair Maya -->
+                      <g id="tutor-hair-front-maya">
+                        <path d="M 52 80 C 48 42, 82 28, 104 32 C 128 28, 152 44, 148 80 C 140 58, 118 48, 96 56 C 74 62, 60 66, 52 80 Z" fill="url(#hairMaya)" />
+                      </g>
+
+                      <!-- Front Hair Miles (Hidden by default) -->
+                      <g id="tutor-hair-front-miles" style="display:none;">
+                        <path d="M 53 76 C 50 38, 80 28, 102 30 C 126 28, 150 40, 147 76 C 141 54, 122 46, 100 48 C 78 48, 60 56, 53 76 Z" fill="url(#hairMiles)" />
+                      </g>
+                    </g>
+                  </svg>
+                  <span class="viseme-live-pill" id="viseme-live-pill">Khẩu hình: Tự nhiên</span>
+                </div>
+
+                <!-- 2. ORGANIC VOICE ORB (HIDDEN BY DEFAULT, TOGGLEABLE) -->
+                <div class="sesame-orb-container hidden" id="sesame-orb" onclick="handleSesameOrbTap()">
                   <div class="sesame-orb-ring"></div>
                   <div class="sesame-orb-ring ring-2"></div>
                   <div class="sesame-orb-core" id="sesame-orb-core">
@@ -3184,6 +3306,6 @@
   </main> <!-- /#app-container -->
 
   <script src="js/data.js?v=1"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>

@@ -1594,5 +1594,83 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* ---------- 16. REAL-TIME TALKING HUMAN AI TUTOR (60-FPS LIP-SYNC & VISEMES) ---------- */
+.human-avatar-wrap {
+  position: relative;
+  width: 196px;
+  height: 206px;
+  margin: 6px auto 10px;
+  border-radius: 26px;
+  background: radial-gradient(circle at 50% 25%, #334155 0%, #0F172A 85%);
+  border: 2px solid rgba(249, 115, 22, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 0 24px rgba(56, 189, 248, 0.12);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.human-avatar-wrap.state-listening {
+  border-color: #22C55E;
+  box-shadow: 0 0 28px rgba(34, 197, 94, 0.55);
+}
+
+.human-avatar-wrap.state-speaking {
+  border-color: #F97316;
+  box-shadow: 0 0 34px rgba(249, 115, 22, 0.65);
+}
+
+.human-avatar-wrap.state-thinking {
+  border-color: #38BDF8;
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.55);
+}
+
+.human-avatar-svg {
+  width: 188px;
+  height: 198px;
+  display: block;
+  transform-origin: 50% 85%;
+  transition: transform 0.18s ease-out;
+}
+
+.human-avatar-wrap.state-listening .human-avatar-svg {
+  animation: tutorListeningNod 2.2s ease-in-out infinite;
+}
+
+@keyframes tutorListeningNod {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(3px) rotate(1.2deg); }
+  75% { transform: translateY(-1px) rotate(-0.8deg); }
+}
+
+.viseme-live-pill {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FDBA74 !important;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+.view-mode-pill-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #E2E8F0 !important;
+  font-family: var(--font);
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+
 
 
